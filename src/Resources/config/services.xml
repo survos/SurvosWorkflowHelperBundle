@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- do we need to pass the parameters here to create the service? -->
+        <service id="survos_workflow_bundle.workflow_helper" class="Survos\WorkflowBundle\Service\WorkflowHelperService">
+            <argument>%survos_workflow.direction%</argument>
+            <argument type="service" id="doctrine.orm.entity_manager"></argument>
+            <argument type="service" id="workflow.registry"></argument>
+        </service>
+        <service id="Survos\WorkflowBundle\Service\WorkflowHelperService" alias="survos_workflow_bundle.workflow_helper" />
+
+        <service id="Survos\WorkflowBundle\SurvosWorkflowBundle" class="Survos\WorkflowBundle\SurvosWorkflowBundle" >
+            <argument type="service" id="survos_workflow_bundle.workflow_helper"></argument>
+        </service>
+
+        <service id="Survos\WorkflowBundle\Controller\WorkflowController" public="true">
+            <argument type="service" id="survos_workflow_bundle.workflow_helper"></argument>
+        </service>
+
+        <service id="Survos\WorkflowBundle\Twig\WorkflowExtension" public="true">
+            <argument type="service" id="survos_workflow_bundle.workflow_helper"></argument>
+            <tag name="twig.runtime"></tag>
+            <tag name="twig.extension"></tag>
+        </service>
+    </services>
+</container>

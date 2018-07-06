@@ -1,0 +1,50 @@
+
+{% extends '@EasyAdmin/default/layout.html.twig' %}
+
+{% block main %}
+    {% for workflowName, entity in entities %}
+        <h2><a href="{{ path('survos_workflow', {class: entity.class, flowName: workflowName}) }}">{{ workflowName }} {{ entity.object.id }} {{ entity.class }}</a></h2>
+
+        {% set workflow = entity.workflow %}
+
+        <div class="row">
+            <div class="col-lg-5 col-md-12 col-sm-12" >
+                {#
+                <img class="workflow" style="width: 345px" src='data:image/svg+xml;utf8,
+{{ workflow_diagram(entity.object,'LR') }} />
+#}
+
+        {{ workflow_diagram(entity.object, workflowName, 'LR') }}
+
+            </div>
+        </div>
+            <div class="row">
+
+            <div class="col-sm-6 col-lg-3">
+                <h3>{{ workflowName }} Transitions</h3>
+                <ul>
+                    {% for t in workflow.definition.transitions %}
+                        <li>
+                            <i>{{ t.name }}</i>
+
+                            {{ "%s.transitions.%s.description"|format(workflowName, t.name)|trans }}
+
+
+                            <br /> {{ t.froms|join(',') }} <i class="fa fa-arrow-circle-right"></i> {{ t.tos|join(',') }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col-sm-6 col-lg-3">
+                <h3>{{ workflowName }} States</h3>
+                <ul>
+                    {% for place in workflow.definition.places if place != entity.initialPlace %}
+                        <li><b>{{ place }}</b>: {{ "%s.places.%s.description"|format(workflowName, place)|trans }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
