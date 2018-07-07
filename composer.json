@@ -1,0 +1,25 @@
+{
+    "name": "survos/workflow-bundle",
+    "description": "Add some functionality to the Symfony Workflow Component",
+    "type": "symfony-bundle",
+    "require": {
+        "symfony/workflow": "^4.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tac Tacelosky",
+            "email": "tacman@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Survos\\WorkflowBundle\\": "src/"
+        }
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": "true"
+        }
+    }
+}
