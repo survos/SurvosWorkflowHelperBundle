@@ -1,0 +1,171 @@
+<?php
+
+namespace Survos\WorkflowBundle\Traits;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+trait MarkingTrait
+{
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=32)
+     */
+    private $marking = null; // self::INITIAL_MARKING;
+
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastTransitionTime;
+
+
+    /**
+     * @ORM\Column(name="marking_history_json", type="json_array", columnDefinition="JSON", nullable=true)
+     * @var array
+    private $markingHistory;
+     */
+
+    /**
+     * @return string
+     */
+    public function getMarking(): string
+    {
+        return $this->marking;
+    }
+
+    /**
+     * @param string $marking
+     * @return self
+     */
+    public function setMarking(string $marking)
+    {
+        $this->marking = $marking;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMarkingDisplay()
+    {
+        return $this->marking; // go through trans?  at least titleCase?
+    }
+
+    /**
+     * @param string $marking
+     * @return bool
+     */
+    public function hasMarking(string $marking) : bool
+    {
+        return $this->marking == $marking;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMarkingHistory()
+    {
+        return $this->markingHistory ?? [];
+    }
+
+    /**
+     * @param array $history
+     * @return self
+     */
+    public function setMarkingHistory(array $history)
+    {
+        $this->markingHistory = [];
+        foreach ($history as $item) {
+            $this->addMarkingHistoryEvent($item);
+        }
+
+        return $this;
+    }
+
+    public function addMarkingHistoryComment(?String $comment) {
+        if ($comment) {
+            $history = $this->getMarkingHistory();
+            if ($lastEvent = array_pop($history)) {
+                $lastEvent['comment'] = $comment;
+                array_push($history, $lastEvent);
+                $this->setMarkingHistory($history);
+            }
+        }
+    }
+
+    /**
+     * @param array $data
+     * @return self
+     */
+    public function addMarkingHistoryEvent($data)
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setRequired([
+            'timestamp', 'transition', 'froms', 'tos', 'loggedInMemberId'
+        ])
+            ->setDefaults([
+                'comment' => ''
+            ])
+        ;
+        $data = $resolver->resolve($data);
+        $timestamp = $data['timestamp'];
+        if ($timestamp instanceof \DateTimeInterface) {
+            $data['timestamp'] = $timestamp->format('c');
+        }
+        $this->markingHistory[] = $data;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMarkingHistoryDisplay()
+    {
+        $text = '';
+        foreach ($this->markingHistory as $h) {
+            if ($text) {
+                $text .= "\n";
+            }
+            $text .= sprintf(
+                '%s (%s->%s): %s',
+                $h['transition'],
+                implode(',', $h['froms']),
+                implode(',', $h['tos']),
+                preg_replace('/\+00:?00$/', 'Z', $h['timestamp'])
+            );
+            if ($h['comment']) {
+                $text .= ' [' . $h['comment'] . ']';
+            }
+        }
+
+        return $text;
+    }
+
+    /**
+     * Set lastTransitionTime
+     *
+     * @param \DateTime $lastTransitionTime
+     * @return self
+     *
+     */
+    public function setLastTransitionTime(?\DateTime $lastTransitionTime)
+    {
+        $this->lastTransitionTime = $lastTransitionTime;
+
+        return $this;
+    }
+
+    /**
+     * Get lastTransitionTime
+     *
+     * @return \DateTime
+     */
+    public function getLastTransitionTime(): ?\DateTime
+    {
+        return $this->lastTransitionTime;
+    }
+    
+}

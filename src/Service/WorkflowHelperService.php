@@ -61,6 +61,12 @@ class WorkflowHelperService
         }
         $definition = $workflow->getDefinition();
         $marking = $workflow->getMarkingStore()->getMarking($subject);
+
+
+        array_map(function($place) use ($marking) { $marking->unmark($place); }, $marking->getPlaces());
+        $marking->mark($subject->getMarking());
+
+
         $dot = $this->dumper->dump($definition, $marking, [
             //graphviz docs http://www.graphviz.org/doc/info/attrs.html
             'graph' => ['ratio' => 'compress', 'rankdir' => $this->direction, 'ranksep' => 0.2],
@@ -68,13 +74,45 @@ class WorkflowHelperService
             'edge' => [],
         ]);
 
-        $process = new Process('dot -Tsvg');
+        $process = new Process('dot -Tsvg ');
         $process->setInput($dot);
         $process->mustRun();
 
 
         return $process->getOutput();
     }
+
+    public function getWorkflowsByCode($code = null)
+    {
+        $workflowService = $this->workflowRegistry;
+
+        $reflectionProperty = new \ReflectionProperty(get_class($workflowService), 'workflows');
+        $reflectionProperty->setAccessible(true);
+        $workflowBlobs = $reflectionProperty->getValue($workflowService);
+
+        foreach ($workflowBlobs as $workflowBlob) {
+            /** @var StateMachine  $x */
+            $x = $workflowBlob[0];
+
+            $class = $workflowBlob[1]->getClassName();
+            $entity = new $class;
+            $flowCode = $x->getName();
+            $workflow = $workflowService->get($entity, $flowCode);
+
+            $marking = $workflow->getMarking($entity);
+            $places = $marking->getPlaces();
+            $workflowsByCode[$flowCode] =
+                [
+                    'initialPlace' => $places,
+                    'workflow' => $workflow,
+                    'class' => $class,
+                    'entity' => $entity,
+                    'definition' => $x->getDefinition()
+                ];
+        }
+        return $code ? $workflowsByCode[$code] : $workflowsByCode;
+    }
+
 
 
 

@@ -1,0 +1,43 @@
+<form action="{{ url('project_workflow', {return_to_referrer: true, flowName: flowName, id: entity.id}) }}" method="post">
+    <div class="btn-group-vertical" role="group">
+        <input type="hidden" name="flowName" value="{{ flowName }}"/>
+        <input type="hidden" name="type" value="{{ entity_class(entity) }}"/>
+        <table>
+            {% for transition in workflow_transitions(entity, flowName) %}
+                <tr>
+                    <td>
+                        {% set tName = transition.name %}
+                        <button type="submit" name="transition" value="{{ transition.name }}"
+                                {% if workflow_can(entity, transition.name, flowName) -%}
+                                    class="btn btn-primary"
+                                {%- else -%}
+                                    class="btn btn-danger" disabled="disabled"
+                                {%- endif -%}
+                        >
+                            {{ tName }}
+                        </button>
+                    </td>
+                    <td>
+                        <b>{{ ('state_machine.transition.' ~ tName ~ '.display')|trans }}</b>
+                    </td>
+                    <td>
+                        {{ ('state_machine.transition.' ~ tName ~ '.description')|trans }}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    {% set tName = "Reset" %}
+                    <button type="submit" name="transition" value="reset"
+                            class="btn btn-danger"
+                    >
+                        {{ tName }}
+                    </button>
+                </td>
+                <td rowspan="2">
+                    <b>Reset Workflow</b>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

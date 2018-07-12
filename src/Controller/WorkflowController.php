@@ -11,12 +11,14 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Workflow\Registry;
+use Symfony\Component\Workflow\StateMachine;
 use Symfony\Component\Workflow\Workflow;
 
 class WorkflowController extends Controller
 {
 
     protected $workflowRegistry;
+    protected $helper;
 
     public function __construct(WorkflowHelperService $helper)
     {
@@ -27,19 +29,80 @@ class WorkflowController extends Controller
     }
 
 
-
     /**
-     * @Route("/top/workflow/{flowName}", name="survos_workflow")
      * @Route("/workflows", name="survos_workflows")
      */
-    public function workflowAction(Request $request, $flowName = '', $entity = null)
+    public function index(Request $request)
     {
+        $workflowsByCode = $this->helper->getWorkflowsByCode();
+        return $this->render("@SurvosWorkflow/index.html.twig", [
+            'workflowsByCode' => $workflowsByCode
+        ]);
+    }
+
+
+    /**
+     * @Route("/workflow/{flowCode}", name="survos_workflow")
+     */
+    public function workflowAction(Request $request, $flowCode, $entity = null)
+    {
+        $wrapper = $this->helper->getWorkflowsByCode($flowCode);
+        /** @var Workflow $workflow */
+        $workflow = $wrapper['workflow'];
+
+        $entity =  $wrapper['entity'];
+
+        $params = [
+            'flowName' => $flowCode,
+            'flowCode' => $flowCode,
+            'definition' => $wrapper['definition'],
+            'class' => $wrapper['class'],
+            'entity' => $entity,
+            ];
+
+        // need to get the marking store and set it properly!
+
+        if ($from = $request->get('states')) {
+
+            $marking = $workflow->getMarking($entity);
+            $markingStore = $workflow->getMarkingStore();
+            // unset the current state
+            foreach ($marking->getPlaces() as $place) {
+                $marking->unmark($place);
+            }
+
+            $place = json_decode($from);
+            $marking->mark($place);
+            $markingStore->setMarking($entity, $marking);
+
+            $entity->setMarking($place);
+            /*
+            dump($marking);
+            */
+            dump($entity);
+        }
+
+        if ($transitionName = $request->get('transitionName')) {
+            $workflow->apply($entity, $transitionName);
+        }
+
+
+        // group by class
+        return $this->render('@SurvosWorkflow/workflow.html.twig', $params + [
+                // 'workflows' => $workflows['workflow']['workflows'],
+            ]);
+
+
         $workflowService = $this->workflowRegistry; // $this->container->get('state_machine.service.workflow');
         // $workflowService = $this->container->get('workflow);
 
         $classes =  [];
+        $workflows = [];
+        $entities = [];
 
-        if ($workflowName = $request->get('xflowName')) {
+        $transitionName = $request->get('transitionName');
+
+        if ($workflowName = $request->get('flowCode')) {
 
         } else {
 
@@ -54,13 +117,24 @@ class WorkflowController extends Controller
                 $entity = $this->get('doctrine')->getRepository($class)->find($id);
             } else {
                 $entity = new $class;
+                // overwrite marking if it exists in the request
+                if ($marking = $request->get('marking'))
+                {
+                    $entity->setMarking($marking);
+                }
+
             }
+
+            $transitions = $transitionName
+                ? $workflowService->get($entity, $transitionName)
+                : $workflowService->all($entity);
+
 
             foreach ($workflowService->all($entity) as $wf) {
                 $workflows[$class] = $wf;
                 $flowCode = $wf->getName();
                 $entities[$wf->getName()] = [
-                    'initialPlace' => $wf->getDefinition()->getInitialPlace(),
+                    'initialPlace' => $entity->getMarking(), // || $wf->getDefinition()->getInitialPlace(),
                     'class' => $class,
                     'workflow' => $wf,
                     'object' => $entity
@@ -88,7 +162,7 @@ class WorkflowController extends Controller
             // $flowCode = $workflow->getName();
             $classes[$shortName][$flowCode] = $workflow;
             $definitions[$flowCode] = $workflow->getDefinition();
-            if ($flowName == $flowCode) {
+            if ($flowCode == $flowCode) {
                 $flowClass = $class;
             }
         }
@@ -96,9 +170,9 @@ class WorkflowController extends Controller
         // $workflowFile = $this->getParameter('kernel.root_dir').'/config/workflow.yml';
         // $workflows = Yaml::parse(file_get_contents($workflowFile));
         $places = [];
-        if ($flowName) {
+        if ($flowCode) {
             /** @var Workflow $workflow */
-            $workflow = $this->get('state_machine.' . $flowName);
+            $workflow = $this->get('state_machine.' . $flowCode);
             /* this should be moved to the individual element Controller, or have the class name in the request object */
             if ($id = $request->get('id')) {
                 if (empty($flowClass)) {
@@ -122,7 +196,7 @@ class WorkflowController extends Controller
                     $entity->setMarking(null);
                 } else {
                     try {
-                        $this->get('state_machine.' . $flowName)
+                        $this->get('state_machine.' . $flowCode)
                             ->apply($entity, $transition);
                         $this->addFlash('notice', "$transition applied");
                     } catch (\Exception $e) {
@@ -144,13 +218,13 @@ class WorkflowController extends Controller
                 'places' => $places,
                 'class' => $class,
                 'entity' => $entity,
-                'flowName' => $flowName,
+                'flowName' => $flowCode,
             ];
         } else {
             $params = [];
         }
         // group by class
-        return $this->render('@SurvosWorkflow/index.html.twig', $params + [
+        return $this->render('@SurvosWorkflow/workflow.html.twig', $params + [
                 'classes' => $classes,
                 'classMap' => $classMap,
                 'definitions' => $definitions,

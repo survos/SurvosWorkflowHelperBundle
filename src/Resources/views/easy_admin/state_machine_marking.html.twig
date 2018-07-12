@@ -1,5 +1,5 @@
 {% block content %}
 
-<a href="{{ path('survos_workflow', {id: item.id, class: entity_class(item) }) }}"<i class="fa fa-code-fork"></i>{{ item.marking }}
+<a href="{{ path('survos_workflow', {id: item.id, class: entity_class(item) }) }}"<i class="fa fa-code-fork"></i>{{ item.marking|default(item.status) }}
 
 {% endblock %}
