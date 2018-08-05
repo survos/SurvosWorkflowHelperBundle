@@ -18,11 +18,15 @@
                 {% for transition in transitions %}
                     {% set tName = transition.name %}
                     <li>
+
+                        {% set description = workflow_metadata(entity, 'description', transition)|trans  %}
+                        {% set label = workflow_metadata(entity, 'label', transition)|trans ?: tName  %}
+
                         <button type="submit" class="btn btn-link" name="transitionName" value="{{ tName }}"
-                                title="{{ 'workflow.%s.transition.%s.description'|format(flowCode, tName)|trans([], 'workflow_messages') }}"
+                                title="{{ description }}"
                                 {% if not workflow_can(entity, tName, flowCode) -%}disabled{%- endif -%}
                         >
-                            {{ 'workflow.%s.transition.%s.label'|format(flowCode, tName)|trans([], 'workflow_messages')}}
+                            {{ label }}
                         </button>
                     </li>
                 {% endfor %}
