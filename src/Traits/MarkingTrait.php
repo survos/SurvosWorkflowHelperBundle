@@ -9,7 +9,7 @@ trait MarkingTrait
 {
     /**
      * @var string
-     * @ORM\Column(type="string", length=32)
+     * @ORM\Column(type="string", length=32, nullable=true)
      */
     private $marking = null; // self::INITIAL_MARKING;
 
@@ -29,7 +29,7 @@ trait MarkingTrait
     /**
      * @return string
      */
-    public function getMarking(): string
+    public function getMarking(): ?string
     {
         return $this->marking;
     }
@@ -38,7 +38,7 @@ trait MarkingTrait
      * @param string $marking
      * @return self
      */
-    public function setMarking(string $marking)
+    public function setMarking(?string $marking)
     {
         $this->marking = $marking;
 

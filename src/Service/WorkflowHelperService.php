@@ -89,6 +89,7 @@ class WorkflowHelperService
         $reflectionProperty = new \ReflectionProperty(get_class($workflowService), 'workflows');
         $reflectionProperty->setAccessible(true);
         $workflowBlobs = $reflectionProperty->getValue($workflowService);
+        $workflowsByCode = [];
 
         foreach ($workflowBlobs as $workflowBlob) {
             /** @var StateMachine  $x */

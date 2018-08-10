@@ -3,6 +3,7 @@
 
 {% block main %}
 
+    <h1>{{ workflowsByCode|length }} Workflows</h1>
     {% for code, wrapper in workflowsByCode %}
         <h1>{{ code }}</h1>
         <code>{{ wrapper.workflow.markingStore.property }}</code>
