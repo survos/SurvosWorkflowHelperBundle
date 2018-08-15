@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Registry;
+use Symfony\Component\Workflow\Workflow;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
 
@@ -60,11 +61,15 @@ class WorkflowHelperService
             return $e->getMessage(); // null;
         }
         $definition = $workflow->getDefinition();
-        $marking = $workflow->getMarkingStore()->getMarking($subject);
+        $workflowPlaces = $workflow->getDefinition()->getPlaces();
 
+        $marking  = $workflow->getMarkingStore()->getMarking($subject);
 
-        array_map(function($place) use ($marking) { $marking->unmark($place); }, $marking->getPlaces());
-        $marking->mark($subject->getMarking());
+        // unset anything previously set
+        array_map(function($place) use ($marking) { $marking->unmark($place); }, $workflowPlaces);
+
+        // set it to the subject markings
+        array_map(function($place) use ($marking) { $marking->mark($place); }, $marking->getPlaces());
 
 
         $dot = $this->dumper->dump($definition, $marking, [
@@ -98,7 +103,14 @@ class WorkflowHelperService
             $class = $workflowBlob[1]->getClassName();
             $entity = new $class;
             $flowCode = $x->getName();
+            /** @var Workflow $workflow */
             $workflow = $workflowService->get($entity, $flowCode);
+            $property = $workflow->getMarkingStore()->getProperty();
+            // dump($x, $entity, $property); // die();
+            $marking = $workflow->getMarkingStore()->getMarking($entity);
+            $places = $marking->getPlaces();
+            // dump( $marking, $places); // die();
+
 
             $marking = $workflow->getMarking($entity);
             $places = $marking->getPlaces();
