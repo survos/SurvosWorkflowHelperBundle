@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-lg-5 col-md-12 col-sm-12" >
                 {% if allowTransitions %}
-                    {% include "SurvosWorkflowBundle::workflow_transitions.html.twig" with {entity: entity, class: class, transitions: definition.transitions} %}
+                    {% include "@SurvosWorkflow/workflow_transitions.html.twig" with {entity: entity, class: class, transitions: definition.transitions} %}
                 {% endif %}
                 {#
 

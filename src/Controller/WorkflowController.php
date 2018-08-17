@@ -79,7 +79,6 @@ class WorkflowController extends Controller
             /*
             dump($marking);
             */
-            dump($entity);
         }
 
         if ($transitionName = $request->get('transitionName')) {

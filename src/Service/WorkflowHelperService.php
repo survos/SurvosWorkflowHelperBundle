@@ -63,13 +63,21 @@ class WorkflowHelperService
         $definition = $workflow->getDefinition();
         $workflowPlaces = $workflow->getDefinition()->getPlaces();
 
+        $entityPlaces = array_keys($workflow->getMarkingStore()->getMarking($subject)->getPlaces());
         $marking  = $workflow->getMarkingStore()->getMarking($subject);
 
         // unset anything previously set
-        array_map(function($place) use ($marking) { $marking->unmark($place); }, $workflowPlaces);
+        array_map(function($place) use ($marking) {
+                if ($marking->has($place)) {
+                    $marking->unmark($place);
+                }
+            }, $workflowPlaces);
 
         // set it to the subject markings
-        array_map(function($place) use ($marking) { $marking->mark($place); }, $marking->getPlaces());
+        array_map(function($place) use ($marking) {
+            $marking->mark($place);
+            },
+            $entityPlaces);
 
 
         $dot = $this->dumper->dump($definition, $marking, [
