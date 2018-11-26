@@ -1,5 +1,5 @@
 {
-    "name": "survos/workflow-bundle",
+    "name": "survos/workflow-extension-bundle",
     "description": "Add some functionality to the Symfony Workflow Component",
     "type": "symfony-bundle",
     "require": {
