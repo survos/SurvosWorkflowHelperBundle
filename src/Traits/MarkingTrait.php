@@ -15,7 +15,7 @@ trait MarkingTrait
 
     /**
      * @var \DateTime
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ ORM\Column(type="datetime", nullable=true)
      */
     private $lastTransitionTime;
 
@@ -36,6 +36,7 @@ trait MarkingTrait
 
     /**
      * @param string $marking
+     * @deprecated "Not really, but just a flag that it is inactive!"
      * @return self
      */
     public function setMarking(?string $marking)
