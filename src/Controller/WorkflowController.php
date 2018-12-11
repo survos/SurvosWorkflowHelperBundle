@@ -44,8 +44,10 @@ class WorkflowController extends Controller
     /**
      * @Route("/workflow/{flowCode}", name="survos_workflow")
      */
-    public function workflowAction(Request $request, $flowCode, $entity = null)
+    public function workflowAction(Request $request, $flowCode=null, $entity = null)
     {
+        // @todo: handle empty flowcode, needs to look up by class
+
         $wrapper = $this->helper->getWorkflowsByCode($flowCode);
         /** @var Workflow $workflow */
         $workflow = $wrapper['workflow'];
