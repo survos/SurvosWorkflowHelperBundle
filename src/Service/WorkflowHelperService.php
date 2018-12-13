@@ -88,6 +88,8 @@ class WorkflowHelperService
             'edge' => [],
         ]);
 
+        $svg = sprintf("<img src='/%s.svg' />", $workflowName);
+        return $svg; // hack
         try {
             $process = new Process('dot -Tsvg ');
             $process->setInput($dot);
@@ -95,7 +97,7 @@ class WorkflowHelperService
 
             $svg = $process->getOutput();
         } catch (\Exception $e) { //. if dot not installed
-            return sprintf("<img src='/%s.svg' />", $workflowName);
+            return ;
         }
 
         // @todo: set the cache path in the workflow.yaml config
