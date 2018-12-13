@@ -80,6 +80,7 @@ class WorkflowHelperService
             $entityPlaces);
 
 
+
         $dot = $this->dumper->dump($definition, $marking, [
             //graphviz docs http://www.graphviz.org/doc/info/attrs.html
             'graph' => ['ratio' => 'compress', 'rankdir' => $this->direction, 'ranksep' => 0.2],
@@ -87,12 +88,22 @@ class WorkflowHelperService
             'edge' => [],
         ]);
 
-        $process = new Process('dot -Tsvg ');
-        $process->setInput($dot);
-        $process->mustRun();
+        try {
+            $process = new Process('dot -Tsvg ');
+            $process->setInput($dot);
+            $process->mustRun();
+
+            $svg = $process->getOutput();
+        } catch (\Exception $e) { //. if dot not installed
+            return sprintf("<img src='/%s.svg' />", $workflowName);
+        }
+
+        // @todo: set the cache path in the workflow.yaml config
+
+        //  return sprintf("Workflow: <code>%s</code>%s", $workflowName, $svg);
 
 
-        return $process->getOutput();
+        return $svg;
     }
 
     public function getWorkflowsByCode($code = null)
