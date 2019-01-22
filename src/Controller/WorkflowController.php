@@ -2,29 +2,27 @@
 
 namespace Survos\WorkflowBundle\Controller;
 
-use App\Entity\License;
-use App\Entity\Loan;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Workflow\Registry;
 use Symfony\Component\Workflow\StateMachine;
 use Symfony\Component\Workflow\Workflow;
 
-class WorkflowController extends Controller
+class WorkflowController extends AbstractController
 {
 
     protected $workflowRegistry;
     protected $helper;
 
-    public function __construct(WorkflowHelperService $helper)
+    public function __construct(WorkflowHelperService $helper, Registry $registry)
     {
         // $helper = $this->container->get('survos_workflow_bundle.workflow_helper'); // hmm, doesn't seem right.
         $this->helper = $helper;
-        $this->workflowRegistry = $helper->getRegistry(); // hmm
+        $this->workflowRegistry = $registry; // $helper->getRegistry(); // hmm
         // $this->workflowRegistry = $this->get('workflow.registry'); // $helper->getRegistry();
     }
 

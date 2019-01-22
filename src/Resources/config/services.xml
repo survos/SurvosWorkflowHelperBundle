@@ -18,6 +18,7 @@
 
         <service id="Survos\WorkflowBundle\Controller\WorkflowController" public="true">
             <argument type="service" id="survos_workflow_bundle.workflow_helper"></argument>
+            <argument type="service" id="workflow.registry"></argument>
         </service>
 
         <service id="Survos\WorkflowBundle\Twig\WorkflowExtension" public="true">

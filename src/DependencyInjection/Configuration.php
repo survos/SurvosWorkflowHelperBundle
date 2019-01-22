@@ -15,6 +15,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->scalarNode('direction')->defaultValue('LR')->end()
+            ->scalarNode('base_layout')->defaultValue('base.html.twig')->end()
             ->arrayNode('entities')
                 ->scalarPrototype()
             ->end()->end()
