@@ -33,7 +33,8 @@
             <ul class="list list-unstyled">
                 {% for place in definition.places if place != definition.initialPlace %}
                     <li><b>{{ place }}</b>: {{ "%s.places.%s.description"|format(flowCode, place)|trans }}
-                        <a href="{{ path('survos_workflow', {flowCode: flowCode, class: class, states: place|json_encode}) }}">Set</a>
+
+                        <a class="hidden-print" href="{{ path('survos_workflow', {flowCode: flowCode, class: class, states: place|json_encode}) }}">Set</a>
                     </li>
                 {% endfor %}
             </ul>
