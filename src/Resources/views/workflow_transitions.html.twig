@@ -19,8 +19,8 @@
                     {% set tName = transition.name %}
                     <li>
 
-                        {% set description = workflow_metadata(entity, 'description', transition)|trans  %}
-                        {% set label = workflow_metadata(entity, 'label', transition)|trans ?: tName  %}
+                        {% set description = workflow_metadata(entity, 'description', transition, flowCode)|trans  %}
+                        {% set label = workflow_metadata(entity, 'label', transition, flowCode)|trans ?: tName  %}
 
                         <button type="submit" class="btn btn-link" name="transitionName" value="{{ tName }}"
                                 title="{{ description }}"

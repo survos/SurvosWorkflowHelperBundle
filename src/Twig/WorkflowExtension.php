@@ -28,6 +28,7 @@ class WorkflowExtension extends AbstractExtension
     {
         return [
             new TwigFunction('workflow_diagram', [$this, 'workflowDiagram'], ['is_safe' => ['html']]),
+            new TwigFunction('workflow_digraph', [$this, 'workflowDigraph'], ['is_safe' => ['html']]),
             new TwigFunction('entity_short_class', array($this, 'getShortClass')),
             new TwigFunction('entity_class', array($this, 'getClass'))
 
@@ -53,7 +54,17 @@ class WorkflowExtension extends AbstractExtension
     public function workflowDiagram($subject, $workflowName, $direction = 'LR')
     {
         return $this->workflowHelper->workflowDiagram($subject, $workflowName, $direction);
+    }
 
+    /**
+     * @param $subject
+     * @param $workflowName
+     * @param string $direction LR or TB
+     * @return string
+     */
+    public function workflowDigraph($subject, $workflowName)
+    {
+        return $this->workflowHelper->workflowDiagramDigraph($subject, $workflowName);
     }
 
 }

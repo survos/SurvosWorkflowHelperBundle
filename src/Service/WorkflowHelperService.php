@@ -51,7 +51,7 @@ class WorkflowHelperService
      * @param string $direction LR or TB
      * @return string
      */
-    public function workflowDiagram($subject, $workflowName)
+    public function workflowDiagramDigraph($subject, $workflowName)
     {
 
         /** @var WorkflowInterface $workflow */
@@ -64,21 +64,20 @@ class WorkflowHelperService
         $workflowPlaces = $workflow->getDefinition()->getPlaces();
 
         $entityPlaces = array_keys($workflow->getMarkingStore()->getMarking($subject)->getPlaces());
-        $marking  = $workflow->getMarkingStore()->getMarking($subject);
+        $marking = $workflow->getMarkingStore()->getMarking($subject);
 
         // unset anything previously set
-        array_map(function($place) use ($marking) {
-                if ($marking->has($place)) {
-                    $marking->unmark($place);
-                }
-            }, $workflowPlaces);
+        array_map(function ($place) use ($marking) {
+            if ($marking->has($place)) {
+                $marking->unmark($place);
+            }
+        }, $workflowPlaces);
 
         // set it to the subject markings
-        array_map(function($place) use ($marking) {
+        array_map(function ($place) use ($marking) {
             $marking->mark($place);
-            },
+        },
             $entityPlaces);
-
 
 
         $dot = $this->dumper->dump($definition, $marking, [
@@ -87,6 +86,24 @@ class WorkflowHelperService
             'node' => ['width' => 1],
             'edge' => [],
         ]);
+
+        return $dot;
+    }
+
+
+        /**
+         * @param $subject
+         * @param $workflowName
+         * @param string $direction LR or TB
+         * @return string
+         */
+        public function workflowDiagram($subject, $workflowName)
+    {
+
+        $dot = $this->workflowDiagramDigraph($subject, $workflowName);
+
+
+        // dump($dot); die();
 
         try {
             $process = new Process(['dot', '-Tsvg']);
@@ -98,6 +115,7 @@ class WorkflowHelperService
             // @todo: configure paths to the .svg files (for filesystem and url)
             $svg = sprintf("<!-- return a static svg if dot isn't working --><img src='/svg/%s.svg' />", $workflowName);
             // return $svg; // hack
+            return $svg;
         }
 
         // @todo: set the cache path in the workflow.yaml config
@@ -125,10 +143,16 @@ class WorkflowHelperService
             $entity = new $class;
             $flowCode = $x->getName();
             /** @var Workflow $workflow */
+
             $workflow = $workflowService->get($entity, $flowCode);
+            $entity->setMarking($workflow->getDefinition()->getInitialPlace());
+            // dump($entity->getMarking(), $flowCode);
+
+
             $property = $workflow->getMarkingStore()->getProperty();
             // dump($x, $entity, $property); // die();
             $marking = $workflow->getMarkingStore()->getMarking($entity);
+
             $places = $marking->getPlaces();
             // dump( $marking, $places); // die();
 
