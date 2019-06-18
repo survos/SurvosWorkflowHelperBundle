@@ -132,6 +132,8 @@ class WorkflowHelperService
             $places = $marking->getPlaces();
             // dump( $marking, $places); // die();
 
+            $entity->setMarking($workflow->getDefinition()->getInitialPlace());
+
 
             $marking = $workflow->getMarking($entity);
             $places = $marking->getPlaces();
