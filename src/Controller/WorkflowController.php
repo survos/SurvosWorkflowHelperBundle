@@ -85,9 +85,12 @@ class WorkflowController extends AbstractController
             $workflow->apply($entity, $transitionName);
         }
 
+        $dumper = $this->helper->workflowDiagramDigraph($entity, $flowCode);
+
 
         // group by class
-        return $this->render('@SurvosWorkflow/workflow.html.twig', $params + [
+        return $this->render('@SurvosWorkflow/d3-workflow.html.twig', $params + [
+            'digraph' => $dumper
                 // 'workflows' => $workflows['workflow']['workflows'],
             ]);
 
