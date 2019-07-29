@@ -3,7 +3,7 @@
     "description": "Add some functionality to the Symfony Workflow Component",
     "type": "symfony-bundle",
     "require": {
-        "symfony/workflow": "^4.1"
+        "symfony/workflow": "^4.2"
     },
     "license": "MIT",
     "authors": [
