@@ -9,7 +9,7 @@ trait MarkingTrait
 {
     /**
      * @var string
-     * @ORM\Column(type="string", length=32, nullable=true)
+     * @ORM\Column(type="string", length=32, nullable=false)
      */
     private $marking = null; // self::INITIAL_MARKING;
 
@@ -168,5 +168,19 @@ trait MarkingTrait
     {
         return $this->lastTransitionTime;
     }
-    
+
+    public function getWorkflowName()
+    {
+        $name = (new \ReflectionClass($this))->getShortName();
+        return strtolower($name);
+        return get_class($this);
+        // dd($name);
+        dd( get_class($this));
+    }
+
+    public function setEnabledTransitions() {
+        // should get the workflow and return this!
+        return $this;
+    }
+
 }
