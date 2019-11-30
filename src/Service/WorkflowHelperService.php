@@ -145,22 +145,29 @@ class WorkflowHelperService
             /** @var Workflow $workflow */
 
             $workflow = $workflowService->get($entity, $flowCode);
-            $entity->setMarking($workflow->getDefinition()->getInitialPlace());
+            // $property = $workflow->getMarkingStore()->getProperty();
+
+            // $entity->setMarking($workflow->getDefinition()->getInitialPlace());
             // dump($entity->getMarking(), $flowCode);
 
 
-            $property = $workflow->getMarkingStore()->getProperty();
-            // dump($x, $entity, $property); // die();
+            /*
             $marking = $workflow->getMarkingStore()->getMarking($entity);
-
             $places = $marking->getPlaces();
             // dump( $marking, $places); // die();
 
-            $entity->setMarking($workflow->getDefinition()->getInitialPlace());
+            // $entity->setMarking($workflow->getDefinition()->getInitialPlace());
 
 
             $marking = $workflow->getMarking($entity);
             $places = $marking->getPlaces();
+            dump($workflow->getMarkingStore());
+            dd($workflow->getMarkingStore()->getProperty());
+            dd($property);
+                */
+            $places = $workflow->getDefinition()->getPlaces();
+            $property  = $workflow->getDefinition();
+
             $workflowsByCode[$flowCode] =
                 [
                     'initialPlace' => $places,

@@ -8,7 +8,6 @@
 
     {% for code, wrapper in workflowsByCode %}
         <h1>{{ code }}</h1>
-        <code>{{ wrapper.workflow.markingStore.property }}</code>
         <a href="{{ path('survos_workflow', {flowCode: code}) }}">Show More</a>
 
         {{ workflow_diagram(wrapper.entity, code, 'LR') }}

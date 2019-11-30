@@ -31,9 +31,8 @@
         <div class="col-md-3">
             <h3>{{ flowCode }} States</h3>
             <ul class="list list-unstyled">
-                {% for place in definition.places if place != definition.initialPlace %}
+                {% for place in definition.places|filter( (place) => place != definition.initialPlace ) %}
                     <li><b>{{ place }}</b>: {{ "%s.places.%s.description"|format(flowCode, place)|trans }}
-
                         <a class="hidden-print" href="{{ path('survos_workflow', {flowCode: flowCode, class: class, states: place|json_encode}) }}">Set</a>
                     </li>
                 {% endfor %}
