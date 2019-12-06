@@ -7,7 +7,7 @@
         <!-- do we need to pass the parameters here to create the service? -->
         <service id="survos_workflow_bundle.workflow_helper" class="Survos\WorkflowBundle\Service\WorkflowHelperService">
             <argument>%survos_workflow.direction%</argument>
-            <argument type="service" id="doctrine.orm.entity_manager"></argument>
+            <argument type="service" id="doctrine.orm.default_entity_manager"></argument>
             <argument type="service" id="workflow.registry"></argument>
         </service>
         <service id="Survos\WorkflowBundle\Service\WorkflowHelperService" alias="survos_workflow_bundle.workflow_helper" />
