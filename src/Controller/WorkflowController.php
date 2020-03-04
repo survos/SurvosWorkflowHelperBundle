@@ -26,7 +26,6 @@ class WorkflowController extends AbstractController
         // $this->workflowRegistry = $this->get('workflow.registry'); // $helper->getRegistry();
     }
 
-
     /**
      * @Route("/workflows", name="survos_workflows")
      */
@@ -86,7 +85,6 @@ class WorkflowController extends AbstractController
         }
 
         $dumper = $this->helper->workflowDiagramDigraph($entity, $flowCode);
-
 
         // group by class
         return $this->render('@SurvosWorkflow/d3-workflow.html.twig', $params + [

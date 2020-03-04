@@ -9,7 +9,7 @@ trait MarkingTrait
 {
     /**
      * @var string
-     * @ORM\Column(type="string", length=32, nullable=false)
+     * @ORM\Column(type="string", length=32, nullable=true)
      */
     private $marking = null; // self::INITIAL_MARKING;
 

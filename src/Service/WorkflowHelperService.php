@@ -51,8 +51,12 @@ class WorkflowHelperService
      * @param string $direction LR or TB
      * @return string
      */
-    public function workflowDiagramDigraph($subject, $workflowName)
+    public function workflowDiagramDigraph($subject, $workflowName, $direction=null)
     {
+
+        if ($direction) {
+            $this->direction = $direction;
+        }
 
         /** @var WorkflowInterface $workflow */
         try {

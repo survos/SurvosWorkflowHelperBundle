@@ -14,28 +14,27 @@
                 .renderDot(d);
             // Handler for .ready() called.
         });
-
-
     </script>
 
 {% endblock %}
 
-{% block content %}
-
+{% block survos_workflow_body %}
+<div class="container-fluid">
 
     <div class="row row-fluid">
-        <div class="col-md-6">
+        <div class="col-md-6 col-6">
             <div id="graph" style="text-align: center; width: 100% " ></div>
         </div>
 
         <div class="col-md-3">
             <h3>{{ flowCode }} States</h3>
             <ul class="list list-unstyled">
-                {% for place in definition.places|filter( (place) => place != definition.initialPlace ) %}
-                    <li><b>{{ place }}</b>: {{ "%s.places.%s.description"|format(flowCode, place)|trans }}
+                {% for place in definition.places|filter( (place) => not (place in definition.initialPlaces) ) %}
+                    <li><b>{{ place }}</b>: {{ "%s.places.%s.description"|format(flowCode, place) }}
                         <a class="hidden-print" href="{{ path('survos_workflow', {flowCode: flowCode, class: class, states: place|json_encode}) }}">Set</a>
                     </li>
                 {% endfor %}
+
             </ul>
         </div>
 
@@ -50,16 +49,17 @@
                                 <i class="fa fa-arrow-circle-right"></i> {{ t.tos|join(',') }}
                             </span>
                         <br />
-                        {{ workflow_metadata(entity, 'description', t, flowCode)|trans  }}
+                        {{ workflow_metadata(entity, 'description', t, flowCode)  }}
                     </li>
                 {% endfor %}
             </ul>
         </div>
 
     </div>
+</div>
 
     <pre style="display: none;">
-    <div id="digraph" >{{ workflow_digraph(entity, flowCode)|raw }}</div>
+    <div id="digraph" >{{ workflow_digraph(entity, flowCode, 'TB')|raw }}</div>
     </pre>
 
 
