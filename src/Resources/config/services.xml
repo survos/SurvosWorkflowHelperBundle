@@ -7,23 +7,29 @@
         <!-- do we need to pass the parameters here to create the service? -->
         <service id="survos_workflow_bundle.workflow_helper" class="Survos\WorkflowBundle\Service\WorkflowHelperService">
             <argument>%survos_workflow.direction%</argument>
-            <argument type="service" id="doctrine.orm.entity_manager"></argument>
-            <argument type="service" id="workflow.registry"></argument>
+            <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="workflow.registry" />
         </service>
         <service id="Survos\WorkflowBundle\Service\WorkflowHelperService" alias="survos_workflow_bundle.workflow_helper" />
 
         <service id="Survos\WorkflowBundle\SurvosWorkflowBundle" class="Survos\WorkflowBundle\SurvosWorkflowBundle" >
-            <argument type="service" id="survos_workflow_bundle.workflow_helper"></argument>
+            <argument type="service" id="survos_workflow_bundle.workflow_helper" />
+        </service>
+
+
+        <service id="Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand" class="Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand" public="false">
+            <argument id="%kernel.project_dir%" />
+            <tag name="console.command" />
         </service>
 
         <service id="Survos\WorkflowBundle\Controller\WorkflowController" public="true" autowire="true">
-            <argument type="service" id="survos_workflow_bundle.workflow_helper"></argument>
-            <argument type="service" id="workflow.registry"></argument>
+            <argument type="service" id="survos_workflow_bundle.workflow_helper" />
+            <argument type="service" id="workflow.registry" />
                 <tag name="container.service_subscriber" />
         </service>
 
         <service id="Survos\WorkflowBundle\Twig\WorkflowExtension" public="true">
-            <argument type="service" id="survos_workflow_bundle.workflow_helper"></argument>
+            <argument type="service" id="survos_workflow_bundle.workflow_helper" />
             <tag name="twig.runtime"></tag>
             <tag name="twig.extension"></tag>
         </service>
