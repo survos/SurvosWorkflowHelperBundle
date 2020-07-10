@@ -88,7 +88,8 @@ class WorkflowHelperService
             //graphviz docs http://www.graphviz.org/doc/info/attrs.html
             'graph' => ['ratio' => 'compress', 'rankdir' => $this->direction, 'ranksep' => 0.2],
             'node' => ['width' => 1],
-            'edge' => [],
+            'edge' => [ 'arrowsize' => '1.3'],
+
         ]);
 
         return $dot;
