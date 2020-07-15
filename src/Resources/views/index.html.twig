@@ -1,7 +1,7 @@
 
-{% extends '@SurvosWorkflow/layout.html.twig' %}
+{% extends ['base.html.twig', '@SurvosWorkflow/layout.html.twig'] %}
 
-{% block survos_workflow_body %}
+{% block body %}
 
 
     <h1>{{ workflowsByCode|length }} Workflows</h1>

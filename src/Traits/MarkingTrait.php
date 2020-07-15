@@ -4,21 +4,19 @@ namespace Survos\WorkflowBundle\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Workflow\Transition;
 
 trait MarkingTrait
 {
     /**
      * @var string
-     * @ORM\Column(type="string", length=32, nullable=false)
+     * @ORM\Column(type="string", length=32, nullable=true)
      */
-    private $marking = null; // self::INITIAL_MARKING;
+    private ?string $marking = null; // self::INITIAL_MARKING;
 
-    /**
-     * @var \DateTime
-     * @ ORM\Column(type="datetime", nullable=true)
-     */
-    private $lastTransitionTime;
-
+    private \DateTime $lastTransitionTime;
+    private array $enabledTransitions = [];
 
     /**
      * @ORM\Column(name="marking_history_json", type="json_array", columnDefinition="JSON", nullable=true)
@@ -35,11 +33,12 @@ trait MarkingTrait
     }
 
     /**
+     *   Note : type must be 'method', see https://symfony.com/blog/new-in-symfony-4-3-workflow-improvements#added-a-context-to-workflow-apply
+     *   get the context with $event->getContext();
      * @param string $marking
-     * @deprecated "Not really, but just a flag that it is inactive!"
      * @return self
      */
-    public function setMarking(?string $marking)
+    public function setMarking(?string $marking, $context=[])
     {
         $this->marking = $marking;
 
@@ -98,6 +97,7 @@ trait MarkingTrait
 
     /**
      * @param array $data
+     * @deprecated
      * @return self
      */
     public function addMarkingHistoryEvent($data)
@@ -148,6 +148,7 @@ trait MarkingTrait
     /**
      * Set lastTransitionTime
      *
+     * @deprecated
      * @param \DateTime $lastTransitionTime
      * @return self
      *
@@ -162,6 +163,7 @@ trait MarkingTrait
     /**
      * Get lastTransitionTime
      *
+     * @deprecated
      * @return \DateTime
      */
     public function getLastTransitionTime(): ?\DateTime
@@ -178,9 +180,18 @@ trait MarkingTrait
         dd( get_class($this));
     }
 
-    public function setEnabledTransitions() {
-        // should get the workflow and return this!
+    public function setEnabledTransitions(array $enabledTransitions) {
+        // set by the doctrine postLoad listener
+        $this->enabledTransitions = $enabledTransitions;
         return $this;
+    }
+
+    public function getEnabledTransitions(): ?array {
+        return $this->enabledTransitions ?: [];
+    }
+
+    public function getEnabledTransitionCodes() {
+        return array_map( fn(Transition $transition) => $transition->getName(), $this->getEnabledTransitions());
     }
 
 }

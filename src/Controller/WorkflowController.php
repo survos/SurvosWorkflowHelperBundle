@@ -26,9 +26,8 @@ class WorkflowController extends AbstractController
         // $this->workflowRegistry = $this->get('workflow.registry'); // $helper->getRegistry();
     }
 
-
     /**
-     * @Route("/workflows", name="survos_workflows")
+     * @Route("/", name="survos_workflows")
      */
     public function index(Request $request)
     {
@@ -50,7 +49,7 @@ class WorkflowController extends AbstractController
         /** @var Workflow $workflow */
         $workflow = $wrapper['workflow'];
 
-        $entity =  $wrapper['entity'];
+        $entity = $wrapper['entity'];
 
         $params = [
             'flowName' => $flowCode,
@@ -58,7 +57,7 @@ class WorkflowController extends AbstractController
             'definition' => $wrapper['definition'],
             'class' => $wrapper['class'],
             'entity' => $entity,
-            ];
+        ];
 
         // need to get the marking store and set it properly!
 
@@ -87,14 +86,16 @@ class WorkflowController extends AbstractController
 
         $dumper = $this->helper->workflowDiagramDigraph($entity, $flowCode);
 
-
         // group by class
         return $this->render('@SurvosWorkflow/d3-workflow.html.twig', $params + [
-            'digraph' => $dumper
+                'digraph' => $dumper,
                 // 'workflows' => $workflows['workflow']['workflows'],
             ]);
 
+    }
 
+    private function oldWay(Request $request)
+    {
         $workflowService = $this->workflowRegistry; // $this->container->get('state_machine.service.workflow');
         // $workflowService = $this->container->get('workflow);
 

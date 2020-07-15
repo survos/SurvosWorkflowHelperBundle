@@ -22,13 +22,19 @@
 
 {% endblock %}
 
+{% block page_title "%s Workflow"|format(flowCode) %}
+{% block page_subtitle "Place count?" %}
 {% block survos_workflow_body %}
 
+    <h1>workflow?</h1>
+    {{ 'missing'|trans }}
+    <hr />
     <div id="graph" style="text-align: center;"></div>
 
     {% set allowTransitions = true %}
 
         <h2><a href="{{ path('survos_workflow', {class: class, flowCode: flowCode}) }}">{{ flowCode }} {{ entity.id }} {{ class }}</a></h2>
+
 
         <div class="row-fluid">
             <div class="col-lg-12 col-md-12 col-sm-12" >

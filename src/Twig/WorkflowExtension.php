@@ -62,9 +62,9 @@ class WorkflowExtension extends AbstractExtension
      * @param string $direction LR or TB
      * @return string
      */
-    public function workflowDigraph($subject, $workflowName)
+    public function workflowDigraph($subject, $workflowName, $direction = 'LR')
     {
-        return $this->workflowHelper->workflowDiagramDigraph($subject, $workflowName);
+        return $this->workflowHelper->workflowDiagramDigraph($subject, $workflowName, $direction);
     }
 
 }
