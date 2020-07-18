@@ -16,7 +16,6 @@
             <argument type="service" id="survos_workflow_bundle.workflow_helper" />
         </service>
 
-
         <service id="Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand" class="Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand" public="false">
             <argument id="%kernel.project_dir%" />
             <tag name="console.command" />
@@ -30,6 +29,7 @@
 
         <service id="Survos\WorkflowBundle\Twig\WorkflowExtension" public="true">
             <argument type="service" id="survos_workflow_bundle.workflow_helper" />
+            <tag name="twig.extension" />
         </service>
     </services>
 </container>
