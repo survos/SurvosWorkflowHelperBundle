@@ -11,8 +11,8 @@
 
 namespace Survos\WorkflowBundle\Renderer;
 
-use Doctrine\Common\Inflector\Inflector;
-use Symfony\Bundle\MakerBundle\Generator;
+use Doctrine\Inflector\Inflector;
+    use Symfony\Bundle\MakerBundle\Generator;
 use Symfony\Bundle\MakerBundle\Str;
 use Symfony\Bundle\MakerBundle\Util\ClassNameDetails;
 
