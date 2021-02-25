@@ -9,16 +9,35 @@
     <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>
     <script src="https://unpkg.com/d3-graphviz@1.4.0/build/d3-graphviz.min.js"></script>
 
-    <script>
-        $(function() {
-            let d = $('#digraph').text();
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            let d = document.getElementById('digraph').innerText;
             console.log(d);
-            d3.select("#graph").graphviz()
-                .fade(false)
-                .renderDot(d);
-            // Handler for .ready() called.
+                d3.select("#graph").graphviz()
+                    .fade(false)
+                    .renderDot(d);
+            //     // Handler for .ready() called.
+            // your code here
+        }, false);
+        window.onload = ( () => {
         });
+        // $(function() {
+        //     let d = $('#digraph').text()
+        // });
+
+
     </script>
+
+{#    <script>#}
+{#        $(function() {#}
+{#            let d = $('#digraph').text();#}
+{#            console.log(d);#}
+{#            d3.select("#graph").graphviz()#}
+{#                .fade(false)#}
+{#                .renderDot(d);#}
+{#            // Handler for .ready() called.#}
+{#        });#}
+{#    </script>#}
 
 {% endblock %}
 
