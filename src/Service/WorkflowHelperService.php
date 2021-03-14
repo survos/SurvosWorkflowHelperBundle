@@ -167,8 +167,8 @@ class WorkflowHelperService
             $marking = $workflow->getMarking($entity);
             $places = $marking->getPlaces();
             dump($workflow->getMarkingStore());
-            dd($workflow->getMarkingStore()->getProperty());
-            dd($property);
+            dd($workflow->getMarkingStore()->getProperty(), __METHOD__);
+            dd($property, __METHOD__);
                 */
             $places = $workflow->getDefinition()->getPlaces();
             $property  = $workflow->getDefinition();

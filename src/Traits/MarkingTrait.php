@@ -184,8 +184,8 @@ trait MarkingTrait
         $name = (new \ReflectionClass($this))->getShortName();
         return strtolower($name);
         return get_class($this);
-        // dd($name);
-        dd( get_class($this));
+        // dd($name, __METHOD__);
+        dd( get_class($this), __METHOD__);
     }
 
     public function setEnabledTransitions(array $enabledTransitions) {
