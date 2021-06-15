@@ -17,7 +17,7 @@ class SurvosWorkflowConfigureCommand extends Command
     /**
      * @var string
      */
-    private $projectDir;
+    protected $projectDir;
 
     public function __construct(string $projectDir, string $name = null)
     {
