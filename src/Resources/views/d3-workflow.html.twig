@@ -31,7 +31,34 @@
         })
         //     // Handler for .ready() called.
         // });
+        document.addEventListener('DOMContentLoaded', function() {
+            let d = document.getElementById('digraph').innerText;
+            console.log(d);
+                d3.select("#graph").graphviz()
+                    .fade(false)
+                    .renderDot(d);
+            //     // Handler for .ready() called.
+            // your code here
+        }, false);
+        window.onload = ( () => {
+        });
+        // $(function() {
+        //     let d = $('#digraph').text()
+        // });
+
+
     </script>
+
+{#    <script>#}
+{#        $(function() {#}
+{#            let d = $('#digraph').text();#}
+{#            console.log(d);#}
+{#            d3.select("#graph").graphviz()#}
+{#                .fade(false)#}
+{#                .renderDot(d);#}
+{#            // Handler for .ready() called.#}
+{#        });#}
+{#    </script>#}
 
 {% endblock %}
 

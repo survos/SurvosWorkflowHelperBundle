@@ -1,5 +1,56 @@
 {% extends '@SurvosWorkflow/layout.html.twig' %}
 
+
+
+
+
+
+
+
+
+
+
+
+{#  see d3-workflow instead! #}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {% block javascripts %}
 
     {{ parent() }}
@@ -8,14 +59,15 @@
     <script src="https://unpkg.com/d3-graphviz@1.4.0/build/d3-graphviz.min.js"></script>
 
     <script>
-        $(function() {
-            let d = $('#digraph').text()
-            console.log(d);
-            d3.select("#graph").graphviz()
-                .fade(false)
-                .renderDot(d);
-            // Handler for .ready() called.
-        });
+        let d = document.getElementById('digraph').textContent;
+        console.log(d);
+        // $(function() {
+        //     let d = $('#digraph').text()
+        //     d3.select("#graph").graphviz()
+        //         .fade(false)
+        //         .renderDot(d);
+        //     // Handler for .ready() called.
+        // });
 
 
     </script>
