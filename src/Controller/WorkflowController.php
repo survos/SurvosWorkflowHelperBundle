@@ -41,15 +41,15 @@ class WorkflowController extends AbstractController
     /**
      * @Route("/workflow/{flowCode}", name="survos_workflow")
      */
-    public function workflowAction(Request $request, $flowCode=null, $entity = null)
+    public function workflowAction(Request $request, $flowCode=null, $entityClass=null)
     {
+
         // @todo: handle empty flowcode, needs to look up by class
 
         $wrapper = $this->helper->getWorkflowsByCode($flowCode);
         /** @var Workflow $workflow */
         $workflow = $wrapper['workflow'];
-
-        $entity = $wrapper['entity'];
+        $entity = $entity ?? $wrapper['entity'];
 
         $params = [
             'flowName' => $flowCode,
@@ -59,9 +59,9 @@ class WorkflowController extends AbstractController
             'entity' => $entity,
         ];
 
-        // need to get the marking store and set it properly!
-
-        if ($from = $request->get('states')) {
+        // need to get the marking store and set it properly.  This assumes we're using a live entity though.
+        if ($from = $request->get('states'))
+        {
 
             $marking = $workflow->getMarking($entity);
             $markingStore = $workflow->getMarkingStore();
@@ -84,7 +84,7 @@ class WorkflowController extends AbstractController
             $workflow->apply($entity, $transitionName);
         }
 
-        $dumper = $this->helper->workflowDiagramDigraph($entity, $flowCode);
+        $dumper = $this->helper->workflowDiagramDigraph($entity, $flowCode, 'TB');
 
         // group by class
         return $this->render('@SurvosWorkflow/d3-workflow.html.twig', $params + [

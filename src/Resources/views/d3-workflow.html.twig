@@ -5,10 +5,11 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="//d3js.org/d3.v4.min.js"></script>
-    <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>
-    <script src="https://unpkg.com/d3-graphviz@1.4.0/build/d3-graphviz.min.js"></script>
+{#    <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>#}
 
+    <script src="//d3js.org/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
     <script>
         // $(function() {
         //
@@ -24,6 +25,7 @@
                 console.log(d);
                 // box.style = 'display:show';
                 box.innerHTML = '';
+
             d3.select(box).graphviz()
                 .fade(false)
                 .renderDot(d);
@@ -62,39 +64,40 @@
 
 {% endblock %}
 
-{% block survos_workflow_body %}
+{% block body %}
 
-    survos_workflow_body
-    {{ block('main') }}
+    {% set digraphData = workflow_digraph(entity, flowCode, 'TB') %}
 
-    <div class="container-fluid">
-        {{ workflow_diagram(entity, flowCode, 'LR') }}
-        <div class="row row-fluid">
-            <div class="col-md-6 col-6">
-                {{ block('places') }}
-            </div>
-            <div class="col-md-6">
-                {{ block('transitions') }}
-            </div>
-        </div>
-    </div>
+{#    survos_workflow_body#}
+{#    {{ block('main') }}#}
 
-    <hr />
+{#    <div class="container-fluid">#}
+{#        {{ workflow_diagram(entity, flowCode, 'LR') }}#}
+{#        <div class="row row-fluid">#}
+{#            <div class="col-md-6 col-6">#}
+{#                {{ block('places') }}#}
+{#            </div>#}
+{#            <div class="col-md-6">#}
+{#                {{ block('transitions') }}#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+
+{#    <hr />#}
 
     <div class="row row-fluid">
-        <div class="col-md-6 col-6">
-            <div id="graph" style="text-align: center; width: 100% " ></div>
+        <div class="col-6">
+            <div id="digraph" class="digraph" >
+                {{ digraphData|raw }}
+            </div>
         </div>
 
-        <div class="col-md-3">
-            {{ block('places') }}
+        <div class="col-md-6">
+            {{ block('places_with_transitions') }}
         </div>
-
-        <div class="col-md-3">
-            {{ block('transitions') }}
-        </div>
-
     </div>
+
+    <pre>{{ digraphData }}</pre>
 
     <pre style="display: none;">
     <div id="digraph" class="digraph" >{{ workflow_digraph(entity, flowCode, 'LR')|raw }}</div>
@@ -102,6 +105,38 @@
 
 {% endblock %}
 
+{% block places_with_transitions %}
+    {% for place in definition.places %}
+        <li><b>
+            {{ workflow_metadata(entity, 'label', place, flowCode) ? workflow_metadata(entity, 'label', place, flowCode)|trans : '' }}
+            </b>
+                <i>
+                {{ workflow_metadata(entity, 'description', place, flowCode) ? workflow_metadata(entity, 'description', place, flowCode)|trans : '' }}
+            </i>
+            <a class="hidden-print" href="{{ path('survos_workflow', {flowCode: flowCode, class: class, states: place|json_encode}) }}">Set</a>
+
+            {% set transitions = definition.transitions|filter( (t) => place in t.froms) %}
+            {{ transitions|length }} Transitions:
+            <ul>
+                {% for t in transitions %}
+                    <li>
+                        <span class="fas fa-play"></span>
+                        <span class="fw-bold" title="{{ t.name }}">
+                        {{ workflow_metadata(entity, 'label', t, flowCode)  }}
+                        </span>
+
+                        <span class="fw-light">
+                        {{ workflow_metadata(entity, 'description', t, flowCode)  }}
+                        </span>
+                    </li>
+                {% endfor %}
+
+            </ul>
+        </li>
+
+    {% endfor %}
+
+{% endblock %}
 {% block places %}
 <h3>{{ flowCode }} States</h3>
 <ul class="list list-unstyled">
@@ -135,7 +170,7 @@
 </ul>
 {% endblock %}
 
-{% block body %}
+{% block debug_body %}
 
     <div id="diagram-target">
         #diagram-target
@@ -164,8 +199,11 @@
     <pre style="display: none;">
     </pre>
 
-    {{ 0 and workflow_diagram(entity, flowCode, 'LR') }}
-    <div id="graph" style="text-align: center; width: 100% " ></div>
+        <pre>
+        {{  workflow_digraph(entity, flowCode, 'LR') }}
+        </pre>
+    <div id="graphxx" style="text-align: center; width: 100% " >
+    </div>
 
     {% set article = entity %}
     <div class="row row-fluid">
