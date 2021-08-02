@@ -42,11 +42,12 @@ class SurvosWorkflowConfigureCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $class = $input->getArgument('class');
+        $workflowName = $class;
+
         if (!class_exists($class)) {
             $class = "App\\Entity\\$class";
         }
 
-        $workflowName = $class;
 
         // could look for entity properties to find ['status','marking','state']
         $property = $input->getOption('property');
@@ -66,18 +67,18 @@ class SurvosWorkflowConfigureCommand extends Command
 
         // map the place names to PHP constants
         $places =
-            array_map(function ($s) use ($class) {
+            array_map(fn ($s) =>
                 // get the value and use for meta
-                $value = constant($class . '::' . $s);
-               //  return [$this->phpConstant($class, $s) => [
-                return [$value => [
+//                $value = constant($class . '::' . $s);
+//                $value = constant(sprintf('%s::%s', $class, $s));
+                 [$place = sprintf('!php/const %s::%s', $class, $s) => [
                     'metadata' => [
-                        'label' => u($value)->ascii()->replace('_', ' ')->title(true)->toString(),
+                        'label' => u(constant($class . '::' . $s))->ascii()->replace('_', ' ')->title(true)->toString(),
                         'description' => ''
                     ]
                 ]
-                ];
-            }, array_filter(array_keys($constants), function ($s) { return preg_match('/^PLACE_/', $s); }) );
+                ], array_filter(array_keys($constants), function ($s) { return preg_match('/^PLACE_/', $s); }) );
+//        dd($places);
 
         $placeList = array_map(function ($var) { return array_key_first($var); }, array_values($places));
 
@@ -91,11 +92,13 @@ class SurvosWorkflowConfigureCommand extends Command
         foreach (array_filter(array_keys($constants), function ($s) { return preg_match('/^TRANSITION_/', $s); }) as $transitionConstant) {
             static $i=0;
             $value = constant(sprintf('%s::%s', $class, $transitionConstant));
-            $transitions[$value] = [
+
+
+            $transition = sprintf('!php/const %s::%s', $class, $transitionConstant);
+            $transitions[$transition] = [
             // $transitions[$this->phpConstant($class, $transitionConstant)] = [
-                'from' => $placeList[$i % count($placeList)],
+                'from' => [$placeList[$i % count($placeList)]],
                 'to' => $placeList[++$i % count($placeList)], // and is_granted('PROJECT_ADMIN', subject)
-                'guard' => "is_fully_authenticated()",
                 'metadata' => [
                     'label' => u($value)->ascii()->replace('_', ' ')->title(true)->toString(),
                     'description' => ''
@@ -133,9 +136,15 @@ class SurvosWorkflowConfigureCommand extends Command
 
         file_put_contents($fn, $yaml);
 
-        $io->success("Workflow created for $class in $fn");
+        $io->success("Workflow created for $class in $fn, but not the subscriber (yet!)");
 
-        return 0;
+        $io->warning($command = sprintf('bin/console make:subscriber %sSubscriber workflow.%s.transition.enter',
+            $workflowName, $workflowName));
+
+//        exec($command);
+        // now populate the subscriber transitions with events.
+
+        return self::SUCCESS;
     }
 
     private function getConfigurationArray($workflowName)
