@@ -12,15 +12,16 @@
 namespace Survos\WorkflowBundle\Renderer;
 
 use Doctrine\Inflector\Inflector;
-    use Symfony\Bundle\MakerBundle\Generator;
+use Symfony\Bundle\MakerBundle\Generator;
 use Symfony\Bundle\MakerBundle\Str;
 use Symfony\Bundle\MakerBundle\Util\ClassNameDetails;
+use Symfony\Component\String\Inflector\EnglishInflector;
 
 class WorkflowRenderer
 {
     private $generator;
 
-    public function __construct(Generator $generator)
+    public function __construct(Generator $generator, private EnglishInflector $inflector)
     {
         $this->generator = $generator;
     }
@@ -46,7 +47,7 @@ class WorkflowRenderer
         $mergedTypeUseStatements = array_merge($fieldTypeUseStatements, $extraUseClasses);
         sort($mergedTypeUseStatements);
 
-        $entityVarSingular = lcfirst(Inflector::singularize($boundClassDetails->getShortName()));
+        $entityVarSingular = lcfirst($this->inflector->singularize($boundClassDetails->getShortName())[0]);
 
         /*
         $entityTwigVarPlural = Str::asTwigVariable($entityVarPlural);

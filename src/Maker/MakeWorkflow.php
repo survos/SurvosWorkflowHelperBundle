@@ -2,8 +2,8 @@
 
 namespace Survos\WorkflowBundle\Maker;
 
-use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Survos\BaseBundle\Renderer\ParamConverterRenderer;
+use Survos\WorkflowBundle\Renderer\WorkflowRenderer;
 use Symfony\Bundle\MakerBundle\ConsoleStyle;
 use Symfony\Bundle\MakerBundle\DependencyBuilder;
 use Symfony\Bundle\MakerBundle\Doctrine\DoctrineHelper;
@@ -135,10 +135,10 @@ final class MakeWorkflow extends AbstractMaker
             false
         );
 
-        $dependencies->addClassDependency(
-            DoctrineBundle::class,
-            'orm',
-            false
-        );
+//        $dependencies->addClassDependency(
+//            DoctrineBundle::class,
+//            'orm',
+//            false
+//        );
     }
 }

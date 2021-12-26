@@ -10,7 +10,14 @@
         "doctrine/orm": "^2.7|^3.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": ">= 5.3"
+        "phpstan/phpstan": "^1.2",
+        "survos/base-bundle": "dev-master",
+        "symfony/config": ">= 5.3",
+        "symfony/dependency-injection": "^6.0",
+        "symfony/form": "^6.0",
+        "symfony/maker-bundle": "^1.36",
+        "symfony/phpunit-bridge": ">= 5.3",
+        "symfony/twig-bundle": ">= 5.3"
     },
 
     "license": "MIT",
@@ -32,5 +39,13 @@
         "branch-alias": {
             "dev-master": "2.0-dev"
         }
-    }
+    },
+    "repositories": {
+        "survos_base_bundle": {
+            "type": "vcs",
+            "url": "git@github.com:survos/BaseBundle.git"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
