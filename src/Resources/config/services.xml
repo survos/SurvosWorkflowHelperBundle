@@ -27,7 +27,7 @@
                 <tag name="container.service_subscriber" />
         </service>
 
-        <service id="Survos\WorkflowBundle\Twig\WorkflowExtension" public="true">
+        <service id="Survos\WorkflowBundle\Twig\WorkflowExtension" public="true" autowire="true">
             <argument type="service" id="survos_workflow_bundle.workflow_helper" />
             <tag name="twig.extension" />
         </service>

@@ -97,8 +97,9 @@
         </div>
     </div>
 
-    <pre>{{ digraphData }}</pre>
+{#    <pre>{{ digraphData }}</pre>#}
 
+    {# the actual data, will be passed when moved to Stimulus #}
     <pre style="display: none;">
     <div id="digraph" class="digraph" >{{ workflow_digraph(entity, flowCode, 'LR')|raw }}</div>
     </pre>
@@ -108,7 +109,7 @@
 {% block places_with_transitions %}
     {% for place in definition.places %}
         <li><b>
-            {{ workflow_metadata(entity, 'label', place, flowCode) ? workflow_metadata(entity, 'label', place, flowCode)|trans : '' }}
+            {{ workflow_metadata(entity, 'label', place, flowCode) ? workflow_metadata(entity, 'label', place, flowCode)|trans : place }}
             </b>
                 <i>
                 {{ workflow_metadata(entity, 'description', place, flowCode) ? workflow_metadata(entity, 'description', place, flowCode)|trans : '' }}
@@ -117,12 +118,12 @@
 
             {% set transitions = definition.transitions|filter( (t) => place in t.froms) %}
             {{ transitions|length }} Transitions:
-            <ul>
+            <ol>
                 {% for t in transitions %}
                     <li>
                         <span class="fas fa-play"></span>
                         <span class="fw-bold" title="{{ t.name }}">
-                        {{ workflow_metadata(entity, 'label', t, flowCode)  }}
+                        {{ workflow_metadata(entity, 'label', t, flowCode)|default(t.name)  }}
                         </span>
 
                         <span class="fw-light">
@@ -131,7 +132,7 @@
                     </li>
                 {% endfor %}
 
-            </ul>
+            </ol>
         </li>
 
     {% endfor %}
