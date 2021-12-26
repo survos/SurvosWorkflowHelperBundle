@@ -3,14 +3,14 @@
     "description": "Add some tools for using the Symfony Workflow Component",
     "type": "symfony-bundle",
     "require": {
-        "php": ">=7.1",
-        "symfony/workflow": "^4.4|^5.0",
-        "symfony/process": "^4.4|^5.0",
-        "symfony/console": "^4.4|^5.0",
-        "doctrine/orm": "^2.7"
+        "php": ">=7.4",
+        "symfony/workflow": ">= 5.3",
+        "symfony/process": ">= 5.3",
+        "symfony/console": ">= 5.3",
+        "doctrine/orm": "^2.7|^3.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^4.0.5 || ^5.0"
+        "symfony/phpunit-bridge": ">= 5.3"
     },
 
     "license": "MIT",
