@@ -12,6 +12,7 @@ trait MarkingTrait
     /**
      * @var string
      * @ORM\Column(type="string", length=32, nullable=true)
+     *
      */
     private ?string $marking = null; // self::INITIAL_MARKING;
     private array $context = [];
@@ -188,7 +189,7 @@ trait MarkingTrait
         dd( get_class($this), __METHOD__);
     }
 
-    public function setEnabledTransitions(array $enabledTransitions) {
+    public function setEnabledTransitions(array $enabledTransitions): self {
         // set by the doctrine postLoad listener
         $this->enabledTransitions = $enabledTransitions;
         return $this;
