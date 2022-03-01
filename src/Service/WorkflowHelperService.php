@@ -18,24 +18,14 @@ use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
 */
 class WorkflowHelperService
 {
-    private $workflowRegistry;
     private $dumper;
     private $em;
     private $direction;
 
-    /**
-     * @deprecated
-     * @return Registry
-     */
-    public function getRegistry() {
-        return $this->workflowRegistry;
-    }
-
-    public function __construct(string $direction, EntityManagerInterface $em, Registry $workflowRegistry)
+    public function __construct(string $direction, EntityManagerInterface $em, private ?Registry $workflowRegistry=null)
     {
         $this->direction = $direction;
         $this->em = $em;
-        $this->workflowRegistry = $workflowRegistry;
         $this->dumper = new SurvosStateMachineGraphVizDumper();
     }
 
