@@ -5,6 +5,7 @@ namespace Survos\WorkflowBundle\Traits;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Workflow\Transition;
 
 trait MarkingTrait
@@ -12,12 +13,15 @@ trait MarkingTrait
     /**
      * @var string
      * @ORM\Column(type="string", length=32, nullable=true)
-     *
      */
+    #[ORM\Column(type: 'string', length: 32)]
+    #[Groups(['transition', 'minimum', 'marking'])]
     private ?string $marking = null; // self::INITIAL_MARKING;
     private array $context = [];
 
     private \DateTime $lastTransitionTime;
+
+    #[Groups(['transitions'])]
     private array $enabledTransitions = [];
 
     /**
@@ -201,6 +205,10 @@ trait MarkingTrait
 
     public function getEnabledTransitionCodes() {
         return array_map( fn(Transition $transition) => $transition->getName(), $this->getEnabledTransitions());
+    }
+
+    public function getFlowCode() {
+        return self::WORKFLOW;
     }
 
 }

@@ -1,4 +1,4 @@
-<form action="{{ url('project_workflow', {return_to_referrer: true, flowName: flowName, id: entity.id}) }}" method="post">
+<form action="{{ url(transition_path, entity.rp({return_to_referrer: true, flowName: flowName})) }}" method="POST">
     <div class="btn-group-vertical" role="group">
         <input type="hidden" name="flowName" value="{{ flowName }}"/>
         <input type="hidden" name="type" value="{{ entity_class(entity) }}"/>

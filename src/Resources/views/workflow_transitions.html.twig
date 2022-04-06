@@ -1,6 +1,6 @@
 {% set transitions = workflow_transitions(entity, flowCode) %}
 {% set action = (entity.id|default(false))
-    ? path('project_workflow_transition', {id: entity.id|default(null), flowCode: flowCode})
+    ? path(transition_path|default('project_workflow_transition'), entity.rp({flowCode: flowCode}))
     : path('survos_workflow', {flowCode: flowCode})
 %}
 <form action="{{ action }}" method="GET">
