@@ -1,4 +1,4 @@
-<form action="{{ url(transition_path, entity.rp({return_to_referrer: true, flowName: flowName})) }}" method="POST">
+<form action="{{ url(transition_path, entity.rp({return_to_referrer: true, flowName: flowName, transition: '_', _format: 'html'})) }}" method="POST">
     <div class="btn-group-vertical" role="group">
         <input type="hidden" name="flowName" value="{{ flowName }}"/>
         <input type="hidden" name="type" value="{{ entity_class(entity) }}"/>

@@ -7,6 +7,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Workflow\Transition;
+use function Symfony\Component\String\u;
 
 trait MarkingTrait
 {
@@ -210,5 +211,11 @@ trait MarkingTrait
     public function getFlowCode() {
         return self::WORKFLOW;
     }
+
+    static function getConstants(?string $prefix = null) {
+        $oClass = new \ReflectionClass(__CLASS__);
+        return array_filter($oClass->getConstants(), fn($key) => $prefix ? u($key)->startsWith($prefix) : true, ARRAY_FILTER_USE_KEY);
+    }
+
 
 }

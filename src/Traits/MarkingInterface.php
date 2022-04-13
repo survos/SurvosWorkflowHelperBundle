@@ -9,4 +9,6 @@ interface MarkingInterface
     public function setEnabledTransitions(array $enabledTransitions): self;
     public function getEnabledTransitions(): ?array;
     public function getEnabledTransitionCodes(): array;
-}
+    static function getConstants(?string $prefix = null);
+
+    }
