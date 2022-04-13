@@ -23,7 +23,7 @@
 
         <service id="Survos\WorkflowBundle\Controller\WorkflowController" public="true" autowire="true">
             <argument type="service" id="survos_workflow_bundle.workflow_helper" />
-            <argument type="service" id="workflow.registry" />
+<!--            <argument type="service" id="workflow.registry" />-->
                 <tag name="container.service_subscriber" />
         </service>
 

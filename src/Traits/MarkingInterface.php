@@ -2,13 +2,11 @@
 
 namespace Survos\WorkflowBundle\Traits;
 
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Workflow\Transition;
-
 interface MarkingInterface
 {
     public function getMarking(): ?string;
-
+    public function setMarking(?string $marking, $context=[]): self;
+    public function setEnabledTransitions(array $enabledTransitions): self;
+    public function getEnabledTransitions(): ?array;
+    public function getEnabledTransitionCodes(): array;
 }

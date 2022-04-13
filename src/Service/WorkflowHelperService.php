@@ -130,6 +130,7 @@ class WorkflowHelperService
         return $svg;
     }
 
+    /** @return Workflow[] */
     public function getWorkflowsByCode($code = null)
     {
         $workflowService = $this->workflowRegistry;

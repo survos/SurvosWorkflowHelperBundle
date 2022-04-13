@@ -49,7 +49,7 @@ trait MarkingTrait
      * @param string $marking
      * @return self
      */
-    public function setMarking(?string $marking, $context=[])
+    public function setMarking(?string $marking, $context=[]): self
     {
         $this->marking = $marking;
         // not persisted!
@@ -203,7 +203,7 @@ trait MarkingTrait
         return $this->enabledTransitions ?: [];
     }
 
-    public function getEnabledTransitionCodes() {
+    public function getEnabledTransitionCodes(): array {
         return array_map( fn(Transition $transition) => $transition->getName(), $this->getEnabledTransitions());
     }
 
