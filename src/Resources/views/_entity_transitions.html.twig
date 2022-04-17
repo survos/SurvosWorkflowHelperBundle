@@ -1,3 +1,8 @@
+{% if flowName is not defined %}
+{% set flowName = constant('WORKFLOW', entity)%}
+{% endif %}
+
+Marking: {{entity.marking}}
 <form action="{{ url(transition_path, entity.rp({return_to_referrer: true, flowName: flowName, transition: '_', _format: 'html'})) }}" method="POST">
     <div class="btn-group-vertical" role="group">
         <input type="hidden" name="flowName" value="{{ flowName }}"/>

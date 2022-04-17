@@ -25,6 +25,15 @@ trait MarkingTrait
     #[Groups(['transitions'])]
     private array $enabledTransitions = [];
 
+    public function getMarkingData(WorkflowInterface $workflow, array $counts=null): array
+    {
+        return array_map(fn  ($marking) =>
+        array_merge(['marking' => $marking, 'count' => $counts[$marking] ?? null],  $workflow->getMetadataStore()->getPlaceMetadata($marking))
+            , $workflow->getDefinition()->getPlaces());
+    }
+
+
+
     /**
      * @ORM\Column(name="marking_history_json", type="json_array", columnDefinition="JSON", nullable=true)
      * @var array

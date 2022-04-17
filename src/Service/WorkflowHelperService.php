@@ -3,6 +3,7 @@
 namespace Survos\WorkflowBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Survos\BaseBundle\Traits\QueryBuilderHelperInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Registry;
@@ -21,6 +22,12 @@ class WorkflowHelperService
     private $dumper;
     private $direction;
 
+    public function __construct(string $direction, private EntityManagerInterface $em, private Registry $workflowRegistry)
+    {
+        $this->direction = $direction;
+        $this->dumper = new SurvosStateMachineGraphVizDumper();
+    }
+
     /**
      * @deprecated
      * @return Registry
@@ -29,11 +36,19 @@ class WorkflowHelperService
         return $this->workflowRegistry;
     }
 
-    public function __construct(string $direction, private EntityManagerInterface $em, private Registry $workflowRegistry)
+    // @idea: pass in the repository to make the counts call.
+    public function getMarkingData(WorkflowInterface $workflow, string $class, array $counts=null): array
     {
-        $this->direction = $direction;
-        $this->dumper = new SurvosStateMachineGraphVizDumper();
+        $repo = $this->em->getRepository($class);
+        if (!$repo instanceof QueryBuilderHelperInterface) {
+            throw new \Exception($repo->getClassName() . " should implement QueryBuilderHelperInterface ");
+        }
+        $counts = $repo->findBygetCountsByField('marking'); //
+        return array_map(fn  ($marking) =>
+            array_merge(['marking' => $marking, 'count' => $counts[$marking] ?? null],  $workflow->getMetadataStore()->getPlaceMetadata($marking))
+            , $workflow->getDefinition()->getPlaces());
     }
+
 
     /**
      * @param $subject
