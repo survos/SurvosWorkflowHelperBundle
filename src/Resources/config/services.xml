@@ -27,6 +27,18 @@
                 <tag name="container.service_subscriber" />
         </service>
 
+
+<!--        <service id="Survos\WorkflowBundle\MessageHandler\AsyncTransitionMessageHandler" alias="survos_workflow_bundle.async_message_handler" />-->
+
+        <service class="Survos\WorkflowBundle\MessageHandler\AsyncTransitionMessageHandler"
+                 id="survos_workflow_bundle.async_message_handler"
+                 public="true" autowire="true">
+            <argument type="service" id="workflow.registry" />
+            <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="logger" />
+            <tag name="messenger.message_handler" handles="Survos\WorkflowBundle\Message\AsyncTransitionMessage"/>
+        </service>
+
         <service id="Survos\WorkflowBundle\Twig\WorkflowExtension" public="true" autowire="true">
             <argument type="service" id="survos_workflow_bundle.workflow_helper" />
             <tag name="twig.extension" />

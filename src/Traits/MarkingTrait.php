@@ -7,6 +7,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Workflow\Transition;
+use Symfony\Component\Workflow\WorkflowInterface;
 use function Symfony\Component\String\u;
 
 trait MarkingTrait

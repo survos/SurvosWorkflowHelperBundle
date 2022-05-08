@@ -2,7 +2,31 @@
 {% set flowName = constant('WORKFLOW', entity)%}
 {% endif %}
 
-Marking: {{entity.marking}}
+<code>{{entity.marking}} {{ workflow_metadata(entity, 'label', entity.marking)}}</code>
+
+<b>{{ ('workflow.%s.place.%s.display'|format(flowName, entity.marking))|trans }}</b>
+<i>{{ ('workflow.%s.place.%s.description'|format(flowName, entity.marking))|trans }}</i>
+
+
+{{ entity.lastTransitionMessage|default('') }}
+
+{# Loop through the transition blockers #}
+{% if false and workflow is defined %}
+{% for t in workflow.definition.transitions|filter (t=>t.name=='request_clone')  %}
+    <ol>
+        {% for blocker in workflow_transition_blockers(entity, t.name) %}
+            <li>
+                {{ t.name }}
+                {{ dump(blocker)}}
+                <span class="error">{{ blocker.message }}</span>
+
+            </li>
+        {% endfor %}
+
+    </ol>
+{% endfor %}
+{% endif %}
+
 <form action="{{ url(transition_path, entity.rp({return_to_referrer: true, flowName: flowName, transition: '_', _format: 'html'})) }}" method="POST">
     <div class="btn-group-vertical" role="group">
         <input type="hidden" name="flowName" value="{{ flowName }}"/>
@@ -12,37 +36,53 @@ Marking: {{entity.marking}}
                 <tr>
                     <td>
                         {% set tName = transition.name %}
-                        <button type="submit" name="transition" value="{{ transition.name }}"
+                        <button type="submit" name="transition" value="{{ transition.name }}" title="{{ tName }}"
                                 {% if workflow_can(entity, transition.name, flowName) -%}
                                     class="btn btn-primary"
                                 {%- else -%}
                                     class="btn btn-danger" disabled="disabled"
                                 {%- endif -%}
                         >
-                            {{ tName }}
+                            {{ ('workflow.%s.transition.%s.display'|format(flowName, tName))|trans }}
                         </button>
                     </td>
                     <td>
-                        <b>{{ ('state_machine.transition.' ~ tName ~ '.display')|trans }}</b>
+
+                        <button type="submit"  name="transition" class="btn btn-warning" value="{{ transition.name }}_async" title="{{ tName }}">
+                            Async
+                            {#                            <a href="{{ path('')}}"#}
+
+                        </button>
+
+{#                        {% set messageClass = workflow_metadata(entity, 'messageClass', transition) %}#}
+{#                        {% if messageClass %}#}
+{#                        <button type="submit"  name="transition" class="btn btn-warning" value="{{ transition.name }}_async" title="{{ tName }}">#}
+{#                                {{ messageClass }}#}
+{#                                #}{#                            <a href="{{ path('')}}"#}
+
+{#                        </button>#}
+{#                        {% endif %}#}
+
+
                     </td>
                     <td>
-                        {{ ('state_machine.transition.' ~ tName ~ '.description')|trans }}
+                        <i>{{ ('workflow.%s.transition.%s.description'|format(flowName, tName))|trans }}</i>
                     </td>
                 </tr>
             {% endfor %}
-            <tr>
-                <td>
-                    {% set tName = "Reset" %}
-                    <button type="submit" name="transition" value="_hard_reset"
-                            class="btn btn-danger"
-                    >
-                        {{ tName }}
-                    </button>
-                </td>
-                <td rowspan="2">
-                    <b>Reset Workflow</b>
-                </td>
-            </tr>
+{#            <tr>#}
+{#                <td>#}
+{#                    {% set tName = "Reset" %}#}
+{#                    <button type="submit" name="transition" value="_hard_reset"#}
+{#                            class="btn btn-danger"#}
+{#                    >#}
+{#                        {{ tName }}#}
+{#                    </button>#}
+{#                </td>#}
+{#                <td rowspan="2">#}
+{#                    <b>Reset Workflow</b>#}
+{#                </td>#}
+{#            </tr>#}
         </table>
     </div>
 </form>
