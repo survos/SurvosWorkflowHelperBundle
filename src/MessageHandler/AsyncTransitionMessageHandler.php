@@ -34,8 +34,10 @@ final class AsyncTransitionMessageHandler implements MessageHandlerInterface
         $workflow  = $this->workflowRegistry->get($entity);
         if ($workflow->can($entity, $transitionName)) {
             $workflow->apply($entity, $transitionName);
+            $this->logger->info("Applied $transitionName to $message->className " . $message->id);
+        } else {
+            $this->logger->warning("Unable to apply $transitionName to $message->className " . $message->id);
         }
-        $this->logger->warning("Applied $transitionName to $message->className " . $message->id);
         $this->entityManager->flush();
     }
 }

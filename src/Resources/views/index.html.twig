@@ -3,6 +3,15 @@
 
 {% block body %}
 
+    {% for class, workflows in workflowsGroupedByClass %}
+        {% for code, workflow in workflows %}
+            <h1>{{ class}}: {{ code }}</h1>
+            <a href="{{ path('survos_workflow', {flowCode: code}) }}">Show More</a>
+
+            {{ workflow_diagram(wrapper.entity, code, 'LR') }}
+
+        {% endfor %}
+    {% endfor %}
 
     <h1>{{ workflowsByCode|length }} Workflows</h1>
 

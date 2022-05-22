@@ -1,8 +1,8 @@
 {% if flowName is not defined %}
-{% set flowName = constant('WORKFLOW', entity)%}
+{% set flowName = entity.flowCode %}
 {% endif %}
 
-<code>{{entity.marking}} {{ workflow_metadata(entity, 'label', entity.marking)}}</code>
+<code>{{entity.marking}} {{ workflow_metadata(entity, 'label', entity.marking, flowName)}}</code>
 
 <b>{{ ('workflow.%s.place.%s.display'|format(flowName, entity.marking))|trans }}</b>
 <i>{{ ('workflow.%s.place.%s.description'|format(flowName, entity.marking))|trans }}</i>
@@ -17,7 +17,6 @@
         {% for blocker in workflow_transition_blockers(entity, t.name) %}
             <li>
                 {{ t.name }}
-                {{ dump(blocker)}}
                 <span class="error">{{ blocker.message }}</span>
 
             </li>
@@ -33,9 +32,14 @@
         <input type="hidden" name="type" value="{{ entity_class(entity) }}"/>
         <table>
             {% for transition in workflow_transitions(entity, flowName) %}
+                {% set tName = transition.name %}
                 <tr>
                     <td>
-                        {% set tName = transition.name %}
+                        <button type="submit"  name="transition" class="btn btn-outline-success" value="{{ transition.name }}">
+                        {{ tName }}
+                        </button>
+                    </td>
+                    <td>
                         <button type="submit" name="transition" value="{{ transition.name }}" title="{{ tName }}"
                                 {% if workflow_can(entity, transition.name, flowName) -%}
                                     class="btn btn-primary"
@@ -47,23 +51,9 @@
                         </button>
                     </td>
                     <td>
-
                         <button type="submit"  name="transition" class="btn btn-warning" value="{{ transition.name }}_async" title="{{ tName }}">
                             Async
-                            {#                            <a href="{{ path('')}}"#}
-
                         </button>
-
-{#                        {% set messageClass = workflow_metadata(entity, 'messageClass', transition) %}#}
-{#                        {% if messageClass %}#}
-{#                        <button type="submit"  name="transition" class="btn btn-warning" value="{{ transition.name }}_async" title="{{ tName }}">#}
-{#                                {{ messageClass }}#}
-{#                                #}{#                            <a href="{{ path('')}}"#}
-
-{#                        </button>#}
-{#                        {% endif %}#}
-
-
                     </td>
                     <td>
                         <i>{{ ('workflow.%s.transition.%s.description'|format(flowName, tName))|trans }}</i>

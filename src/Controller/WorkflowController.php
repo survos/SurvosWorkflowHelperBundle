@@ -5,6 +5,7 @@ namespace Survos\WorkflowBundle\Controller;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Workflow\Workflow;
@@ -27,9 +28,11 @@ class WorkflowController extends AbstractController
      */
     public function index(Request $request)
     {
-        $workflowsByCode = $this->helper->getWorkflowsByCode();
+        $workflowsGroupedByCode = $this->helper->getWorkflowsByCode();
+        $workflowsGroupedByClass = $this->helper->getWorkflowsGroupedByClass();
         return $this->render("@SurvosWorkflow/index.html.twig", [
-            'workflowsByCode' => $workflowsByCode
+            'workflowsGroupedByClass' => $workflowsGroupedByClass,
+            'workflowsByCode' => $workflowsGroupedByCode
         ]);
     }
 
@@ -37,7 +40,7 @@ class WorkflowController extends AbstractController
     /**
      * @Route("/workflow/{flowCode}", name="survos_workflow")
      */
-    public function workflowAction(Request $request, $flowCode=null, $entityClass=null)
+    public function workflowAction(Request $request, $flowCode=null, $entityClass=null): Response
     {
 
         // @todo: handle empty flowcode, needs to look up by class

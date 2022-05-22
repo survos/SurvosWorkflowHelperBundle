@@ -197,8 +197,13 @@ trait MarkingTrait
 
     public function getWorkflowName()
     {
-        $name = (new \ReflectionClass($this))->getShortName();
+        if (defined($this::class . '::WORKFLOW')) {
+            $name = constant($this::class . '::WORKFLOW');
+        } else {
+            $name = (new \ReflectionClass($this))->getShortName();
+        }
         return strtolower($name);
+        return $name;
         return get_class($this);
         // dd($name, __METHOD__);
         dd( get_class($this), __METHOD__);
@@ -218,8 +223,13 @@ trait MarkingTrait
         return array_map( fn(Transition $transition) => $transition->getName(), $this->getEnabledTransitions());
     }
 
-    public function getFlowCode() {
+    public function getFlowCode(): string {
         return self::WORKFLOW;
+    }
+
+    static public function getFlowCodes($prefix = 'WORKFLOW') {
+        $oClass = new \ReflectionClass(__CLASS__);
+        return array_filter($oClass->getConstants(), fn($key) => $prefix ? u($key)->startsWith($prefix) : true, ARRAY_FILTER_USE_KEY);
     }
 
     static function getConstants(?string $prefix = null) {

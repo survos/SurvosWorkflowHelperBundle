@@ -7,6 +7,8 @@ use Survos\BaseBundle\Traits\QueryBuilderHelperInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Registry;
+use Symfony\Component\Workflow\StateMachine;
+use Symfony\Component\Workflow\SupportStrategy\InstanceOfSupportStrategy;
 use Symfony\Component\Workflow\Workflow;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
@@ -146,13 +148,33 @@ class WorkflowHelperService
     }
 
     /** @return Workflow[] */
+    public function getWorkflowsGroupedByClass()
+    {
+        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
+        $workflowBlobs = $reflectionProperty->getValue($this->workflowRegistry);
+        $workflowsByCode = [];
+
+        /**
+         * @var InstanceOfSupportStrategy $suportStrategy
+         * @var StateMachine $stateMachine
+         */
+        foreach ($workflowBlobs as [$stateMachine, $suportStrategy]) {
+//            dump($stateMachine, $suportStrategy);
+            $class = $suportStrategy->getClassName();
+            if (empty($workflowsByCode[$class])) {
+                $workflowsByCode[$class] = [];
+            }
+            $name = $stateMachine->getName();
+            $workflowsByCode[$class][$name] = $stateMachine;
+        }
+
+    }
     public function getWorkflowsByCode($code = null)
     {
-        $workflowService = $this->workflowRegistry;
+        $registry = $this->workflowRegistry;
 
-        $reflectionProperty = new \ReflectionProperty(get_class($workflowService), 'workflows');
-        $reflectionProperty->setAccessible(true);
-        $workflowBlobs = $reflectionProperty->getValue($workflowService);
+        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
+        $workflowBlobs = $reflectionProperty->getValue($this->workflowRegistry);
         $workflowsByCode = [];
 
         foreach ($workflowBlobs as $workflowBlob) {
@@ -164,33 +186,12 @@ class WorkflowHelperService
             $flowCode = $x->getName();
             /** @var Workflow $workflow */
 
-            $workflow = $workflowService->get($entity, $flowCode);
-            // $property = $workflow->getMarkingStore()->getProperty();
-
-            // $entity->setMarking($workflow->getDefinition()->getInitialPlace());
-            // dump($entity->getMarking(), $flowCode);
-
-
-            /*
-            $marking = $workflow->getMarkingStore()->getMarking($entity);
-            $places = $marking->getPlaces();
-            // dump( $marking, $places); // die();
-
-            // $entity->setMarking($workflow->getDefinition()->getInitialPlace());
-
-
-            $marking = $workflow->getMarking($entity);
-            $places = $marking->getPlaces();
-            dump($workflow->getMarkingStore());
-            dd($workflow->getMarkingStore()->getProperty(), __METHOD__);
-            dd($property, __METHOD__);
-                */
+            $workflow = $registry->get($entity, $flowCode);
             $places = $workflow->getDefinition()->getPlaces();
-            $property  = $workflow->getDefinition();
 
             $workflowsByCode[$flowCode] =
                 [
-                    'initialPlace' => $places,
+                    'initialPlace' => $places, // ??
                     'workflow' => $workflow,
                     'class' => $class,
                     'entity' => $entity,
