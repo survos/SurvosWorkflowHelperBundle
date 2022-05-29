@@ -26,7 +26,7 @@ class WorkflowController extends AbstractController
     /**
      * @Route("/", name="survos_workflows")
      */
-    public function index(Request $request)
+    public function workflows(Request $request)
     {
         $workflowsGroupedByCode = $this->helper->getWorkflowsByCode();
         $workflowsGroupedByClass = $this->helper->getWorkflowsGroupedByClass();
@@ -40,7 +40,7 @@ class WorkflowController extends AbstractController
     /**
      * @Route("/workflow/{flowCode}", name="survos_workflow")
      */
-    public function workflowAction(Request $request, $flowCode=null, $entityClass=null): Response
+    public function workflow(Request $request, $flowCode=null, $entityClass=null): Response
     {
 
         // @todo: handle empty flowcode, needs to look up by class

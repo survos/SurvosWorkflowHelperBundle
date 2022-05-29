@@ -21,10 +21,18 @@
             <tag name="console.command" />
         </service>
 
+        <service id="Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand" class="Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand" public="false">
+            <argument type="service" id="survos_workflow_bundle.workflow_helper" />
+            <argument type="service" id="translator" />
+            <argument type="service" id="workflow.registry" />
+            <tag name="console.command" />
+        </service>
+
         <service id="Survos\WorkflowBundle\Controller\WorkflowController" public="true" autowire="true">
             <argument type="service" id="survos_workflow_bundle.workflow_helper" />
 <!--            <argument type="service" id="workflow.registry" />-->
                 <tag name="container.service_subscriber" />
+                <tag name="controller.service_argument" />
         </service>
 
 

@@ -1,8 +1,9 @@
 <?php
 namespace Survos\WorkflowBundle;
 
-use Survos\FooBundle\Twig\FooTwigExtension;
+use Survos\WorkflowBundle\Controller\WorkflowController;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -14,18 +15,22 @@ class SurvosWorkflowBundle extends AbstractBundle
     // $config is the bundle Configuration that you usually process in ExtensionInterface::load() but already merged and processed
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        $loader = new XmlFileLoader($builder, new \Symfony\Component\Config\FileLocator(__DIR__ . '/Resources/config/'));
+        $loader = new XmlFileLoader($builder, new FileLocator(__DIR__ . '/Resources/config/'));
         $loader->load('services.xml');
+
+
 //        $definition = $builder->getDefinition('survos.foo');
 //        $builder->autowire('survos.foo_twig', FooTwigExtension::class)
 //            ->addTag('twig.extension');
 
 //        $serviceIdentifier = 'survos.foo';
-//        $definition = $builder->autowire($serviceIdentifier, FooService::class);
-////        $definition->setPublic(true);
+//        $definition = $builder->autowire(WorkflowController::class, WorkflowController::class)
+//            ->addTag('controller.service_argument');
+//        $definition->addTag('container.service_subscriber');
+
+//        $definition->setPublic(true);
 //        $container->services()->alias(FooService::class, $serviceIdentifier);
 //        $definition->setArgument(0, $config['title']);
-
 
         $builder->setParameter('survos_workflow.direction', $config['direction']);
         $builder->setParameter('survos_workflow.base_layout', $config['base_layout']);
