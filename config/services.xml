@@ -30,13 +30,13 @@
 
         <service id="Survos\WorkflowBundle\Controller\WorkflowController" public="true" autowire="true">
             <argument type="service" id="survos_workflow_bundle.workflow_helper" />
-<!--            <argument type="service" id="workflow.registry" />-->
-                <tag name="container.service_subscriber" />
-                <tag name="controller.service_argument" />
+            <!--            <argument type="service" id="workflow.registry" />-->
+            <tag name="container.service_subscriber" />
+            <tag name="controller.service_argument" />
         </service>
 
 
-<!--        <service id="Survos\WorkflowBundle\MessageHandler\AsyncTransitionMessageHandler" alias="survos_workflow_bundle.async_message_handler" />-->
+        <!--        <service id="Survos\WorkflowBundle\MessageHandler\AsyncTransitionMessageHandler" alias="survos_workflow_bundle.async_message_handler" />-->
 
         <service class="Survos\WorkflowBundle\MessageHandler\AsyncTransitionMessageHandler"
                  id="survos_workflow_bundle.async_message_handler"

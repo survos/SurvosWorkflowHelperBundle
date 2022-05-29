@@ -26,7 +26,7 @@ class WorkflowController extends AbstractController
     /**
      * @Route("/", name="survos_workflows")
      */
-    public function index(Request $request)
+    public function workflows(Request $request)
     {
         $workflowsGroupedByCode = $this->helper->getWorkflowsByCode();
         $workflowsGroupedByClass = $this->helper->getWorkflowsGroupedByClass();
