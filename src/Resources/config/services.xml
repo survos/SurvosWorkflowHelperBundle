@@ -5,7 +5,7 @@
         http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <!-- do we need to pass the parameters here to create the service? -->
-        <service id="survos_workflow_bundle.workflow_helper" class="Survos\WorkflowBundle\Service\WorkflowHelperService">
+        <service id="survos_workflow_bundle.workflow_helper" class="Survos\WorkflowBundle\Service\WorkflowHelperService" public="true" autowire="true">
             <argument>%survos_workflow.direction%</argument>
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="workflow.registry" />

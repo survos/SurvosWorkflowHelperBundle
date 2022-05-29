@@ -15,13 +15,11 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-            ->scalarNode('direction')->defaultValue('LR')->end()
-            ->scalarNode('base_layout')->defaultValue('base.html.twig')->end()
-            ->arrayNode('entities')
-                ->scalarPrototype()
-            ->end()->end()
-//            ->booleanNode('unicorns_are_real')->defaultTrue()->end()
-//            ->integerNode('min_sunshine')->defaultValue(3)->end()
+                ->scalarNode('direction')->defaultValue('LR')->end()
+                ->scalarNode('base_layout')->defaultValue('base.html.twig')->end()
+                ->arrayNode('entities')
+                    ->scalarPrototype()->end()
+                ->end()
             ->end();
 
         return $treeBuilder;
