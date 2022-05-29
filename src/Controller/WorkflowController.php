@@ -40,7 +40,7 @@ class WorkflowController extends AbstractController
     /**
      * @Route("/workflow/{flowCode}", name="survos_workflow")
      */
-    public function workflowAction(Request $request, $flowCode=null, $entityClass=null): Response
+    public function workflow(Request $request, $flowCode=null, $entityClass=null): Response
     {
 
         // @todo: handle empty flowcode, needs to look up by class
