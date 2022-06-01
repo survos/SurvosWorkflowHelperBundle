@@ -1,7 +1,9 @@
 <?php
 namespace Survos\WorkflowBundle;
 
+use Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand;
 use Survos\WorkflowBundle\Controller\WorkflowController;
+use Symfony\Bundle\FrameworkBundle\Command\WorkflowDumpCommand;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -18,8 +20,13 @@ class SurvosWorkflowBundle extends AbstractBundle
         $builder->setParameter('survos_workflow.base_layout', $config['base_layout']);
         $builder->setParameter('survos_workflow.entities', $config['entities']);
 
-        $loader = new XmlFileLoader($builder, new FileLocator(__DIR__.'/../config/'));
-        $loader->load('services.xml');
+        $container->import('../config/services.xml');
+//        $container->import('../config/routes.xml');
+
+        $builder->autowire(SurvosWorkflowConfigureCommand::class, SurvosWorkflowConfigureCommand::class)
+            ->addTag('console.command')
+            ->addArgument('%kernel.project_dir%')
+            ;
 
     }
 

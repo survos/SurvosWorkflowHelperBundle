@@ -7,5 +7,6 @@ Demo available at (heroku URL), source for demo at
 
 #### If developing WorkflowBundle (WorkflowExtrasBundle?  WorkflowHelperBundle?)
 
-    composer config repositories.survosworkflow '{"type": "path", "url": "../Survos/WorkflowBundle"}'
-    composer req survos/workflow-extension-bundle:"*@dev"
+    composer config repositories.survos_workflow_helper '{"type": "path", "url": "/home/tac/survos/bundles/WorkflowBundle/"}'
+    composer config repositories.survosworkflow '{"type": "path", "url": "../Survos/bundles/WorkflowBundle"}'
+    composer req survos/workflow-helper-bundle:"*@dev"

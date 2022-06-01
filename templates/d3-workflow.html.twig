@@ -66,6 +66,11 @@
 
 {% block body %}
 
+    digraph G {
+    a -> b [label="  a to b" labeltooltip="this is a tooltip"];
+    b -> c [label="  another label" ];
+    }
+
     {% set digraphData = workflow_digraph(entity, flowCode, 'TB') %}
 
 {#    survos_workflow_body#}
@@ -103,6 +108,7 @@
     <pre style="display: none;">
     <div id="digraph" class="digraph" >{{ workflow_digraph(entity, flowCode, 'LR')|raw }}</div>
     </pre>
+    <pre>{{ digraphData|raw }}</pre>
 
 {% endblock %}
 

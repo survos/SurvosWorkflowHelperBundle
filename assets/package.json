@@ -1,0 +1,25 @@
+{
+  "name": "@tacman/hello-bundle",
+  "description": "demonstrate installation for stimulus in a bundle",
+  "license": "MIT",
+  "version": "1.0.1",
+  "symfony": {
+    "controllers": {
+      "hello": {
+        "main": "src/controllers/hello_controller.js",
+        "webpackMode": "eager",
+        "fetch": "eager",
+        "enabled": true
+      }
+    }
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.0.0"
+  },
+  "devDependencies": {
+    "@hotwired/stimulus": "^3.0.0"
+  },
+  "dependencies": {
+    "sweetalert2": "^11.4.17"
+  }
+}

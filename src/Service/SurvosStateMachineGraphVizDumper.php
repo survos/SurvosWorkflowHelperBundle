@@ -18,7 +18,7 @@ use Symfony\Component\Workflow\Marking;
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
  */
-class SurvosStateMachineGraphVizDumper extends StateMachineGraphvizDumper
+class SurvosStateMachineGraphVizDumper extends GraphvizDumper
 {
     /**
      * {@inheritdoc}
@@ -43,6 +43,66 @@ class SurvosStateMachineGraphVizDumper extends StateMachineGraphvizDumper
             .$this->addEdges($edges)
             .$this->endDot()
             ;
+    }
+
+    protected function findPlaces(Definition $definition, Marking $marking = null): array
+    {
+        $workflowMetadata = $definition->getMetadataStore();
+
+        $places = [];
+
+        foreach ($definition->getPlaces() as $place) {
+            $attributes = [];
+            if (\in_array($place, $definition->getInitialPlaces(), true)) {
+                $attributes['style'] = 'filled';
+            }
+            if ($marking?->has($place)) {
+                $attributes['color'] = '#FF0000';
+                $attributes['shape'] = 'doublecircle';
+            }
+            $backgroundColor = $workflowMetadata->getMetadata('bg_color', $place);
+            if (null !== $backgroundColor) {
+                $attributes['style'] = 'filled';
+                $attributes['fillcolor'] = $backgroundColor;
+            }
+            $label = $workflowMetadata->getMetadata('label', $place);
+            if (null !== $label) {
+                $attributes['name'] = $label;
+            }
+            $places[$place] = [
+                'attributes' => $attributes,
+            ];
+        }
+
+        return $places;
+    }
+
+    protected function startDot(array $options): string
+    {
+        return sprintf("digraph workflow {\n  %s\n  node [%s];\n  edge [%s];\n\n",
+            $this->addOptions($options['graph']),
+            $this->addOptions($options['node']),
+            $this->addOptions($options['edge'])
+        );
+    }
+
+    /**
+     * @internal
+     */
+    protected function endDot(): string
+    {
+        return "}\n";
+    }
+
+    private function addOptions(array $options): string
+    {
+        $code = [];
+
+        foreach ($options as $k => $v) {
+            $code[] = sprintf('%s="%s"', $k, $v);
+        }
+
+        return implode(' ', $code);
     }
 
     protected  function dotize(string $id): string
@@ -139,5 +199,9 @@ protected function addPlaces(array $places): string
 
     return $code;
 }
+    protected function escape(string|bool $value): string
+    {
+        return \is_bool($value) ? ($value ? '1' : '0') : addslashes($value);
+    }
 
 }
