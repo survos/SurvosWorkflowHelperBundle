@@ -22,11 +22,9 @@ use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
 class WorkflowHelperService
 {
     private $dumper;
-    private $direction;
 
-    public function __construct(string $direction, private EntityManagerInterface $em, private Registry $workflowRegistry)
+    public function __construct(private string $direction, private EntityManagerInterface $em, private Registry $workflowRegistry)
     {
-        $this->direction = $direction;
         $this->dumper = new SurvosStateMachineGraphVizDumper();
     }
 
