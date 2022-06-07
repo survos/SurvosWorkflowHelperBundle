@@ -43,7 +43,9 @@ class WorkflowHelperService
         if (!$repo instanceof QueryBuilderHelperInterface) {
             throw new \Exception($repo->getClassName() . " should implement QueryBuilderHelperInterface ");
         }
-        $counts = $repo->findBygetCountsByField('marking'); //
+        if (empty($counts)) {
+            $counts = $repo->findBygetCountsByField('marking'); //
+        }
         return array_map(fn  ($marking) =>
             array_merge(['marking' => $marking, 'count' => $counts[$marking] ?? null],  $workflow->getMetadataStore()->getPlaceMetadata($marking))
             , $workflow->getDefinition()->getPlaces());
