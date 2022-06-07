@@ -224,7 +224,7 @@ trait MarkingTrait
     }
 
     public function getFlowCode(): string {
-        return self::WORKFLOW;
+        return strtolower((new \ReflectionClass($this))->getShortName());
     }
 
     static public function getFlowCodes($prefix = 'WORKFLOW') {

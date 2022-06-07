@@ -1,6 +1,7 @@
 <?php
 namespace Survos\WorkflowBundle;
 
+use Survos\WorkflowBundle\Command\ConvertFromYamlCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand;
 use Survos\WorkflowBundle\Controller\WorkflowController;
@@ -15,6 +16,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Workflow\Registry;
 
 class SurvosWorkflowBundle extends AbstractBundle
 {
@@ -23,6 +25,8 @@ class SurvosWorkflowBundle extends AbstractBundle
         $builder->setParameter('survos_workflow.direction', $config['direction']);
         $builder->setParameter('survos_workflow.base_layout', $config['base_layout']);
         $builder->setParameter('survos_workflow.entities', $config['entities']);
+
+//        $builder->register('workflow.registry', Registry::class); // isn't this already done by Symfony/Workflow
 
 //        $container->import('../config/routes.xml');
 //        $builder->register('survos_workflow_bundle.workflow_helper', WorkflowHelperService::class);
@@ -61,6 +65,10 @@ class SurvosWorkflowBundle extends AbstractBundle
             ->addTag('console.command')
             ->addArgument('%kernel.project_dir%')
             ;
+
+        $builder->autowire(ConvertFromYamlCommand::class)
+            ->addTag('console.command')
+        ;
 
 //        $container->import('../config/services.xml');
 

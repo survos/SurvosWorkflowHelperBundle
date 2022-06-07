@@ -149,6 +149,8 @@ class SurvosWorkflowConfigureCommand extends Command
         return self::SUCCESS;
     }
 
+
+
     private function getConfigurationArray($workflowName)
     {
         return Yaml::parse(
