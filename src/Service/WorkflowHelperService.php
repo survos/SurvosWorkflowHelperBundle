@@ -147,8 +147,8 @@ class WorkflowHelperService
         return $svg;
     }
 
-    /** @return Workflow[] */
-    public function getWorkflowsGroupedByClass()
+    /** @return <string, Workflow[]> */
+    public function getWorkflowsGroupedByClass(): array
     {
         $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
         $workflowBlobs = $reflectionProperty->getValue($this->workflowRegistry);
@@ -167,6 +167,7 @@ class WorkflowHelperService
             $name = $stateMachine->getName();
             $workflowsByCode[$class][$name] = $stateMachine;
         }
+        return $workflowsByCode;
 
     }
     public function getWorkflowsByCode($code = null)
@@ -182,6 +183,7 @@ class WorkflowHelperService
             $x = $workflowBlob[0];
 
             $class = $workflowBlob[1]->getClassName();
+            // @todo: use a Factory
             $entity = new $class;
             $flowCode = $x->getName();
             /** @var Workflow $workflow */

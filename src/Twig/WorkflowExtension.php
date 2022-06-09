@@ -37,6 +37,7 @@ class WorkflowExtension extends AbstractExtension
 
     public function getClass($object)
     {
+        // return $object::class;
         return (new \ReflectionClass($object))->getName();
     }
 

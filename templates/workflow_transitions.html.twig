@@ -1,13 +1,18 @@
+{% if flowCode is not defined %}
+{% set flowCode = entity.flowCode %}
+{% endif %}
 {% set transitions = workflow_transitions(entity, flowCode) %}
-{% set action = (entity.id|default(false))
-    ? path(transition_path|default('project_workflow_transition'), entity.rp({flowCode: flowCode}))
-    : path('survos_workflow', {flowCode: flowCode})
-%}
+{#{% set action = (entity.id|default(false))#}
+{#    ? path(transition_path|default('project_workflow_transition'), entity.rp({flowCode: flowCode}))#}
+{#    : path('survos_workflow', {flowCode: flowCode})#}
+{#%}#}
+{% set action = '#' %}
 <form action="{{ action }}" method="GET">
     <input type="hidden" name="class" value="{{ class|default(entity_class(entity)) }}"/>
     <input type="hidden" name="states" value="{{ entity ? entity.marking|json_encode }}"/>
     <input type="hidden" name="referrer_url" value="{{ app.request.uri }}"/>
     <div class="btn-group">
+        {{ dump(transitions) }}
         {% if transitions %}
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                     title="{{ flowCode }} Workflow"
@@ -17,7 +22,7 @@
             <ul class="dropdown-menu">
                 {% for transition in transitions %}
                     {% set tName = transition.name %}
-                    <li>
+                    <li class="dropdown-item">
 
                         {% set description = workflow_metadata(entity, 'description', transition, flowCode)|trans  %}
                         {% set label = workflow_metadata(entity, 'label', transition, flowCode)|trans ?: tName  %}

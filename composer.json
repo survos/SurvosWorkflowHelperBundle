@@ -47,12 +47,6 @@
       "dev-master": "2.0-dev"
     }
   },
-  "repositories": {
-    "survos_base_bundle": {
-      "type": "vcs",
-      "url": "git@github.com:survos/BaseBundle.git"
-    }
-  },
   "minimum-stability": "beta",
   "prefer-stable": true
 }
