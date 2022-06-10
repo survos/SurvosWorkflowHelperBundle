@@ -1,12 +1,12 @@
 {
-  "name": "@tacman/hello-bundle",
+  "name": "@survos/workflow-bundle",
   "description": "demonstrate installation for stimulus in a bundle",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "symfony": {
     "controllers": {
-      "hello": {
-        "main": "src/controllers/hello_controller.js",
+      "workflow": {
+        "main": "src/controllers/workflow_controller.js",
         "webpackMode": "eager",
         "fetch": "eager",
         "enabled": true
@@ -17,9 +17,9 @@
     "@hotwired/stimulus": "^3.0.0"
   },
   "devDependencies": {
-    "@hotwired/stimulus": "^3.0.0"
+    "@hotwired/stimulus": "^3.0.1"
   },
   "dependencies": {
-    "sweetalert2": "^11.4.17"
+    "d3-graphviz": "^4.1.1"
   }
 }
