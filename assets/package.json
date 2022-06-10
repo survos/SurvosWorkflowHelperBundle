@@ -20,6 +20,7 @@
     "@hotwired/stimulus": "^3.0.1"
   },
   "dependencies": {
-    "d3-graphviz": "^4.1.1"
+    "d3-graphviz": "^4.1.1",
+    "d3-selection": "^3.0.0"
   }
 }
