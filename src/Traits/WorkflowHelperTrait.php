@@ -13,7 +13,7 @@ use Survos\WorkflowBundle\Traits\MarkingInterface;
 
 trait WorkflowHelperTrait
 {
-//    use JsonResponseTrait;
+    use JsonResponseTrai;
 
     protected function _transition(Request $request, MarkingInterface $entity, $transition, WorkflowInterface $stateMachine, EntityManagerInterface $entityManager, $class, $_format = 'json'): Response
     {
