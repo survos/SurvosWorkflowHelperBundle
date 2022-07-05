@@ -15,13 +15,13 @@ trait HandleTransitionsTrait
         WorkflowInterface $workflow,
         string $transition,
         MarkingInterface $entity,
-        MessageBusInterface $bus,
+        ?MessageBusInterface $bus=null,
     ): ?string
     {
         $flashMessage = null;
         // use message handler instead.
         $suffix = '_async';
-        if (u($transition)->endsWith($suffix)) {
+        if (u($transition)->endsWith($suffix) && $bus) {
             $tName = trim($transition, $suffix);
 
 //            $transitions  = $workflow->getDefinition()->getTransitions();

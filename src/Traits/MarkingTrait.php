@@ -21,7 +21,7 @@ trait MarkingTrait
     private ?string $marking = null; // self::INITIAL_MARKING;
     private array $context = [];
 
-    private \DateTime $lastTransitionTime;
+    private ?\DateTime $lastTransitionTime=null;
 
     #[Groups(['transitions'])]
     private array $enabledTransitions = [];
@@ -33,17 +33,6 @@ trait MarkingTrait
             , $workflow->getDefinition()->getPlaces());
     }
 
-
-
-    /**
-     * @ORM\Column(name="marking_history_json", type="json_array", columnDefinition="JSON", nullable=true)
-     * @var array
-    private $markingHistory;
-     */
-
-    /**
-     * @return string
-     */
     public function getMarking(): ?string
     {
         return $this->marking;
@@ -83,7 +72,7 @@ trait MarkingTrait
      */
     public function hasMarking(string $marking) : bool
     {
-        return $this->marking == $marking;
+        return $this->marking === $marking;
     }
 
     /**
@@ -173,7 +162,7 @@ trait MarkingTrait
      * Set lastTransitionTime
      *
      * @deprecated
-     * @param \DateTime $lastTransitionTime
+     * @param ?\DateTime $lastTransitionTime
      * @return self
      *
      */
@@ -188,7 +177,7 @@ trait MarkingTrait
      * Get lastTransitionTime
      *
      * @deprecated
-     * @return \DateTime
+     * @return ?\DateTime
      */
     public function getLastTransitionTime(): ?\DateTime
     {

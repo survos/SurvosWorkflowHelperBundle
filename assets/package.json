@@ -1,6 +1,6 @@
 {
-  "name": "@survos/workflow-bundle",
-  "description": "demonstrate installation for stimulus in a bundle",
+  "name": "@survos/workflow-helper-bundle",
+  "description": "display workflow digraph using stimulus",
   "license": "MIT",
   "version": "1.0.2",
   "symfony": {
