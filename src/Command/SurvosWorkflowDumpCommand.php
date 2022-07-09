@@ -38,7 +38,7 @@ class SurvosWorkflowDumpCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
 
         $io = new SymfonyStyle($input, $output);
@@ -61,7 +61,7 @@ class SurvosWorkflowDumpCommand extends Command
 
             $wrapper = $helper->getWorkflowsByCode($flowCode);
 
-            /** @var Workflow $workflowA */
+            /** @var Workflow $workflow */
             $workflow = $wrapper['workflow'];
 
             $entity =  $wrapper['entity'];
@@ -74,11 +74,8 @@ class SurvosWorkflowDumpCommand extends Command
             // unset the current state
 
 
+            $metadataStore = $workflow->getMetadataStore();
             foreach ($workflow->getDefinition()->getPlaces() as $idx=>$place) {
-
-                dump($place);
-
-                $metadataStore = $workflow->getMetadataStore();
 //                dd(get_class($metadataStore));
 
 //                $data = $metadataStore->getPlaceMetadata($place)->get('icon');
@@ -130,6 +127,7 @@ class SurvosWorkflowDumpCommand extends Command
         file_put_contents($output = $path . '/survos-workflow.json', json_encode($data, JSON_PRETTY_PRINT ));
 
         $io->success("File $output written");
+        return self::SUCCESS;
 
     }
 

@@ -71,7 +71,6 @@ class WorkflowRenderer
                 'shortClassName' => $formClassDetails->getShortName(),
             ]
         );
-        dump($generatedFilename, $v, $formClassDetails);
         $contents = $this->generator->getFileContentsForPendingOperation($generatedFilename);
     }
 }

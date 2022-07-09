@@ -15,7 +15,6 @@ use function Symfony\Component\String\u;
 #[AsCommand(name: 'survos:workflow:dump')]
 class SurvosWorkflowConfigureCommand extends Command
 {
-    protected static $defaultName = 'survos:workflow:configure';
     /**
      * @var string
      */

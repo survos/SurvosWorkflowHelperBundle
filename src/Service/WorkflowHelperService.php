@@ -40,11 +40,12 @@ class WorkflowHelperService
     public function getMarkingData(WorkflowInterface $workflow, string $class, array $counts=null): array
     {
         $repo = $this->em->getRepository($class);
-        if (!$repo instanceof QueryBuilderHelperInterface) {
-            throw new \Exception($repo->getClassName() . " should implement QueryBuilderHelperInterface ");
-        }
         if (empty($counts)) {
-            $counts = $repo->findBygetCountsByField('marking'); //
+            if (method_exists($repo, 'findBygetCountsByField')) {
+                $counts = $repo->findBygetCountsByField('marking'); //
+            } else {
+                throw new \Exception("Marking data requires as findBygetCountsByField in the repository, use QueryBuilderHelperInterface from BaseBundle");
+            }
         }
         return array_map(fn  ($marking) =>
             array_merge(['marking' => $marking, 'count' => $counts[$marking] ?? null],  $workflow->getMetadataStore()->getPlaceMetadata($marking))
@@ -55,10 +56,9 @@ class WorkflowHelperService
     /**
      * @param $subject
      * @param $workflowName
-     * @param string $direction LR or TB
      * @return string
      */
-    public function workflowDiagramDigraph($subject, $workflowName, $direction=null)
+    public function workflowDiagramDigraph($subject, string $workflowName, ?string $direction=null)
     {
 
         if ($direction) {
