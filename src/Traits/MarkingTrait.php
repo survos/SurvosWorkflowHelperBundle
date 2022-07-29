@@ -20,6 +20,7 @@ trait MarkingTrait
     #[Groups(['transition', 'minimum', 'marking'])]
     private ?string $marking = null; // self::INITIAL_MARKING;
     private array $context = [];
+    private array $markingHistory=[];
 
     private ?\DateTime $lastTransitionTime=null;
 
