@@ -28,7 +28,6 @@ class SurvosWorkflowBundle extends AbstractBundle
 
 //        $builder->register('workflow.registry', Registry::class); // isn't this already done by Symfony/Workflow
 
-//        $container->import('../config/routes.xml');
 //        $builder->register('survos_workflow_bundle.workflow_helper', WorkflowHelperService::class);
 
         $workflowHelperId = 'survos_workflow_bundle.workflow_helper';
@@ -43,8 +42,6 @@ class SurvosWorkflowBundle extends AbstractBundle
             ->addArgument(new Reference($workflowHelperId))
             ->addTag('twig.extension');
 
-
-
         $builder->autowire(SurvosWorkflowDumpCommand::class)
             ->addArgument(new Reference($workflowHelperId))
             ->addArgument(new Reference('translator'))
@@ -52,10 +49,13 @@ class SurvosWorkflowBundle extends AbstractBundle
             ->addTag('console.command')
         ;
 
-        $builder->autowire(WorkflowController::class)
-            ->addArgument(new Reference($workflowHelperId))
-            ->addArgument(new Reference('translator'))
-            ->addArgument(new Reference('workflow.registry'))
+        $workflowControllerId = 'survos_workflow_bundle.workflow_controller';
+        $container->services()->alias(WorkflowController::class, $workflowControllerId);
+//        $builder->register($workflowControllerId, WorkflowController::class);
+        $builder->autowire($workflowControllerId, WorkflowController::class)
+            ->setArgument('$helper', new Reference($workflowHelperId))
+////            ->addArgument(new Reference('translator'))
+////            ->addArgument(new Reference('workflow.registry'))
             ->addTag('container.service_subscriber')
             ->addTag('controller.service_argument')
             ->setPublic(true)
