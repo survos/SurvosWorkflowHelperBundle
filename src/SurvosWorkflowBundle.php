@@ -57,7 +57,7 @@ class SurvosWorkflowBundle extends AbstractBundle
 ////            ->addArgument(new Reference('translator'))
 ////            ->addArgument(new Reference('workflow.registry'))
             ->addTag('container.service_subscriber')
-            ->addTag('controller.service_argument')
+            ->addTag('controller.service_arguments')
             ->setPublic(true)
         ;
 
