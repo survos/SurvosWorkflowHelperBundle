@@ -118,10 +118,10 @@ class WorkflowHelperService
          * @param string $direction LR or TB
          * @return string
          */
-        public function workflowDiagram($subject, $workflowName)
+        public function workflowDiagram($subject, $workflowName, string $direction)
     {
 
-        $dot = $this->workflowDiagramDigraph($subject, $workflowName);
+        $dot = $this->workflowDiagramDigraph($subject, $workflowName, $direction);
 
 
         // dump($dot); die();
