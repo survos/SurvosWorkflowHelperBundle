@@ -12,8 +12,8 @@ use Symfony\Component\Workflow\Workflow;
 
 class WorkflowController extends AbstractController
 {
-
     protected $workflowRegistry;
+
     protected $helper;
 
     public function __construct(WorkflowHelperService $helper) // , private Registry $registry)
@@ -32,17 +32,15 @@ class WorkflowController extends AbstractController
         $workflowsGroupedByClass = $this->helper->getWorkflowsGroupedByClass();
         return $this->render("@SurvosWorkflow/index.html.twig", [
             'workflowsGroupedByClass' => $workflowsGroupedByClass,
-            'workflowsByCode' => $workflowsGroupedByCode
+            'workflowsByCode' => $workflowsGroupedByCode,
         ]);
     }
-
 
     /**
      * @Route("/workflow/{flowCode}", name="survos_workflow")
      */
-    public function workflow(Request $request, $flowCode=null, $entityClass=null): Response
+    public function workflow(Request $request, $flowCode = null, $entityClass = null): Response
     {
-
         // @todo: handle empty flowcode, needs to look up by class
 
         $wrapper = $this->helper->getWorkflowsByCode($flowCode);
@@ -59,9 +57,7 @@ class WorkflowController extends AbstractController
         ];
 
         // need to get the marking store and set it properly.  This assumes we're using a live entity though.
-        if ($from = $request->get('states'))
-        {
-
+        if ($from = $request->get('states')) {
             $marking = $workflow->getMarking($entity);
             $markingStore = $workflow->getMarkingStore();
             // unset the current state
@@ -87,10 +83,9 @@ class WorkflowController extends AbstractController
 
         // group by class
         return $this->render('@SurvosWorkflow/d3-workflow.html.twig', $params + [
-                'digraph' => $dumper,
-                // 'workflows' => $workflows['workflow']['workflows'],
-            ]);
-
+            'digraph' => $dumper,
+            // 'workflows' => $workflows['workflow']['workflows'],
+        ]);
     }
 
     /**
@@ -100,12 +95,12 @@ class WorkflowController extends AbstractController
     {
         $workflowService = $this->container->get('state_machine.service.workflow');
         $class = $workflowService->getSupportedClass($flowName);
-        if (!$class) {
+        if (! $class) {
             throw new BadRequestHttpException(sprintf('Workflow "%s" is not supported. Maybe wrong name?', $flowName));
         }
-        $entity = new $class;
+        $entity = new $class();
         $direction = $request->get('direction', 'LR');
-//        $svg = $this->get('posse.twig.survey_extension')->workflowDiagram($entity, $flowName, $direction);
-//        return new Response($svg, 200, ['Content-Type' => 'image/svg+xml']);
+        //        $svg = $this->get('posse.twig.survey_extension')->workflowDiagram($entity, $flowName, $direction);
+        //        return new Response($svg, 200, ['Content-Type' => 'image/svg+xml']);
     }
 }

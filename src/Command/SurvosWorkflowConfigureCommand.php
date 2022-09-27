@@ -35,7 +35,8 @@ class SurvosWorkflowConfigureCommand extends Command
         ;
     }
 
-    private function phpConstant($class, $s) {
+    private function phpConstant($class, $s)
+    {
         return sprintf('!php/const %s::%s', $class, $s);
     }
 
@@ -45,10 +46,9 @@ class SurvosWorkflowConfigureCommand extends Command
         $class = $input->getArgument('class');
         $workflowName = $class;
 
-        if (!class_exists($class)) {
+        if (! class_exists($class)) {
             $class = "App\\Entity\\$class";
         }
-
 
         // could look for entity properties to find ['status','marking','state']
         $property = $input->getOption('property');
@@ -56,13 +56,17 @@ class SurvosWorkflowConfigureCommand extends Command
         // $config = $this->getConfigurationArray($class);
         $config = [
             'type' => 'state_machine',
-            'audit_trail' => ['enabled' => true],
-            'marking_store' => ['property' => $property],
+            'audit_trail' => [
+                'enabled' => true,
+            ],
+            'marking_store' => [
+                'property' => $property,
+            ],
         ];
 
         $reflectionClass = new \ReflectionClass($class);
         $shortName = $reflectionClass->getShortName();
-        $constants =  $reflectionClass->getConstants();
+        $constants = $reflectionClass->getConstants();
 
         $config['supports'] = $class;
 
@@ -72,42 +76,48 @@ class SurvosWorkflowConfigureCommand extends Command
                 // get the value and use for meta
 //                $value = constant($class . '::' . $s);
 //                $value = constant(sprintf('%s::%s', $class, $s));
-                 [$place = sprintf('!php/const %s::%s', $class, $s) => [
-                    'metadata' => [
-                        'label' => u(constant($class . '::' . $s))->ascii()->replace('_', ' ')->title(true)->toString(),
-                        'description' => ''
-                    ]
-                ]
-                ], array_filter(array_keys($constants), function ($s) { return preg_match('/^PLACE_/', $s); }) );
-//        dd($places);
+                 [
+                    $place = sprintf('!php/const %s::%s', $class, $s) => [
+                        'metadata' => [
+                            'label' => u(constant($class . '::' . $s))->ascii()->replace('_', ' ')->title(true)->toString(),
+                             'description' => '',
+                        ],
+                    ],
+                ], array_filter(array_keys($constants), function ($s) {
+                    return preg_match('/^PLACE_/', $s);
+                }));
+        //        dd($places);
 
-        $placeList = array_map(function ($var) { return array_key_first($var); }, array_values($places));
+        $placeList = array_map(function ($var) {
+            return array_key_first($var);
+        }, array_values($places));
 
-        if (!count($places)) {
+        if (! count($places)) {
             $io->error("Define PLACE_ constants in class $class");
             return 1;
         }
 
         $initialPlace = $placeList[0];
         $transitions = [];
-        foreach (array_filter(array_keys($constants), function ($s) { return preg_match('/^TRANSITION_/', $s); }) as $transitionConstant) {
-            static $i=0;
+        foreach (array_filter(array_keys($constants), function ($s) {
+            return preg_match('/^TRANSITION_/', $s);
+        }) as $transitionConstant) {
+            static $i = 0;
             $value = constant(sprintf('%s::%s', $class, $transitionConstant));
-
 
             $transition = sprintf('!php/const %s::%s', $class, $transitionConstant);
             $transitions[$transition] = [
-            // $transitions[$this->phpConstant($class, $transitionConstant)] = [
+                // $transitions[$this->phpConstant($class, $transitionConstant)] = [
                 'from' => [$placeList[$i % count($placeList)]],
                 'to' => $placeList[++$i % count($placeList)], // and is_granted('PROJECT_ADMIN', subject)
                 'metadata' => [
                     'label' => u($value)->ascii()->replace('_', ' ')->title(true)->toString(),
-                    'description' => ''
-                ]
+                    'description' => '',
+                ],
             ];
         }
 
-        if (!count($transitions)) {
+        if (! count($transitions)) {
             $io->error("Define at least one TRANSITION_ constant in class $class");
             return 1;
         }
@@ -119,15 +129,23 @@ class SurvosWorkflowConfigureCommand extends Command
 
         // walk through the places and add an option for metadata
         $result = array_column($places, 'name', 'code');
-        foreach ($places as $idx=>$record) {
+        foreach ($places as $idx => $record) {
             $result[key($record)] = $record[key($record)];
         }
         $config['places'] = $result; // array_map(function ($p) { return key($p) => $p]; }, $places);
 
         // dump($constants, $config);
         // $yaml =  Yaml::dump([$workflowName => $config], 5);
-        $yaml =  Yaml::dump(
-            ['framework' => ['workflows' => [$workflowName => $config]]], 7);
+        $yaml = Yaml::dump(
+            [
+                'framework' => [
+                    'workflows' => [
+                        $workflowName => $config,
+                    ],
+                ],
+            ],
+            7
+        );
 
         // get rid of quotes around php constant
         $fn = $this->projectDir . sprintf('./config/packages/workflow_%s.yaml', $shortName);
@@ -139,16 +157,17 @@ class SurvosWorkflowConfigureCommand extends Command
 
         $io->success("Workflow created for $class in $fn, but not the subscriber (yet!)");
 
-        $io->warning($command = sprintf('bin/console make:subscriber %sSubscriber workflow.%s.transition.enter',
-            $workflowName, $workflowName));
+        $io->warning($command = sprintf(
+            'bin/console make:subscriber %sSubscriber workflow.%s.transition.enter',
+            $workflowName,
+            $workflowName
+        ));
 
-//        exec($command);
+        //        exec($command);
         // now populate the subscriber transitions with events.
 
         return self::SUCCESS;
     }
-
-
 
     private function getConfigurationArray($workflowName)
     {
@@ -164,7 +183,6 @@ $workflowName:
         supports:
             - App\Entity\Class
 EOL
-
         );
     }
 }
