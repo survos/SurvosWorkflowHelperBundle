@@ -12,9 +12,8 @@ interface HandleTransitionsInterface
         WorkflowInterface $workflow,
         string $transition,
         MarkingInterface $entity,
-        ?MessageBusInterface $bus=null,
+        ?MessageBusInterface $bus = null,
     ): ?string;
 
     public function dispatchMessage(WorkflowInterface $workflow, $transition, MarkingInterface $entity);
-
 }
