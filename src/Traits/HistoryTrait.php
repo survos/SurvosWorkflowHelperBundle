@@ -12,7 +12,5 @@ trait HistoryTrait
         $repo = $this->em->getRepository(LogEntry::class);
         $logs = $repo->getLogEntries($entity);
         dd($logs, __METHOD__);
-
     }
-
 }
