@@ -1,4 +1,5 @@
 <?php
+
 namespace Survos\WorkflowBundle;
 
 use Survos\WorkflowBundle\Command\ConvertFromYamlCommand;
@@ -13,9 +14,9 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Workflow\Registry;
 
 class SurvosWorkflowBundle extends AbstractBundle
@@ -26,9 +27,9 @@ class SurvosWorkflowBundle extends AbstractBundle
         $builder->setParameter('survos_workflow.base_layout', $config['base_layout']);
         $builder->setParameter('survos_workflow.entities', $config['entities']);
 
-//        $builder->register('workflow.registry', Registry::class); // isn't this already done by Symfony/Workflow
+        //        $builder->register('workflow.registry', Registry::class); // isn't this already done by Symfony/Workflow
 
-//        $builder->register('survos_workflow_bundle.workflow_helper', WorkflowHelperService::class);
+        //        $builder->register('survos_workflow_bundle.workflow_helper', WorkflowHelperService::class);
 
         $workflowHelperId = 'survos_workflow_bundle.workflow_helper';
         $container->services()->alias(WorkflowHelperService::class, $workflowHelperId);
@@ -51,7 +52,7 @@ class SurvosWorkflowBundle extends AbstractBundle
 
         $workflowControllerId = 'survos_workflow_bundle.workflow_controller';
         $container->services()->alias(WorkflowController::class, $workflowControllerId);
-//        $builder->register($workflowControllerId, WorkflowController::class);
+        //        $builder->register($workflowControllerId, WorkflowController::class);
         $builder->autowire($workflowControllerId, WorkflowController::class)
             ->setArgument('$helper', new Reference($workflowHelperId))
 ////            ->addArgument(new Reference('translator'))
@@ -64,14 +65,13 @@ class SurvosWorkflowBundle extends AbstractBundle
         $builder->autowire(SurvosWorkflowConfigureCommand::class, SurvosWorkflowConfigureCommand::class)
             ->addTag('console.command')
             ->addArgument('%kernel.project_dir%')
-            ;
+        ;
 
         $builder->autowire(ConvertFromYamlCommand::class)
             ->addTag('console.command')
         ;
 
-//        $container->import('../config/services.xml');
-
+        //        $container->import('../config/services.xml');
     }
 
     public function configure(DefinitionConfigurator $definition): void
@@ -87,5 +87,4 @@ class SurvosWorkflowBundle extends AbstractBundle
 //            ->integerNode('min_sunshine')->defaultValue(3)->end()
             ->end();
     }
-
 }
