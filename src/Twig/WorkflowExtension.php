@@ -9,7 +9,6 @@ use Twig\TwigFunction;
 
 class WorkflowExtension extends AbstractExtension
 {
-
     private $workflowHelper;
 
     public function __construct(WorkflowHelperService $workflowHelper)
@@ -27,10 +26,14 @@ class WorkflowExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('workflow_diagram', [$this, 'workflowDiagram'], ['is_safe' => ['html']]),
-            new TwigFunction('workflow_digraph', [$this, 'workflowDigraph'], ['is_safe' => ['html']]),
-            new TwigFunction('entity_short_class', array($this, 'getShortClass')),
-            new TwigFunction('entity_class', array($this, 'getClass'))
+            new TwigFunction('workflow_diagram', [$this, 'workflowDiagram'], [
+                'is_safe' => ['html'],
+            ]),
+            new TwigFunction('workflow_digraph', [$this, 'workflowDigraph'], [
+                'is_safe' => ['html'],
+            ]),
+            new TwigFunction('entity_short_class', [$this, 'getShortClass']),
+            new TwigFunction('entity_class', [$this, 'getClass']),
 
         ];
     }
@@ -67,5 +70,4 @@ class WorkflowExtension extends AbstractExtension
     {
         return $this->workflowHelper->workflowDiagramDigraph($subject, $workflowName, $direction);
     }
-
 }

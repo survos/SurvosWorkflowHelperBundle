@@ -16,9 +16,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[AsCommand(name: 'survos:workflow:dump')]
 class SurvosWorkflowDumpCommand extends Command
 {
-
     private $helper;
+
     private $translator;
+
     private $registry;
 
     public function __construct(WorkflowHelperService $helper, TranslatorInterface $translator, Registry $registry, ?string $name = null)
@@ -40,17 +41,15 @@ class SurvosWorkflowDumpCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
         $io = new SymfonyStyle($input, $output);
-
 
         $data = [];
 
         $helper = $this->helper;
         $flowCodes = explode(',', $input->getArgument('flowCodes'));
 
-        foreach ($helper->getWorkflowsByCode() as $flowCode=>$workflowArray) {
-            if (!in_array($flowCode, $flowCodes)) {
+        foreach ($helper->getWorkflowsByCode() as $flowCode => $workflowArray) {
+            if (! in_array($flowCode, $flowCodes)) {
                 continue;
             }
 
@@ -58,27 +57,23 @@ class SurvosWorkflowDumpCommand extends Command
 
             // $workflow = $workflowArray['workflow'];
 
-
             $wrapper = $helper->getWorkflowsByCode($flowCode);
 
             /** @var Workflow $workflow */
             $workflow = $wrapper['workflow'];
 
-            $entity =  $wrapper['entity'];
-
-
+            $entity = $wrapper['entity'];
 
             $marking = $workflow->getMarking($entity);
             $markingStore = $workflow->getMarkingStore();
 
             // unset the current state
 
-
             $metadataStore = $workflow->getMetadataStore();
-            foreach ($workflow->getDefinition()->getPlaces() as $idx=>$place) {
-//                dd(get_class($metadataStore));
+            foreach ($workflow->getDefinition()->getPlaces() as $idx => $place) {
+                //                dd(get_class($metadataStore));
 
-//                $data = $metadataStore->getPlaceMetadata($place)->get('icon');
+                //                $data = $metadataStore->getPlaceMetadata($place)->get('icon');
                 $metaData = $metadataStore->getPlaceMetadata($place);
 
                 $style = $metaData['dump_style'] ?? null;
@@ -101,7 +96,7 @@ class SurvosWorkflowDumpCommand extends Command
                     ];
             }
 
-            foreach ($workflow->getDefinition()->getTransitions() as $idx=>$transition) {
+            foreach ($workflow->getDefinition()->getTransitions() as $idx => $transition) {
                 $transitionCode = $transition->getName();
                 $metaData = $metadataStore->getTransitionMetadata($transition);
                 $style = $metaData['dump_style'] ?? null;
@@ -114,7 +109,7 @@ class SurvosWorkflowDumpCommand extends Command
                     [
                         'label' => $this->trans(sprintf('%s.transitions.%s.label', $flowCode, $transitionCode), $transitionCode),
                         'icon' => $icon,
-                        'iconColor' => $color
+                        'iconColor' => $color,
                     ];
             }
         }
@@ -123,15 +118,14 @@ class SurvosWorkflowDumpCommand extends Command
 
         $js = "let workflowData = " . json_encode($data);
 
-
-        file_put_contents($output = $path . '/survos-workflow.json', json_encode($data, JSON_PRETTY_PRINT ));
+        file_put_contents($output = $path . '/survos-workflow.json', json_encode($data, JSON_PRETTY_PRINT));
 
         $io->success("File $output written");
         return self::SUCCESS;
-
     }
 
-    private function trans($string, $default) {
+    private function trans($string, $default)
+    {
         $translator = $this->translator;
         $t = $translator->trans($string);
         if ($t === $string) {
