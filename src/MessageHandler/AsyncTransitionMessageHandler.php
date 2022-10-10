@@ -13,11 +13,10 @@ use Symfony\Component\Workflow\Registry;
 final class AsyncTransitionMessageHandler implements MessageHandlerInterface
 {
     public function __construct(
-        private Registry      $workflowRegistry,
+        private Registry $workflowRegistry,
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger
-    )
-    {
+    ) {
     }
 
 //    public static function getHandledMessages(): iterable
@@ -30,8 +29,8 @@ final class AsyncTransitionMessageHandler implements MessageHandlerInterface
     {
         $entity = $this->entityManager->find($message->className, $message->id);
         $transitionName = $message->getTransitionName();
-//        dd($transitionName, __FILE__);
-        $workflow  = $this->workflowRegistry->get($entity);
+        //        dd($transitionName, __FILE__);
+        $workflow = $this->workflowRegistry->get($entity);
         if ($workflow->can($entity, $transitionName)) {
             $workflow->apply($entity, $transitionName);
             $this->logger->info("Applied $transitionName to $message->className " . $message->id);

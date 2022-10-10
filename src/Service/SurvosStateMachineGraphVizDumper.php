@@ -8,6 +8,7 @@ use Symfony\Component\Workflow\Dumper\DumperInterface;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
 use Symfony\Component\Workflow\Marking;
+
 /**
  * GraphvizDumper dumps a workflow as a graphviz file.
  *
@@ -39,10 +40,10 @@ class SurvosStateMachineGraphVizDumper extends GraphvizDumper
         $options = array_replace_recursive(self::$defaultOptions, $options);
 
         return $this->startDot($options)
-            .$this->addPlaces($places)
-            .$this->addEdges($edges)
-            .$this->endDot()
-            ;
+            . $this->addPlaces($places)
+            . $this->addEdges($edges)
+            . $this->endDot()
+        ;
     }
 
     protected function findPlaces(Definition $definition, Marking $marking = null): array
@@ -79,7 +80,8 @@ class SurvosStateMachineGraphVizDumper extends GraphvizDumper
 
     protected function startDot(array $options): string
     {
-        return sprintf("digraph workflow {\n  %s\n  node [%s];\n  edge [%s];\n\n",
+        return sprintf(
+            "digraph workflow {\n  %s\n  node [%s];\n  edge [%s];\n\n",
             $this->addOptions($options['graph']),
             $this->addOptions($options['node']),
             $this->addOptions($options['edge'])
@@ -105,7 +107,7 @@ class SurvosStateMachineGraphVizDumper extends GraphvizDumper
         return implode(' ', $code);
     }
 
-    protected  function dotize(string $id): string
+    protected function dotize(string $id): string
     {
         return $id;
     }
@@ -171,7 +173,6 @@ class SurvosStateMachineGraphVizDumper extends GraphvizDumper
         return $code;
     }
 
-
 protected function addPlaces(array $places): string
 {
     $code = '';
@@ -190,18 +191,23 @@ protected function addPlaces(array $places): string
         } else {
             $shape = 'ellipse';
         }
-        assert(!empty($shape), json_encode($place));
+        assert(! empty($shape), json_encode($place));
 
-        $code .= sprintf("  place_%s [label=\"%s\", shape=%s%s];\n",
-            $this->dotize($id), $this->escape($placeName), $shape, $this->addAttributes($place['attributes']));
+        $code .= sprintf(
+            "  place_%s [label=\"%s\", shape=%s%s];\n",
+            $this->dotize($id),
+            $this->escape($placeName),
+            $shape,
+            $this->addAttributes($place['attributes'])
+        );
     }
-//    dd($code);
+    //    dd($code);
 
     return $code;
 }
+
     protected function escape(string|bool $value): string
     {
         return \is_bool($value) ? ($value ? '1' : '0') : addslashes($value);
     }
-
 }
