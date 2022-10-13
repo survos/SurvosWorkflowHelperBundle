@@ -21,19 +21,27 @@ class WorkflowRenderer
 {
     private $generator;
 
-    public function __construct(Generator $generator, private EnglishInflector $inflector)
-    {
+    public function __construct(
+        Generator $generator,
+        private EnglishInflector $inflector
+    ) {
         $this->generator = $generator;
     }
 
-    public function render(ClassNameDetails $formClassDetails, array $formFields,
-                           ClassNameDetails $boundClassDetails = null,
-                           array $constraintClasses = [], array $extraUseClasses = [])
-    {
+    public function render(
+        ClassNameDetails $formClassDetails,
+        array $formFields,
+        ClassNameDetails $boundClassDetails = null,
+        array $constraintClasses = [],
+        array $extraUseClasses = []
+    ) {
         $fieldTypeUseStatements = [];
         $fields = [];
         foreach ($formFields as $name => $fieldTypeOptions) {
-            $fieldTypeOptions = $fieldTypeOptions ?? ['type' => null, 'options_code' => null];
+            $fieldTypeOptions = $fieldTypeOptions ?? [
+                'type' => null,
+                'options_code' => null,
+            ];
 
             if (isset($fieldTypeOptions['type'])) {
                 $fieldTypeUseStatements[] = $fieldTypeOptions['type'];
@@ -42,7 +50,6 @@ class WorkflowRenderer
 
             $fields[$name] = $fieldTypeOptions;
         }
-
 
         $mergedTypeUseStatements = array_merge($fieldTypeUseStatements, $extraUseClasses);
         sort($mergedTypeUseStatements);
@@ -57,10 +64,10 @@ class WorkflowRenderer
         $templatesPath = Str::asFilePath($controllerClassDetails->getRelativeNameWithoutSuffix());
          */
 
-        $generatedFilename= $this->generator->generateClass(
+        $generatedFilename = $this->generator->generateClass(
             $formClassDetails->getFullName(),
             __DIR__ . '/../Resources/skeleton/Request/ParamConverter/ParamConverter.tpl.php',
-            $v=[
+            $v = [
                 'entity_full_class_name' => $boundClassDetails ? $boundClassDetails->getFullName() : null,
                 'entity_class_name' => $boundClassDetails ? $boundClassDetails->getShortName() : null,
                 'form_fields' => $fields,
