@@ -34,7 +34,7 @@ class ConvertFromYamlCommand extends Command
             $constants = [];
 
             $supports = $definition['supports'];
-            if (!is_array($supports)) {
+            if (! is_array($supports)) {
                 $supports = [$supports];
             }
             foreach ($supports as $class) {
@@ -45,26 +45,24 @@ class ConvertFromYamlCommand extends Command
                     foreach ($definition['transitions'] as $transitionCode => $transition) {
                         $constants[$class]['TRANSITION_'][] = $transitionCode;
                     }
-
                 }
             }
 
-        $php = '';
-        $slugger = new AsciiSlugger();
-        foreach ($constants as $class => $constantsByType) {
-            foreach ($constantsByType as $type => $newConstants) {
-                foreach ($newConstants as $newConstant) {
-                    $newConstant = $slugger->slug($newConstant, '_');
-                    $php .= sprintf("const %s%s='%s';\n", $type, strtoupper($newConstant), $newConstant);
+            $php = '';
+            $slugger = new AsciiSlugger();
+            foreach ($constants as $class => $constantsByType) {
+                foreach ($constantsByType as $type => $newConstants) {
+                    foreach ($newConstants as $newConstant) {
+                        $newConstant = $slugger->slug($newConstant, '_');
+                        $php .= sprintf("const %s%s='%s';\n", $type, strtoupper($newConstant), $newConstant);
+                    }
                 }
+                $io->write("Add the following to " . $class . "\n\n");
+                $io->write($php);
+                //            print($php);
             }
-            $io->write("Add the following to " . $class . "\n\n");
-            $io->write($php);
-//            print($php);
-        }
         }
 
         return self::SUCCESS;
     }
-
 }

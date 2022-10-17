@@ -3,8 +3,8 @@
 namespace Survos\WorkflowBundle\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Workflow\WorkflowInterface;
@@ -19,19 +19,23 @@ trait MarkingTrait
     #[ORM\Column(type: 'string', length: 32, nullable: true)]
     #[Groups(['transition', 'minimum', 'marking'])]
     private ?string $marking = null; // self::INITIAL_MARKING;
-    private array $context = [];
-    private array $markingHistory=[];
 
-    private ?\DateTime $lastTransitionTime=null;
+    private array $context = [];
+
+    private array $markingHistory = [];
+
+    private ?\DateTime $lastTransitionTime = null;
 
     #[Groups(['transitions'])]
     private array $enabledTransitions = [];
 
-    public function getMarkingData(WorkflowInterface $workflow, array $counts=null): array
+    public function getMarkingData(WorkflowInterface $workflow, array $counts = null): array
     {
-        return array_map(fn  ($marking) =>
-        array_merge(['marking' => $marking, 'count' => $counts[$marking] ?? null],  $workflow->getMetadataStore()->getPlaceMetadata($marking))
-            , $workflow->getDefinition()->getPlaces());
+        return array_map(fn ($marking) =>
+        array_merge([
+            'marking' => $marking,
+            'count' => $counts[$marking] ?? null,
+        ], $workflow->getMetadataStore()->getPlaceMetadata($marking)), $workflow->getDefinition()->getPlaces());
     }
 
     public function getMarking(): ?string
@@ -48,9 +52,8 @@ trait MarkingTrait
      *   Note : type must be 'method', see https://symfony.com/blog/new-in-symfony-4-3-workflow-improvements#added-a-context-to-workflow-apply
      *   get the context with $event->getContext();
      * @param string $marking
-     * @return self
      */
-    public function setMarking(?string $marking, $context=[]): self
+    public function setMarking(?string $marking, $context = []): self
     {
         $this->marking = $marking;
         // not persisted!
@@ -67,11 +70,8 @@ trait MarkingTrait
         return $this->marking; // go through trans?  at least titleCase?
     }
 
-    /**
-     * @param string $marking
-     * @return bool
-     */
-    public function hasMarking(string $marking) : bool
+
+    public function hasMarking(string $marking): bool
     {
         return $this->marking === $marking;
     }
@@ -85,7 +85,6 @@ trait MarkingTrait
     }
 
     /**
-     * @param array $history
      * @return self
      */
     public function setMarkingHistory(array $history)
@@ -98,7 +97,8 @@ trait MarkingTrait
         return $this;
     }
 
-    public function addMarkingHistoryComment(?String $comment) {
+    public function addMarkingHistoryComment(?String $comment)
+    {
         if ($comment) {
             $history = $this->getMarkingHistory();
             if ($lastEvent = array_pop($history)) {
@@ -118,10 +118,10 @@ trait MarkingTrait
     {
         $resolver = new OptionsResolver();
         $resolver->setRequired([
-            'timestamp', 'transition', 'froms', 'tos', 'loggedInMemberId'
+            'timestamp', 'transition', 'froms', 'tos', 'loggedInMemberId',
         ])
             ->setDefaults([
-                'comment' => ''
+                'comment' => '',
             ])
         ;
         $data = $resolver->resolve($data);
@@ -165,7 +165,6 @@ trait MarkingTrait
      * @deprecated
      * @param ?\DateTime $lastTransitionTime
      * @return self
-     *
      */
     public function setLastTransitionTime(?\DateTime $lastTransitionTime)
     {
@@ -196,36 +195,40 @@ trait MarkingTrait
         return $name;
         return get_class($this);
         // dd($name, __METHOD__);
-        dd( get_class($this), __METHOD__);
+        dd(get_class($this), __METHOD__);
     }
 
-    public function setEnabledTransitions(array $enabledTransitions): self {
+    public function setEnabledTransitions(array $enabledTransitions): self
+    {
         // set by the doctrine postLoad listener
         $this->enabledTransitions = $enabledTransitions;
         return $this;
     }
 
-    public function getEnabledTransitions(): ?array {
+    public function getEnabledTransitions(): ?array
+    {
         return $this->enabledTransitions ?: [];
     }
 
-    public function getEnabledTransitionCodes(): array {
-        return array_map( fn(Transition $transition) => $transition->getName(), $this->getEnabledTransitions());
+    public function getEnabledTransitionCodes(): array
+    {
+        return array_map(fn (Transition $transition) => $transition->getName(), $this->getEnabledTransitions());
     }
 
-    public function getFlowCode(): string {
+    public function getFlowCode(): string
+    {
         return strtolower((new \ReflectionClass($this))->getShortName());
     }
 
-    static public function getFlowCodes($prefix = 'WORKFLOW') {
+    public static function getFlowCodes($prefix = 'WORKFLOW')
+    {
         $oClass = new \ReflectionClass(__CLASS__);
-        return array_filter($oClass->getConstants(), fn($key) => $prefix ? u($key)->startsWith($prefix) : true, ARRAY_FILTER_USE_KEY);
+        return array_filter($oClass->getConstants(), fn ($key) => $prefix ? u($key)->startsWith($prefix) : true, ARRAY_FILTER_USE_KEY);
     }
 
-    static function getConstants(?string $prefix = null) {
+    public static function getConstants(?string $prefix = null)
+    {
         $oClass = new \ReflectionClass(__CLASS__);
-        return array_filter($oClass->getConstants(), fn($key) => $prefix ? u($key)->startsWith($prefix) : true, ARRAY_FILTER_USE_KEY);
+        return array_filter($oClass->getConstants(), fn ($key) => $prefix ? u($key)->startsWith($prefix) : true, ARRAY_FILTER_USE_KEY);
     }
-
-
 }
