@@ -25,7 +25,7 @@ class WorkflowHelperService
     public function __construct(
         private string $direction,
         private EntityManagerInterface $em,
-        private Registry $workflowRegistry
+        private ?Registry $workflowRegistry = null
     ) {
         $this->dumper = new SurvosStateMachineGraphVizDumper();
     }
@@ -37,6 +37,10 @@ class WorkflowHelperService
     public function getRegistry()
     {
         return $this->workflowRegistry;
+    }
+
+    public function setRegistry(Registry $registry) {
+        $this->workflowRegistry = $registry;
     }
 
     // @idea: pass in the repository to make the counts call.

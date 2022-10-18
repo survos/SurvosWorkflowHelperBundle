@@ -8,9 +8,11 @@ use Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand;
 use Survos\WorkflowBundle\Controller\WorkflowController;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Survos\WorkflowBundle\Twig\WorkflowExtension;
+use Survos\WorkflowHelperBundle\Attribute\Workflow;
 use Symfony\Bundle\FrameworkBundle\Command\WorkflowDumpCommand;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -19,8 +21,24 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Workflow\Registry;
 
-class SurvosWorkflowBundle extends AbstractBundle
+class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterface
 {
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+
+        // Register this class as a pass, to eliminate the need for the extra DI class
+        // https://stackoverflow.com/questions/73814467/how-do-i-add-a-twig-global-from-a-bundle-config
+        $container->addCompilerPass($this);
+    }
+    // The compiler pass
+    public function process(ContainerBuilder $container)
+    {
+        // constructing service "state_machine.blog_publishing" from a parent definition is not supported at build time.
+//        $framework = $container->get('workflow.registry');
+//        dd($framework::class);
+    }
+
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $builder->setParameter('survos_workflow.direction', $config['direction']);
@@ -31,20 +49,20 @@ class SurvosWorkflowBundle extends AbstractBundle
 
         //        $builder->register('survos_workflow_bundle.workflow_helper', WorkflowHelperService::class);
 
-        $workflowHelperId = 'survos_workflow_bundle.workflow_helper';
-        $container->services()->alias($workflowHelperId, WorkflowHelperService::class);
+//        $workflowHelperId = 'survos_workflow_bundle.workflow_helper';
+//        $container->services()->alias($workflowHelperId, WorkflowHelperService::class);
         $builder->autowire( WorkflowHelperService::class)
-            ->addArgument($config['direction'])
-            ->addArgument(new Reference('doctrine.orm.entity_manager'))
-            ->addArgument(new Reference('workflow.registry'))
+            ->setArgument('$workflowRegistry', new Reference('workflow.registry'))
+            ->setArgument('$direction', $config['direction'])
+            ->setArgument('$em', new Reference('doctrine.orm.entity_manager'))
         ;
 
         $builder->autowire(WorkflowExtension::class)
-            ->addArgument(new Reference($workflowHelperId))
+            ->addArgument(new Reference(WorkflowHelperService::class))
             ->addTag('twig.extension');
 
         $builder->autowire(SurvosWorkflowDumpCommand::class)
-            ->addArgument(new Reference($workflowHelperId))
+            ->addArgument(new Reference(WorkflowHelperService::class))
             ->addArgument(new Reference('translator'))
             ->addArgument(new Reference('workflow.registry'))
             ->addTag('console.command')
@@ -71,6 +89,9 @@ class SurvosWorkflowBundle extends AbstractBundle
             ->setAutoconfigured(true)
             ->setPublic(true)
         ;
+
+        $builder->autowire(Workflow::class)
+            ->setPublic(true);
 
         $builder->autowire(SurvosWorkflowConfigureCommand::class, SurvosWorkflowConfigureCommand::class)
             ->addTag('console.command')
