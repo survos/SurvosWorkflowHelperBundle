@@ -32,7 +32,7 @@ class SurvosWorkflowBundle extends AbstractBundle
         //        $builder->register('survos_workflow_bundle.workflow_helper', WorkflowHelperService::class);
 
         $workflowHelperId = 'survos_workflow_bundle.workflow_helper';
-        $container->services()->alias(WorkflowHelperService::class, $workflowHelperId);
+        $container->services()->alias($workflowHelperId, WorkflowHelperService::class);
         $builder->autowire( WorkflowHelperService::class)
             ->addArgument($config['direction'])
             ->addArgument(new Reference('doctrine.orm.entity_manager'))
@@ -50,15 +50,25 @@ class SurvosWorkflowBundle extends AbstractBundle
             ->addTag('console.command')
         ;
 
-        $workflowControllerId = 'survos_workflow_bundle.workflow_controller';
-        $container->services()->alias(WorkflowController::class, $workflowControllerId);
+//        $serivceId = 'survos_command.command_controller';
+//        $container->services()->alias(CommandController::class, $serivceId);
+//        $builder->autowire(CommandController::class)
+//            ->setArgument('$kernel', new Reference('kernel'))
+//            ->addTag('container.service_subscriber')
+//            ->addTag('controller.service_arguments')
+//            ->setPublic(true)
+//            ->setAutoconfigured(true)
+        ;
+
+//        $workflowControllerId = 'survos_workflow_bundle.workflow_controller';
+//        $container->services()->alias(WorkflowController::class, $workflowControllerId  );
         //        $builder->register($workflowControllerId, WorkflowController::class);
-        $builder->autowire($workflowControllerId, WorkflowController::class)
-            ->setArgument('$helper', new Reference($workflowHelperId))
-////            ->addArgument(new Reference('translator'))
-////            ->addArgument(new Reference('workflow.registry'))
-            ->addTag('container.service_subscriber')
-            ->addTag('controller.service_arguments')
+//        $builder->autowire(WorkflowController::class)
+//            ->setArgument('$helper', new Reference($workflowHelperId))
+//            ->addTag('container.service_subscriber')
+//            ->addTag('controller.service_arguments')
+        $builder->autowire(WorkflowController::class)
+            ->setAutoconfigured(true)
             ->setPublic(true)
         ;
 
