@@ -13,7 +13,7 @@ use Symfony\Component\Workflow\WorkflowInterface;
 
 trait TransitionsBuilderTrait
 {
-    public function addTransitions(WorkflowInterface $workflow, SurvosBaseEntity $entity, FormBuilderInterface $builder): void
+    public function addTransitions(WorkflowInterface $workflow, MarkingInterface $entity, FormBuilderInterface $builder): void
     {
         $metadataStore = $workflow->getMetadataStore();
         /** @var Transition $transition */
