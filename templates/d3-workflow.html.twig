@@ -66,11 +66,6 @@
 
 {% block body %}
 
-    digraph G {
-    a -> b [label="  a to b" labeltooltip="this is a tooltip"];
-    b -> c [label="  another label" ];
-    }
-
     {% set digraphData = workflow_digraph(entity, flowCode, 'TB') %}
 
 {#    survos_workflow_body#}

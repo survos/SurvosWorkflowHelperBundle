@@ -70,4 +70,6 @@ class WorkflowExtension extends AbstractExtension
     {
         return $this->workflowHelper->workflowDiagramDigraph($subject, $workflowName, $direction);
     }
+
+
 }

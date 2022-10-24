@@ -8,7 +8,7 @@ use Symfony\Config\FrameworkConfig;
 
 class ConfigureFromAttributesService
 {
-    static public function configureFramework(string $workflowClass, FrameworkConfig $framework)
+    static public function configureFramework(string $workflowClass, FrameworkConfig $framework, array $supports)
     {
         $reflectionClass = new \ReflectionClass($workflowClass);
         foreach ($reflectionClass->getAttributes() as $attribute) {
@@ -20,7 +20,7 @@ class ConfigureFromAttributesService
 
         // look in attribute first
         $workflow = $framework->workflows()->workflows($reflectionClass->getShortName())
-            ->supports($workflowClass);
+            ->supports($supports);
 
         $constants = $reflectionClass->getConstants();
         $seen = [];

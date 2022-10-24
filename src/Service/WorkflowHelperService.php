@@ -7,6 +7,7 @@ use Survos\BootstrapBundle\Traits\QueryBuilderHelperInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
+use Symfony\Component\Workflow\Marking;
 use Symfony\Component\Workflow\Registry;
 use Symfony\Component\Workflow\StateMachine;
 use Symfony\Component\Workflow\SupportStrategy\InstanceOfSupportStrategy;
@@ -61,6 +62,29 @@ class WorkflowHelperService
             ], $workflow->getMetadataStore()->getPlaceMetadata($marking)), $workflow->getDefinition()->getPlaces());
     }
 
+    public function getWorkflow($subject, string $workflowName): WorkflowInterface
+    {
+
+        /** @var WorkflowInterface $workflow */
+        try {
+            $workflow = $this->workflowRegistry->get($subject, $workflowName);
+        } catch (\Exception $e) {
+            return $e->getMessage(); // null;
+        }
+        return $workflow;
+    }
+
+    public function workflowConstants($subject, string $workflowName)
+    {
+
+        $workflow = $this->getWorkflow($subject, $workflowName);
+
+        // dump workflow constants with attributes
+        $definition = $workflow->getDefinition();
+        $workflowPlaces = $workflow->getDefinition()->getPlaces();
+
+    }
+
     /**
      * @param $subject
      * @param $workflowName
@@ -71,34 +95,38 @@ class WorkflowHelperService
         if ($direction) {
             $this->direction = $direction;
         }
-
-        /** @var WorkflowInterface $workflow */
-        try {
-            $workflow = $this->workflowRegistry->get($subject, $workflowName);
-        } catch (\Exception $e) {
-            return $e->getMessage(); // null;
-        }
+        $workflow = $this->getWorkflow($subject, $workflowName);
         $definition = $workflow->getDefinition();
         $workflowPlaces = $workflow->getDefinition()->getPlaces();
 
-        $entityPlaces = array_keys($workflow->getMarkingStore()->getMarking($subject)->getPlaces());
-        $marking = $workflow->getMarkingStore()->getMarking($subject);
+        $markingStore = $workflow->getMarkingStore();
+        $entityPlaces = $workflow->getDefinition()->getPlaces();
+//        dd($places);
+//        $entityPlaces = array_keys($workflow->getMarkingStore()->getMarking($subject)->getPlaces());
+        try {
+            $marking = $workflow->getMarkingStore()->getMarking($subject);
+            array_map(function ($place) use ($marking) {
+                if ($marking->has($place)) {
+                    $marking->unmark($place);
+                }
+            }, $workflowPlaces);
+
+            // set it to the subject markings
+            array_map(
+                function ($place) use ($marking) {
+                    $marking->mark($place);
+                },
+                $entityPlaces
+            );
+
+        } catch (\Exception $exception) {
+            $initial = $workflow->getDefinition()->getInitialPlaces()[0];
+            $marking = (new Marking())
+                ->mark($subject->marking ?? $initial);
+
+        }
 
         // unset anything previously set
-        array_map(function ($place) use ($marking) {
-            if ($marking->has($place)) {
-                $marking->unmark($place);
-            }
-        }, $workflowPlaces);
-
-        // set it to the subject markings
-        array_map(
-            function ($place) use ($marking) {
-                $marking->mark($place);
-            },
-            $entityPlaces
-        );
-
         $dot = $this->dumper->dump($definition, $marking, [
             //graphviz docs http://www.graphviz.org/doc/info/attrs.html
             'graph' => [
