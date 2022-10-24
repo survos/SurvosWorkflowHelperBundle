@@ -1,6 +1,6 @@
 <?php
 
-namespace Survos\WorkflowHelperBundle\Attribute;
+namespace Survos\WorkflowBundle\Attribute;
 
 use Attribute;
 
@@ -11,7 +11,7 @@ class Transition
         public array|string $from,
         public array|string $to,
         public ?string $guard=null,
-        public ?array $metadata=null
+        public ?array $metadata=[]
     ) {
 
     }

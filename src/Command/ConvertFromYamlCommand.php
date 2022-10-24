@@ -13,13 +13,12 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Yaml\Yaml;
 use function Symfony\Component\String\u;
 
-#[AsCommand(name: 'survos:workflow:convert')]
+#[AsCommand('survos:workflow:convert', "read YAML and create PLACE_/TRANSTION constants")]
 class ConvertFromYamlCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setDescription('Add PLACE_ and TRANSITION_ constants to classes and create php config')
             ->addArgument('yamlFilename', InputArgument::REQUIRED, 'yaml filename or URL');
     }
 

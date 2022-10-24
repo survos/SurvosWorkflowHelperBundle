@@ -6,6 +6,7 @@ use Survos\WorkflowBundle\Command\ConvertFromYamlCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand;
 use Survos\WorkflowBundle\Controller\WorkflowController;
+use Survos\WorkflowBundle\Service\ConfigureFromAttributesService;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Survos\WorkflowBundle\Twig\WorkflowExtension;
 use Survos\WorkflowHelperBundle\Attribute\Workflow;
@@ -90,9 +91,14 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             ->setPublic(true)
         ;
 
-        $builder->autowire(Workflow::class)
-            ->setPublic(true);
+        $builder->autowire(ConfigureFromAttributesService::class)
+            ->setAutoconfigured(true)
+            ->setPublic(true)
+        ;
 
+//        $builder->autowire(Workflow::class)
+//            ->setPublic(true);
+//
         $builder->autowire(SurvosWorkflowConfigureCommand::class, SurvosWorkflowConfigureCommand::class)
             ->addTag('console.command')
             ->addArgument('%kernel.project_dir%')
