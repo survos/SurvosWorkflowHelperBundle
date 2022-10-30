@@ -8,7 +8,7 @@ use Symfony\Config\FrameworkConfig;
 
 class ConfigureFromAttributesService
 {
-    static public function configureFramework(string $workflowClass, FrameworkConfig $framework, array $supports)
+    static public function configureFramework(string $workflowClass, FrameworkConfig $framework, array|string $supports)
     {
         $reflectionClass = new \ReflectionClass($workflowClass);
         foreach ($reflectionClass->getAttributes() as $attribute) {

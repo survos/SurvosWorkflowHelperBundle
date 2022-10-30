@@ -2,8 +2,10 @@
 
 namespace Survos\WorkflowBundle\Service;
 
+use App\Entity\Task;
 use Doctrine\ORM\EntityManagerInterface;
 use Survos\BootstrapBundle\Traits\QueryBuilderHelperInterface;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
@@ -23,11 +25,40 @@ class WorkflowHelperService
 {
     private $dumper;
 
+//    /** @var WorkflowInterface[] */
+////    private array $workflows = [];
+//
+//    public function __construct(iterable $workflows)
+//    {
+//        foreach ($workflows as $name => $workflow) {
+//            // You can dump($workflow); here
+//            dd($workflow);
+//            $this->workflows[$name] = $workflow;
+//        }
+//    }
+
     public function __construct(
-        private string $direction,
+        /** @var WorkflowInterface[] */
+        private iterable $workflows,
+
+//        private ServiceLocator $locator,
+//        private string $direction,
         private EntityManagerInterface $em,
-        private ?Registry $workflowRegistry = null
+        private ?Registry $workflowRegistry = null,
     ) {
+        // get the workflows from the registry:
+        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
+        $workflowCountFromRegistry = count($reflectionProperty->getValue($this->workflowRegistry));
+
+
+//        foreach ($workflows as $name => $workflow) {
+//            // You can dump($workflow); here
+//            $this->workflows[$name] = $workflow;
+//            dd($workflow);
+//        }
+//        assert(count($this->workflows) == $workflowCountFromRegistry, sprintf("$workflowCountFromRegistry workflows in registry, %d from the service_iterator",
+//        count($this->workflows)));
+//        dd($this->locator->count(), count($this->workflowRegistry->all(new Task())));
         $this->dumper = new SurvosStateMachineGraphVizDumper();
     }
 
@@ -74,14 +105,22 @@ class WorkflowHelperService
         return $workflow;
     }
 
-    public function workflowConstants($subject, string $workflowName)
+    public function workflowConstants(WorkflowInterface $workflow)
     {
 
-        $workflow = $this->getWorkflow($subject, $workflowName);
+//        $workflow = $this->getWorkflow($subject, $workflowName);
 
         // dump workflow constants with attributes
         $definition = $workflow->getDefinition();
         $workflowPlaces = $workflow->getDefinition()->getPlaces();
+
+        foreach ($workflowPlaces as $code=>$value) {
+
+        }
+
+        dd($workflowPlaces);
+
+
 
     }
 

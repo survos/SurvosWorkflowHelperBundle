@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Command\WorkflowDumpCommand;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -21,6 +22,8 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Workflow\Registry;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
 class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterface
 {
@@ -32,19 +35,37 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         // https://stackoverflow.com/questions/73814467/how-do-i-add-a-twig-global-from-a-bundle-config
         $container->addCompilerPass($this);
     }
-    // The compiler pass
-    public function process(ContainerBuilder $container)
+
+
+
+    public function process(ContainerBuilder $container): void
     {
-        // constructing service "state_machine.blog_publishing" from a parent definition is not supported at build time.
-//        $framework = $container->get('workflow.registry');
-//        dd($framework::class);
+        $workflowHelperDefinition = $container->findDefinition(WorkflowHelperService::class);
+        $workflowHelperDefinition->setArgument('$workflows', tagged_iterator('workflow', 'name'));
     }
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+
+        $builder->autowire( WorkflowHelperService::class)
+//            ->setArgument('$workflowRegistry', new Reference('workflow.registry'))
+            ->setAutoconfigured(true)
+        ;
+//            ->setArgument('$locator', ServiceLocatorTagPass::register($builder, $locateableServices))
+//            ->setArgument('$direction', $config['direction'])
+//            ->setArgument('$em', new Reference('doctrine.orm.entity_manager'))
+        ;
+
         $builder->setParameter('survos_workflow.direction', $config['direction']);
         $builder->setParameter('survos_workflow.base_layout', $config['base_layout']);
         $builder->setParameter('survos_workflow.entities', $config['entities']);
+
+        $container->services()
+            ->set('console.command.workflow_dump', WorkflowDumpCommand::class)
+            ->args([
+                tagged_locator('workflow', 'name'),
+            ]);
+
 
         //        $builder->register('workflow.registry', Registry::class); // isn't this already done by Symfony/Workflow
 
@@ -52,11 +73,13 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
 
 //        $workflowHelperId = 'survos_workflow_bundle.workflow_helper';
 //        $container->services()->alias($workflowHelperId, WorkflowHelperService::class);
-        $builder->autowire( WorkflowHelperService::class)
-            ->setArgument('$workflowRegistry', new Reference('workflow.registry'))
-            ->setArgument('$direction', $config['direction'])
-            ->setArgument('$em', new Reference('doctrine.orm.entity_manager'))
-        ;
+//        $workflowHelperService = $container->getDefinition(WorkflowHelperService::class);
+
+//        $workflowHelperService->setArgument('$locator', tagged_locator(tag: 'workflow', indexAttribute: 'name' ))
+        $locateableServices = ['workflow' => new Reference('workflow')];
+        $locateableServices = [];
+
+
 
         $builder->autowire(WorkflowExtension::class)
             ->addArgument(new Reference(WorkflowHelperService::class))

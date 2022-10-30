@@ -48,6 +48,9 @@ class WorkflowController extends AbstractController
         $workflow = $wrapper['workflow'];
         $entity = $wrapper['entity'];
 
+        // hack
+        $x = $this->helper->workflowConstants($workflow, $flowCode);
+
         $params = [
             'flowName' => $flowCode,
             'flowCode' => $flowCode,
