@@ -14,7 +14,7 @@ use Doctrine\ORM\Event\PreFlushEventArgs;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Workflow\Registry;
 use Symfony\Component\Workflow\Transition;
 

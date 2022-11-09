@@ -41,7 +41,13 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
     public function process(ContainerBuilder $container): void
     {
         $workflowHelperDefinition = $container->findDefinition(WorkflowHelperService::class);
-        $workflowHelperDefinition->setArgument('$workflows', tagged_iterator('workflow', 'name'));
+
+//        foreach (tagged_iterator('workflow', 'name') as $x) {
+//            dd($x);
+//        }
+        $workflowHelperDefinition->setArgument('$workflows', tagged_iterator('workflow'));
+
+        $workflowHelperDefinition->setArgument('$support', tagged_iterator('workflow', 'supportStrategy'));
     }
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void

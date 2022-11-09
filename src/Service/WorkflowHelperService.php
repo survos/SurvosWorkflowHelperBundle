@@ -40,15 +40,17 @@ class WorkflowHelperService
     public function __construct(
         /** @var WorkflowInterface[] */
         private iterable $workflows,
+        private iterable $support,
 
 //        private ServiceLocator $locator,
 //        private string $direction,
         private EntityManagerInterface $em,
         private ?Registry $workflowRegistry = null,
     ) {
+//        dd($this->support, $this->workflows);
         // get the workflows from the registry:
-        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
-        $workflowCountFromRegistry = count($reflectionProperty->getValue($this->workflowRegistry));
+//        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
+//        $workflowCountFromRegistry = count($reflectionProperty->getValue($this->workflowRegistry));
 
 
 //        foreach ($workflows as $name => $workflow) {
@@ -60,6 +62,11 @@ class WorkflowHelperService
 //        count($this->workflows)));
 //        dd($this->locator->count(), count($this->workflowRegistry->all(new Task())));
         $this->dumper = new SurvosStateMachineGraphVizDumper();
+    }
+
+    public function getWorkflowsFromTaggedIterator(): iterable
+    {
+        return $this->workflows;
     }
 
     /**
@@ -118,7 +125,7 @@ class WorkflowHelperService
 
         }
 
-        dd($workflowPlaces);
+//        dd($workflowPlaces);
 
 
 
@@ -224,17 +231,32 @@ class WorkflowHelperService
      */
     public function getWorkflowsGroupedByClass(): array
     {
-        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
-        $workflowBlobs = $reflectionProperty->getValue($this->workflowRegistry);
-        $workflowsByCode = [];
+
+
+//        /** @var Workflow $x */
+//        foreach ($this->getWorkflowsFromTaggedIterator() as $y=>$x) {
+//            dump($x, $x->getMarkingStore(), $x->getDefinition());
+////            $reflectionProperty = new \ReflectionProperty(get_class($x), 'supports');
+////            $supports = $reflectionProperty->getValue($x);
+//            dd($y, $x);
+//            dump($x, $x->getMarkingStore(), $x->getDefinition());
+//        }
 
         /**
          * @var InstanceOfSupportStrategy $suportStrategy
          * @var StateMachine $stateMachine
          */
+        $workflowsByCode = [];
+
+        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
+        $workflowBlobs = $reflectionProperty->getValue($this->workflowRegistry);
         foreach ($workflowBlobs as [$stateMachine, $suportStrategy]) {
-            //            dump($stateMachine, $suportStrategy);
             $class = $suportStrategy->getClassName();
+
+
+            //            dump($stateMachine, $suportStrategy);
+//            dd($stateMachine, $suportStrategy);
+
             if (empty($workflowsByCode[$class])) {
                 $workflowsByCode[$class] = [];
             }
