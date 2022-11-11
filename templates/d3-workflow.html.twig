@@ -110,12 +110,12 @@
 {% block places_with_transitions %}
     {% for place in definition.places %}
         <li><b>
-            {{ workflow_metadata(entity, 'label', place, flowCode) ? workflow_metadata(entity, 'label', place, flowCode)|trans : place }}
+            {{ survos_workflow_metadata(flowCode, 'label', place)}}
             </b>
                 <i>
-                {{ workflow_metadata(entity, 'description', place, flowCode) ? workflow_metadata(entity, 'description', place, flowCode)|trans : '' }}
+                {{ survos_workflow_metadata(flowCode, 'description', place)  }}
             </i>
-            <a class="hidden-print" href="{{ path('survos_workflow', {flowCode: flowCode, class: class, states: place|json_encode}) }}">Set</a>
+            <a class="hidden-print" href="{{ path('survos_workflow', {flowCode: flowCode, states: place|json_encode}) }}">Set</a>
 
             {% set transitions = definition.transitions|filter( (t) => place in t.froms) %}
             {{ transitions|length }} Transitions:
@@ -124,11 +124,11 @@
                     <li>
                         <span class="fas fa-play"></span>
                         <span class="fw-bold" title="{{ t.name }}">
-                        {{ workflow_metadata(entity, 'label', t, flowCode)|default(t.name)  }}
+                        {{ survos_workflow_metadata(flowCode|default(t.name), 'label', t) }}
                         </span>
 
                         <span class="fw-light">
-                        {{ workflow_metadata(entity, 'description', t, flowCode)  }}
+                        {{ survos_workflow_metadata(flowCode, 'description', t)  }}
                         </span>
                     </li>
                 {% endfor %}

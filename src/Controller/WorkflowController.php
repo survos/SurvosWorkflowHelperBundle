@@ -28,9 +28,11 @@ class WorkflowController extends AbstractController
      */
     public function workflows(Request $request)
     {
-        $workflowsGroupedByCode = $this->helper->getWorkflowsByCode();
+
+        $workflowsGroupedByCode = $this->helper->getWorkflowsIndexedByName();
         $workflowsGroupedByClass = $this->helper->getWorkflowsGroupedByClass();
         return $this->render("@SurvosWorkflow/index.html.twig", [
+            'configs' => $this->helper->getWorkflowConfiguration(),
             'workflowsGroupedByClass' => $workflowsGroupedByClass,
             'workflowsByCode' => $workflowsGroupedByCode,
         ]);
@@ -43,39 +45,40 @@ class WorkflowController extends AbstractController
     {
         // @todo: handle empty flowcode, needs to look up by class
 
-        $wrapper = $this->helper->getWorkflowsByCode($flowCode);
-        /** @var Workflow $workflow */
-        $workflow = $wrapper['workflow'];
-        $entity = $wrapper['entity'];
+        $workflow = $this->helper->getWorkflowByCode($flowCode);
+        $classes = $this->helper->getSupports($flowCode);
 
-        // hack
-        $x = $this->helper->workflowConstants($workflow, $flowCode);
+//        dd($workflow, $classes);
+        $entity = $entityClass ? (new $entityClass) : null;
+
 
         $params = [
             'flowName' => $flowCode,
             'flowCode' => $flowCode,
-            'definition' => $wrapper['definition'],
-            'class' => $wrapper['class'],
+            'definition' => $workflow->getDefinition(),
+            'classes' => $classes,
             'entity' => $entity,
         ];
 
         // need to get the marking store and set it properly.  This assumes we're using a live entity though.
-        if ($from = $request->get('states')) {
-            $marking = $workflow->getMarking($entity);
-            $markingStore = $workflow->getMarkingStore();
-            // unset the current state
-            foreach ($marking->getPlaces() as $place) {
-                $marking->unmark($place);
+        if ($entity) {
+            if ($from = $request->get('states')) {
+                $marking = $workflow->getMarking($entity);
+                $markingStore = $workflow->getMarkingStore();
+                // unset the current state
+                foreach ($marking->getPlaces() as $place) {
+                    $marking->unmark($place);
+                }
+
+                $place = json_decode($from);
+                $marking->mark($place);
+                $markingStore->setMarking($entity, $marking);
+
+                $entity->setMarking($place);
+                /*
+                dump($marking);
+                */
             }
-
-            $place = json_decode($from);
-            $marking->mark($place);
-            $markingStore->setMarking($entity, $marking);
-
-            $entity->setMarking($place);
-            /*
-            dump($marking);
-            */
         }
 
         if ($transitionName = $request->get('transitionName')) {

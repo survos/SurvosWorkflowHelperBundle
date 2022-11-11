@@ -12,6 +12,7 @@ use Survos\WorkflowBundle\Twig\WorkflowExtension;
 use Survos\WorkflowHelperBundle\Attribute\Workflow;
 use Symfony\Bundle\FrameworkBundle\Command\WorkflowDumpCommand;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
@@ -40,14 +41,24 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
 
     public function process(ContainerBuilder $container): void
     {
+
+        $configs = $container->getExtensionConfig('framework');
+
+        $configuration = $container
+            ->getExtension('framework')
+            ->getConfiguration($configs, $container)
+        ;
+
+        $config = (new Processor())->processConfiguration($configuration, $configs);
+        $container->setParameter('workflows.configuration', $workflowConfig = $config['workflows']['workflows'] ?? []);
         $workflowHelperDefinition = $container->findDefinition(WorkflowHelperService::class);
 
 //        foreach (tagged_iterator('workflow', 'name') as $x) {
 //            dd($x);
 //        }
+        $workflowHelperDefinition->setArgument('$configuration', $workflowConfig);
         $workflowHelperDefinition->setArgument('$workflows', tagged_iterator('workflow'));
 
-        $workflowHelperDefinition->setArgument('$support', tagged_iterator('workflow', 'supportStrategy'));
     }
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void

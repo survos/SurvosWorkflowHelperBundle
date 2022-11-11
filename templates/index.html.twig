@@ -15,14 +15,19 @@
 
     <h1>{{ workflowsByCode|length }} Workflows</h1>
 
-    {% for code, wrapper in workflowsByCode %}
+    {% for code, config in configs %}
         <h1>{{ code }}</h1>
-        <a href="{{ path('survos_workflow', {flowCode: code}) }}">Show More</a>
-
-        {{ workflow_diagram(wrapper.entity, code, 'LR') }}
+        {{ dump(config) }}
 
     {% endfor %}
 
+    {% for code, workflow in workflowsByCode %}
+        <h1>{{ code }}</h1>
+        <a href="{{ path('survos_workflow', {flowCode: code}) }}">Show More</a>
+
+        {{ workflow_diagram(workflowName=code) }}
+
+    {% endfor %}
 
 
 {% endblock %}

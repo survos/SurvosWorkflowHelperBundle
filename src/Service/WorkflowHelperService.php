@@ -25,27 +25,15 @@ class WorkflowHelperService
 {
     private $dumper;
 
-//    /** @var WorkflowInterface[] */
-////    private array $workflows = [];
-//
-//    public function __construct(iterable $workflows)
-//    {
-//        foreach ($workflows as $name => $workflow) {
-//            // You can dump($workflow); here
-//            dd($workflow);
-//            $this->workflows[$name] = $workflow;
-//        }
-//    }
-
     public function __construct(
         /** @var WorkflowInterface[] */
         private iterable $workflows,
-        private iterable $support,
+        private array $configuration,
 
 //        private ServiceLocator $locator,
 //        private string $direction,
         private EntityManagerInterface $em,
-        private ?Registry $workflowRegistry = null,
+//        private ?Registry $workflowRegistry = null,
     ) {
 //        dd($this->support, $this->workflows);
         // get the workflows from the registry:
@@ -69,18 +57,24 @@ class WorkflowHelperService
         return $this->workflows;
     }
 
-    /**
-     * @deprecated
-     * @return Registry
-     */
-    public function getRegistry()
+    /** @return array<string,WorkflowInterface> */
+    public function getWorkflowsIndexedByName(): array
     {
-        return $this->workflowRegistry;
+//        static $workflows=[];
+        $workflows = [];
+            foreach ($this->getWorkflowsFromTaggedIterator() as $workflow) {
+                $workflows[$workflow->getName()] = $workflow;
+            }
+        if (count($workflows)==0) {
+        }
+        return $workflows;
     }
 
-    public function setRegistry(Registry $registry) {
-        $this->workflowRegistry = $registry;
+    public function getWorkflowConfiguration(): array
+    {
+        return $this->configuration;
     }
+
 
     // @idea: pass in the repository to make the counts call.
     public function getMarkingData(WorkflowInterface $workflow, string $class, array $counts = null): array
@@ -103,13 +97,15 @@ class WorkflowHelperService
     public function getWorkflow($subject, string $workflowName): WorkflowInterface
     {
 
-        /** @var WorkflowInterface $workflow */
-        try {
-            $workflow = $this->workflowRegistry->get($subject, $workflowName);
-        } catch (\Exception $e) {
-            return $e->getMessage(); // null;
-        }
-        return $workflow;
+        return $this->getWorkflowsIndexedByName()[$workflowName];
+
+//        /** @var WorkflowInterface $workflow */
+//        try {
+//            $workflow = $this->workflowRegistry->get($subject, $workflowName);
+//        } catch (\Exception $e) {
+//            return $e->getMessage(); // null;
+//        }
+//        return $workflow;
     }
 
     public function workflowConstants(WorkflowInterface $workflow)
@@ -136,12 +132,16 @@ class WorkflowHelperService
      * @param $workflowName
      * @return string
      */
-    public function workflowDiagramDigraph($subject, string $workflowName, ?string $direction = null)
+    public function workflowDiagramDigraph($subject=null, string $workflowName=null, ?string $direction = null)
     {
         if ($direction) {
             $this->direction = $direction;
         }
-        $workflow = $this->getWorkflow($subject, $workflowName);
+        if ($subject) {
+            $workflow = $this->getWorkflow($subject, $workflowName);
+        } else {
+            $workflow = $this->getWorkflowByCode($workflowName);
+        }
         $definition = $workflow->getDefinition();
         $workflowPlaces = $workflow->getDefinition()->getPlaces();
 
@@ -149,23 +149,32 @@ class WorkflowHelperService
         $entityPlaces = $workflow->getDefinition()->getPlaces();
 //        dd($places);
 //        $entityPlaces = array_keys($workflow->getMarkingStore()->getMarking($subject)->getPlaces());
-        try {
-            $marking = $workflow->getMarkingStore()->getMarking($subject);
-            array_map(function ($place) use ($marking) {
-                if ($marking->has($place)) {
-                    $marking->unmark($place);
-                }
-            }, $workflowPlaces);
+        if ($subject) {
+            try {
+                $marking = $workflow->getMarkingStore()->getMarking($subject);
+                array_map(function ($place) use ($marking) {
+                    if ($marking->has($place)) {
+                        $marking->unmark($place);
+                    }
+                }, $workflowPlaces);
 
-            // set it to the subject markings
-            array_map(
-                function ($place) use ($marking) {
-                    $marking->mark($place);
-                },
-                $entityPlaces
-            );
+                // set it to the subject markings
+                array_map(
+                    function ($place) use ($marking) {
+                        $marking->mark($place);
+                    },
+                    $entityPlaces
+                );
 
-        } catch (\Exception $exception) {
+            } catch (\Exception $exception) {
+                $initial = $workflow->getDefinition()->getInitialPlaces()[0];
+                $marking = (new Marking())
+                    ->mark($subject->marking ?? $initial);
+
+            }
+        } else {
+            // if there's no subject, just use the initial marking, unless something is passed in
+//            $marking = $definition->getInitialPlaces()[0];
             $initial = $workflow->getDefinition()->getInitialPlaces()[0];
             $marking = (new Marking())
                 ->mark($subject->marking ?? $initial);
@@ -229,6 +238,20 @@ class WorkflowHelperService
     /**
      * @return <string, Workflow[]>
      */
+    public function getSupportsIndexedByCode(): array
+    {
+        $classesByCode = [];
+        foreach ($this->configuration as $workflowName => $config) {
+            $classesByCode[$workflowName] = $config['supports'];
+        }
+        return $classesByCode;
+    }
+
+    public function getSupports(string $code): array
+    {
+        return $this->getSupportsIndexedByCode()[$code];
+    }
+
     public function getWorkflowsGroupedByClass(): array
     {
 
@@ -246,27 +269,40 @@ class WorkflowHelperService
          * @var InstanceOfSupportStrategy $suportStrategy
          * @var StateMachine $stateMachine
          */
-        $workflowsByCode = [];
+        $workflowsByClass = [];
+
+        $x = $this->getWorkflowsIndexedByName();
+
+        foreach ($this->configuration as $workflowName => $config) {
+            $classes = $config['supports'];
+            foreach ($classes as $class) {
+                if (empty($workflowsByClass[$class])) {
+                    $workflowsByClass[$class] = [];
+                }
+//                assert(array_key_exists($workflowName, $x), "$workflowName is missing in workflows " . join(',', array_keys($x)));
+                $workflowsByClass[$class][] = $workflowName;
+            }
+        }
+        return $workflowsByClass;
+        dd($workflowsByClass, $x, $this->workflows, $this->configuration);
+
 
         $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
         $workflowBlobs = $reflectionProperty->getValue($this->workflowRegistry);
         foreach ($workflowBlobs as [$stateMachine, $suportStrategy]) {
             $class = $suportStrategy->getClassName();
+//            dd($this->configuration, $workflowBlobs, $class, $stateMachine, $suportStrategy);
 
-
-            //            dump($stateMachine, $suportStrategy);
-//            dd($stateMachine, $suportStrategy);
-
-            if (empty($workflowsByCode[$class])) {
-                $workflowsByCode[$class] = [];
-            }
-            $name = $stateMachine->getName();
-            $workflowsByCode[$class][$name] = $stateMachine;
+//            $name = $stateMachine->getName();
+            $workflowsByClass[$class][$workflowName] = $x[$workflowName];
         }
-        return $workflowsByCode;
     }
 
-    public function getWorkflowsByCode($code = null)
+    public function getWorkflowByCode(string $code)
+    {
+        return $this->getWorkflowsIndexedByName()[$code];
+    }
+    public function OLDgetWorkflowByCode($code = null)
     {
         $registry = $this->workflowRegistry;
 

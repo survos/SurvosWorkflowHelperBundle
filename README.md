@@ -12,3 +12,7 @@ Demo available at (heroku URL), source for demo at
 composer config repositories.survos_workflow_helper '{"type": "path", "url": "/home/tac/survos/bundles/WorkflowBundle"}'
 composer req survos/workflow-helper-bundle:"*@dev"
 ```
+
+## Of interest
+
+https://github.com/codereviewvideos/symfony-workflow-example
