@@ -2,6 +2,8 @@
 {% set flowName = entity.flowCode %}
 {% endif %}
 
+<div class="row">
+
 <code>{{entity.marking}} {{ workflow_metadata(entity, 'label', entity.marking, flowName)}}</code>
 
 
@@ -62,20 +64,17 @@
                             Async
                         </button>
                     </td>
-                    <td>
-                        <button type="submit" name="transition" value="{{ transition.name }}" title="{{ tName }}"
-                                {% if workflow_can(entity, transition.name, flowName) -%}
-                                    class="btn btn-primary"
-                                {%- else -%}
-                                    class="btn btn-danger" disabled="disabled"
-                                {%- endif -%}
-                        >
-                            {{ ('workflow.%s.transition.%s.display'|format(flowName, tName))|trans }}
-                        </button>
-                    </td>
-                    <td>
-                        <i>{{ ('workflow.%s.transition.%s.description'|format(flowName, tName))|trans }}</i>
-                    </td>
+{#                    <td>#}
+{#                        <button type="submit" name="transition" value="{{ transition.name }}" title="{{ tName }}"#}
+{#                                {% if workflow_can(entity, transition.name, flowName) -%}#}
+{#                                    class="btn btn-primary"#}
+{#                                {%- else -%}#}
+{#                                    class="btn btn-danger" disabled="disabled"#}
+{#                                {%- endif -%}#}
+{#                        >#}
+{#                            {{ ('workflow.%s.transition.%s.display'|format(flowName, tName))|trans }}#}
+{#                        </button>#}
+{#                    </td>#}
                 </tr>
             {% endfor %}
 {#            <tr>#}
@@ -94,3 +93,5 @@
         </table>
     </div>
 </form>
+
+</div>
