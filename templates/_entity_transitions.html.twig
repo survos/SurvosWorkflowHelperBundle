@@ -48,6 +48,8 @@
                         {{ tName }}
                         </button>
                     </td>
+
+                    {% if async|default(false) %}
                     <td>
                         <button type="submit" name="transition" value="{{ transition.name }}" title="{{ tName }}"
                                 {% if workflow_can(entity, transition.name, flowName) -%}
@@ -64,6 +66,7 @@
                             Async
                         </button>
                     </td>
+                    {% endif %}
 {#                    <td>#}
 {#                        <button type="submit" name="transition" value="{{ transition.name }}" title="{{ tName }}"#}
 {#                                {% if workflow_can(entity, transition.name, flowName) -%}#}
