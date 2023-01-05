@@ -110,7 +110,6 @@ trait MarkingTrait
         }
     }
 
-    #[Deprecated()]
     public function addMarkingHistoryEvent(array $data): self
     {
         $resolver = new OptionsResolver();
@@ -134,7 +133,7 @@ trait MarkingTrait
     /**
      * @return string
      */
-    public function getMarkingHistoryDisplay()
+    public function getMarkingHistoryDisplay(): string
     {
         $text = '';
         foreach ($this->markingHistory as $h) {
@@ -156,7 +155,6 @@ trait MarkingTrait
         return $text;
     }
 
-    #[Deprecated()]
     public function setLastTransitionTime(?\DateTime $lastTransitionTime): self
     {
         $this->lastTransitionTime = $lastTransitionTime;
@@ -164,13 +162,12 @@ trait MarkingTrait
         return $this;
     }
 
-    #[Deprecated()]
     public function getLastTransitionTime(): ?\DateTime
     {
         return $this->lastTransitionTime;
     }
 
-    public function getWorkflowName()
+    public function getWorkflowName(): string
     {
         if (defined($this::class . '::WORKFLOW')) {
             $name = constant($this::class . '::WORKFLOW');
