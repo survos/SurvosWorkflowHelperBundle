@@ -4,6 +4,7 @@ namespace Survos\WorkflowBundle\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Workflow\Transition;
@@ -109,12 +110,8 @@ trait MarkingTrait
         }
     }
 
-    /**
-     * @param array $data
-     * @deprecated
-     * @return self
-     */
-    public function addMarkingHistoryEvent($data)
+    #[Deprecated()]
+    public function addMarkingHistoryEvent(array $data): self
     {
         $resolver = new OptionsResolver();
         $resolver->setRequired([
@@ -159,26 +156,15 @@ trait MarkingTrait
         return $text;
     }
 
-    /**
-     * Set lastTransitionTime
-     *
-     * @deprecated
-     * @param ?\DateTime $lastTransitionTime
-     * @return self
-     */
-    public function setLastTransitionTime(?\DateTime $lastTransitionTime)
+    #[Deprecated()]
+    public function setLastTransitionTime(?\DateTime $lastTransitionTime): self
     {
         $this->lastTransitionTime = $lastTransitionTime;
 
         return $this;
     }
 
-    /**
-     * Get lastTransitionTime
-     *
-     * @deprecated
-     * @return ?\DateTime
-     */
+    #[Deprecated()]
     public function getLastTransitionTime(): ?\DateTime
     {
         return $this->lastTransitionTime;
