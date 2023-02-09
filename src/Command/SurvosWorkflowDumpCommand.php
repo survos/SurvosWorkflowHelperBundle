@@ -11,23 +11,19 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Workflow\Registry;
+use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AsCommand(name: 'survos:workflow:dump')]
 class SurvosWorkflowDumpCommand extends Command
 {
-    private $helper;
 
-    private $translator;
-
-    private $registry;
-
-    public function __construct(WorkflowHelperService $helper, TranslatorInterface $translator, Registry $registry, ?string $name = null)
+    public function __construct(private WorkflowHelperService $helper, private TranslatorInterface $translator,
+                            /** @var WorkflowInterface[] */
+                                private iterable $workflows,
+                                ?string $name = null)
     {
         parent::__construct($name);
-        $this->translator = $translator;
-        $this->registry = $registry;
-        $this->helper = $helper;
     }
 
     protected function configure()

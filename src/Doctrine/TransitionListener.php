@@ -5,25 +5,42 @@ namespace Survos\WorkflowBundle\Doctrine;
 
 use App\Entity\Article;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostLoadEventArgs;
 use Psr\Log\LoggerInterface;
+use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Survos\WorkflowBundle\Traits\MarkingInterface;
-use Symfony\Component\Workflow\Registry;
 use Symfony\Component\Workflow\Transition;
+use Symfony\Component\Workflow\WorkflowInterface;
 
 class TransitionListener
 {
-    public function __construct(private Registry $registry, private LoggerInterface $logger)
+    public function __construct(
+                                /** @var WorkflowInterface[] */
+                                private iterable $workflows,
+                                private WorkflowHelperService $workflowHelperService,
+
+                                private LoggerInterface $logger)
     {
     }
 
-    public function postLoad(LifecycleEventArgs $args)
+    public function postLoad(PostLoadEventArgs $args)
     {
         $enabledTransitions = [];
         $entity = $args->getObject(); //here you have access to your entity
         if ($entity instanceof MarkingInterface) {
 //        if (method_exists($entity, 'setEnabledTransitions')) {
             // skip the ones that being with _, those are system-only
-            $workflow = $this->registry->get($entity);
+            // ugh, ugh, ugh.
+            $realClass = (\Doctrine\Common\Util\ClassUtils::getRealClass($entity::class));
+
+            $workflowName = $this->workflowHelperService->getWorkflowsGroupedByClass()[$realClass][0];
+
+            foreach ($this->workflows as $workflow) {
+                if ($workflow->getName() == $workflowName) {
+                    break;
+                }
+            }
+//            $workflow = $this->registry->get($entity);
             try {
                 $enabledTransitions  = array_values(array_filter(
                     $workflow->getEnabledTransitions($entity),

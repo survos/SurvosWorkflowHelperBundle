@@ -6,6 +6,7 @@ use Survos\WorkflowBundle\Command\ConvertFromYamlCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand;
 use Survos\WorkflowBundle\Controller\WorkflowController;
+use Survos\WorkflowBundle\Doctrine\TransitionListener;
 use Survos\WorkflowBundle\Service\ConfigureFromAttributesService;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Survos\WorkflowBundle\Twig\WorkflowExtension;
@@ -51,7 +52,14 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
 
         $config = (new Processor())->processConfiguration($configuration, $configs);
         $container->setParameter('workflows.configuration', $workflowConfig = $config['workflows']['workflows'] ?? []);
+        $transitionListenerDefintion = $container->findDefinition(TransitionListener::class);
+
+        $transitionListenerDefintion->setArgument('$workflowHelperService', new Reference(WorkflowHelperService::class));
+        $transitionListenerDefintion->setArgument('$workflows', tagged_iterator('workflow'));
+
         $workflowHelperDefinition = $container->findDefinition(WorkflowHelperService::class);
+        $container->findDefinition(SurvosWorkflowDumpCommand::class)
+            ->setArgument('$workflows', tagged_iterator('workflow'));
 
 //        foreach (tagged_iterator('workflow', 'name') as $x) {
 //            dd($x);
@@ -105,7 +113,6 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         $builder->autowire(SurvosWorkflowDumpCommand::class)
             ->addArgument(new Reference(WorkflowHelperService::class))
             ->addArgument(new Reference('translator'))
-            ->addArgument(new Reference('workflow.registry'))
             ->addTag('console.command')
         ;
 

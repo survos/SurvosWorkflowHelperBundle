@@ -29,11 +29,7 @@ class WorkflowHelperService
         /** @var WorkflowInterface[] */
         private iterable $workflows,
         private array $configuration,
-
-//        private ServiceLocator $locator,
-//        private string $direction,
         private EntityManagerInterface $em,
-//        private ?Registry $workflowRegistry = null,
     ) {
 //        dd($this->support, $this->workflows);
         // get the workflows from the registry:
