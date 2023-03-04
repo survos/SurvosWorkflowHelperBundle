@@ -2,10 +2,7 @@
     "name": "survos/workflow-helper-bundle",
     "description": "Add some tools for using the Symfony Workflow Component",
     "type": "symfony-bundle",
-    "keywords": [
-        "symfony-ux",
-        "workflow"
-    ],
+    "keywords": ["symfony-ux", "workflow"],
     "require": {
         "php": "^8.1",
         "doctrine/orm": "^2.12",
