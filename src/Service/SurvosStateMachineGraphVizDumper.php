@@ -19,8 +19,15 @@ use Symfony\Component\Workflow\Marking;
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
  */
-class SurvosStateMachineGraphVizDumper extends GraphvizDumper
+class SurvosStateMachineGraphVizDumper implements DumperInterface
 {
+    // All values should be strings
+    protected static $defaultOptions = [
+        'graph' => ['ratio' => 'compress', 'rankdir' => 'LR'],
+        'node' => ['fontsize' => '9', 'fontname' => 'Arial', 'color' => '#333333', 'fillcolor' => 'lightblue', 'fixedsize' => 'false', 'width' => '1'],
+        'edge' => ['fontsize' => '9', 'fontname' => 'Arial', 'color' => '#333333', 'arrowhead' => 'normal', 'arrowsize' => '0.5'],
+    ];
+
     /**
      * {@inheritdoc}
      *
@@ -210,4 +217,16 @@ protected function addPlaces(array $places): string
     {
         return \is_bool($value) ? ($value ? '1' : '0') : addslashes($value);
     }
+
+    protected function addAttributes(array $attributes): string
+    {
+        $code = [];
+
+        foreach ($attributes as $k => $v) {
+            $code[] = sprintf('%s="%s"', $k, $this->escape($v));
+        }
+
+        return $code ? ' '.implode(' ', $code) : '';
+    }
+
 }
