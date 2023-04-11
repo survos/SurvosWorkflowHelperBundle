@@ -2,7 +2,10 @@
     "name": "survos/workflow-helper-bundle",
     "description": "Add some tools for using the Symfony Workflow Component",
     "type": "symfony-bundle",
-    "keywords": ["symfony-ux", "workflow"],
+    "keywords": [
+        "symfony-ux",
+        "workflow"
+    ],
     "require": {
         "php": "^8.1",
         "doctrine/orm": "^2.12",
@@ -12,7 +15,7 @@
         "symfony/process": "^6.1.0",
         "symfony/workflow": "^6.1.0",
         "symfony/yaml": "^6.1.0",
-        "survos/core-bundle": "^1.5"
+        "survos/core-bundle": "^1.4.17"
     },
     "require-dev": {
         "ekino/phpstan-banned-code": "^1.0",
