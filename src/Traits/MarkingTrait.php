@@ -195,7 +195,12 @@ trait MarkingTrait
 
     public function getEnabledTransitionCodes(): array
     {
-        return array_map(fn (Transition $transition) => $transition->getName(), $this->getEnabledTransitions());
+        $enabled = $this->getEnabledTransitions();
+        assert(is_array($this->getEnabledTransitions()));
+        assert(array_is_list($enabled));
+//        dump($enabled);
+//        dd($this->getEnabledTransitions());
+        return array_map(fn (Transition|string $transition) => is_string($transition) ? $transition : $transition->getName(), $this->getEnabledTransitions());
     }
 
     public function getFlowCode(): string
