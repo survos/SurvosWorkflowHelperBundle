@@ -18,7 +18,7 @@ trait MarkingTrait
      * @ORM\Column(type="string", length=32, nullable=true)
      */
     #[ORM\Column(type: 'string', length: 32, nullable: true)]
-    #[Groups(['transition', 'minimum', 'marking'])]
+    #[Groups(['transition', 'minimum', 'marking','searchable'])]
     private ?string $marking = null; // self::INITIAL_MARKING;
 
     private array $context = [];
