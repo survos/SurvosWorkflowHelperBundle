@@ -13,10 +13,6 @@ use function Symfony\Component\String\u;
 
 trait MarkingTrait
 {
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=32, nullable=true)
-     */
     #[ORM\Column(type: 'string', length: 32, nullable: true)]
     #[Groups(['transition', 'minimum', 'marking','searchable'])]
     private ?string $marking = null; // self::INITIAL_MARKING;
@@ -63,10 +59,7 @@ trait MarkingTrait
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getMarkingDisplay()
+    public function getMarkingDisplay(): ?string
     {
         return $this->marking; // go through trans?  at least titleCase?
     }
@@ -98,7 +91,7 @@ trait MarkingTrait
         return $this;
     }
 
-    public function addMarkingHistoryComment(?String $comment)
+    public function addMarkingHistoryComment(?string $comment)
     {
         if ($comment) {
             $history = $this->getMarkingHistory();
