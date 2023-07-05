@@ -6,7 +6,6 @@
 
 {#    {% for class, workflows in workflowsGroupedByClass %}#}
 {#        {% for code, workflow in workflows %}#}
-{#            {{ dump(code, workflows) }}#}
 {#            <h1>{{ class}}: {{ code }}</h1>#}
 {#            <a href="{{ path('survos_workflow', {flowCode: code}) }}">Show More</a>#}
 {#            {{ workflow_diagram(wrapper.entity, code, 'LR') }}#}

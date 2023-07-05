@@ -12,7 +12,6 @@
     <input type="hidden" name="states" value="{{ entity ? entity.marking|json_encode }}"/>
     <input type="hidden" name="referrer_url" value="{{ app.request.uri }}"/>
     <div class="btn-group">
-        {{ dump(transitions) }}
         {% if transitions %}
             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
                     title="{{ flowCode }} Workflow"
