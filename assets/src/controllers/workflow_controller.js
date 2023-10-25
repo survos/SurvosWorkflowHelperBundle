@@ -1,5 +1,7 @@
+
 import { Controller } from '@hotwired/stimulus';
-import { graphviz }  from 'd3-graphviz';
+
+// import { graphviz }  from 'd3-graphviz';
 // https://stackoverflow.com/questions/48471651/es6-module-import-of-d3-4-x-fails
 // import * as d3 from 'https://unpkg.com/d3?module';
 

@@ -9,27 +9,27 @@
     "require": {
         "php": "^8.1",
         "doctrine/orm": "^2.12",
-        "symfony/console": "^6.1.0",
-        "symfony/http-kernel": "^6.1.0",
-        "symfony/messenger": "^6.1.0",
-        "symfony/process": "^6.1.0",
-        "symfony/workflow": "^6.1.0",
-        "symfony/yaml": "^6.1.0",
-        "survos/core-bundle": "^1.6"
+        "symfony/console": "^6.3 || ^7.0.0",
+        "symfony/http-kernel": "^6.3 || ^7.0.0",
+        "symfony/messenger": "^6.3 || ^7.0.0",
+        "symfony/process": "^6.3 || ^7.0.0",
+        "symfony/workflow": "^6.3 || ^7.0.0",
+        "symfony/yaml": "^6.3 || ^7.0.0",
+        "survos/core-bundle": "^1.5.64"
     },
     "require-dev": {
         "ekino/phpstan-banned-code": "^1.0",
         "phpstan/phpstan": "^1.8",
         "rector/rector": "^0.15",
-        "symfony/browser-kit": "^6.1.0",
-        "symfony/config": "^6.1.0",
-        "symfony/dependency-injection": "^6.1.0",
-        "symfony/form": "^6.1.0",
-        "symfony/framework-bundle": "^6.1.0",
+        "symfony/browser-kit": "^6.3 || ^7.0.0",
+        "symfony/config": "^6.3 || ^7.0.0",
+        "symfony/dependency-injection": "^6.3 || ^7.0.0",
+        "symfony/form": "^6.3 || ^7.0.0",
+        "symfony/framework-bundle": "^6.3 || ^7.0.0",
         "symfony/maker-bundle": "^1.38",
-        "symfony/phpunit-bridge": "^6.1.0",
-        "symfony/twig-bundle": "^6.1.0",
-        "symfony/var-dumper": "^6.1.0",
+        "symfony/phpunit-bridge": "^6.3 || ^7.0.0",
+        "symfony/twig-bundle": "^6.3 || ^7.0.0",
+        "symfony/var-dumper": "^6.3 || ^7.0.0",
         "symfony/webpack-encore-bundle": "^1.11"
     },
     "license": "MIT",
@@ -46,7 +46,7 @@
     },
     "extra": {
         "symfony": {
-            "require": "^6.1.0",
+            "require": "^6.3 || ^7.0.0",
             "allow-contrib": "true"
         },
         "branch-alias": {

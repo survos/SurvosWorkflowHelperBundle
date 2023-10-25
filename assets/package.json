@@ -14,14 +14,14 @@
     }
   },
   "peerDependencies": {
-    "@hotwired/stimulus": "^3.0.0"
+    "@hotwired/stimulus": "^3.2.2"
   },
   "devDependencies": {
-    "@hotwired/stimulus": "^3.0.1"
+    "@hotwired/stimulus": "^3.2.2"
   },
   "dependencies": {
-    "d3": "^7.8.4",
-    "d3-graphviz": "^5.0.2",
+    "d3": "^7.8.5",
+    "d3-graphviz": "^5.1",
     "d3-selection": "^3.0.0"
   }
 }

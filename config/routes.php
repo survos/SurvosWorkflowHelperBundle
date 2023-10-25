@@ -5,8 +5,8 @@ use Survos\WorkflowBundle\Controller\WorkflowController;
 
 return function (RoutingConfigurator $routes) {
     $routes->add('survos_workflows', '/workflows')
-        ->controller(WorkflowController::class, 'workflows');
+        ->controller([WorkflowController::class, 'workflows']);
 
-    $routes->add('survos_workflow', '/workflow/{flowCode')
-        ->controller(WorkflowController::class, 'workflow');
+    $routes->add('survos_workflow', '/workflow/{flowCode}')
+        ->controller([WorkflowController::class, 'workflow']);
 };

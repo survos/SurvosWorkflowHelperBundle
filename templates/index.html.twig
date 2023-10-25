@@ -21,6 +21,7 @@
 
     {% for code, workflow in workflowsByCode %}
         <h1>{{ code }}</h1>
+        {{ path('survos_workflow', {flowCode: code}) }}
         <a href="{{ path('survos_workflow', {flowCode: code}) }}">Show More</a>
 
         {{ workflow_diagram(workflowName=code) }}

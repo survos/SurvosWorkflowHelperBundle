@@ -2,6 +2,7 @@
 
 namespace Survos\WorkflowBundle;
 
+use Survos\CoreBundle\Traits\HasAssetMapperTrait;
 use Survos\WorkflowBundle\Command\ConvertFromYamlCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand;
@@ -29,6 +30,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_lo
 
 class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterface
 {
+    use HasAssetMapperTrait;
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
@@ -37,8 +39,6 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         // https://stackoverflow.com/questions/73814467/how-do-i-add-a-twig-global-from-a-bundle-config
         $container->addCompilerPass($this);
     }
-
-
 
     public function process(ContainerBuilder $container): void
     {
@@ -172,4 +172,23 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
 //            ->integerNode('min_sunshine')->defaultValue(3)->end()
             ->end();
     }
+
+    public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        if (!$this->isAssetMapperAvailable($builder)) {
+            return;
+        }
+
+        $dir = realpath(__DIR__.'/../assets/');
+        assert(file_exists($dir), $dir);
+
+        $builder->prependExtensionConfig('framework', [
+            'asset_mapper' => [
+                'paths' => [
+                    $dir => '@survos/workflow-helper',
+                ],
+            ],
+        ]);
+    }
+
 }
