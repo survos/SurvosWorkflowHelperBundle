@@ -32,7 +32,7 @@
 <!--        <service id="Survos\WorkflowBundle\Controller\WorkflowController" public="true" autowire="true">-->
 <!--            <argument type="service" id="survos_workflow_bundle.workflow_helper" />-->
 <!--                <tag name="container.service_subscriber" />-->
-<!--                <tag name="controller.service_argument" />-->
+<!--                <tag name="controller.service_arguments" />-->
 <!--        </service>-->
 
         <service class="Survos\WorkflowBundle\MessageHandler\AsyncTransitionMessageHandler"
