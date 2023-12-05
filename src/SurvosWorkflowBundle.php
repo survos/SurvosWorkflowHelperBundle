@@ -132,9 +132,11 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         //        $builder->register($workflowControllerId, WorkflowController::class);
 //        $builder->autowire(WorkflowController::class)
 //            ->setArgument('$helper', new Reference($workflowHelperId))
-//            ->addTag('container.service_subscriber')
-//            ->addTag('controller.service_arguments')
+
+
         $builder->autowire(WorkflowController::class)
+            ->addTag('container.service_subscriber')
+            ->addTag('controller.service_arguments')
             ->setAutoconfigured(true)
             ->setPublic(true)
         ;
