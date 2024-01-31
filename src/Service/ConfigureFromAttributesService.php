@@ -11,13 +11,6 @@ class ConfigureFromAttributesService
     static public function configureFramework(string $workflowClass, FrameworkConfig $framework, array|string $supports)
     {
         $reflectionClass = new \ReflectionClass($workflowClass);
-        foreach ($reflectionClass->getAttributes() as $attribute) {
-
-//            dump($attribute->getArguments());
-//            dd($attribute->newInstance());
-
-        }
-
         // look in attribute first
         $workflow = $framework->workflows()->workflows($reflectionClass->getShortName())
             ->supports($supports);

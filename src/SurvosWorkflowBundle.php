@@ -52,10 +52,9 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
 
         $config = (new Processor())->processConfiguration($configuration, $configs);
         $container->setParameter('workflows.configuration', $workflowConfig = $config['workflows']['workflows'] ?? []);
-        $transitionListenerDefintion = $container->findDefinition(TransitionListener::class);
-        assert($transitionListenerDefintion, "missing " . TransitionListener::class);
-        $transitionListenerDefintion->setArgument('$workflowHelperService', new Reference(WorkflowHelperService::class));
-        $transitionListenerDefintion->setArgument('$workflows', tagged_iterator('workflow'));
+        $transitionListenerDefinition = $container->findDefinition(TransitionListener::class);
+        $transitionListenerDefinition->setArgument('$workflowHelperService', new Reference(WorkflowHelperService::class));
+        $transitionListenerDefinition->setArgument('$workflows', tagged_iterator('workflow'));
 
         $workflowHelperDefinition = $container->findDefinition(WorkflowHelperService::class);
         $container->findDefinition(SurvosWorkflowDumpCommand::class)
