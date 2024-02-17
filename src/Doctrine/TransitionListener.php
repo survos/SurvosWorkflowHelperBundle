@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+// if enabled, this loads the enabledTransitions into the entity, nice for browsing.
+
 namespace Survos\WorkflowBundle\Doctrine;
 
 use App\Entity\Article;
@@ -18,7 +20,6 @@ class TransitionListener
                                 /** @var WorkflowInterface[] */
                                 private iterable $workflows,
                                 private WorkflowHelperService $workflowHelperService,
-
                                 private LoggerInterface $logger)
     {
     }
@@ -34,6 +35,7 @@ class TransitionListener
             $realClass = (\Doctrine\Common\Util\ClassUtils::getRealClass($entity::class));
 
             $workflowName = $this->workflowHelperService->getWorkflowsGroupedByClass()[$realClass][0];
+
 
             foreach ($this->workflows as $workflow) {
                 if ($workflow->getName() == $workflowName) {

@@ -2,6 +2,7 @@
 
 namespace Survos\WorkflowBundle;
 
+use JetBrains\PhpStorm\NoReturn;
 use Survos\CoreBundle\Traits\HasAssetMapperTrait;
 use Survos\WorkflowBundle\Command\ConvertFromYamlCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand;
@@ -40,7 +41,7 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         $container->addCompilerPass($this);
     }
 
-    public function process(ContainerBuilder $container): void
+    #[NoReturn] public function process(ContainerBuilder $container): void
     {
 
         $configs = $container->getExtensionConfig('framework');
@@ -51,7 +52,10 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         ;
 
         $config = (new Processor())->processConfiguration($configuration, $configs);
-        $container->setParameter('workflows.configuration', $workflowConfig = $config['workflows']['workflows'] ?? []);
+        $workflowConfig = $config['workflows']['workflows'] ?? [];
+        $container->setParameter('workflows.configuration', $workflowConfig);
+//        dd($workflowConfig, $config, $configs, $configuration);
+        // set enabled transitions from the database.
         $transitionListenerDefinition = $container->findDefinition(TransitionListener::class);
         $transitionListenerDefinition->setArgument('$workflowHelperService', new Reference(WorkflowHelperService::class));
         $transitionListenerDefinition->setArgument('$workflows', tagged_iterator('workflow'));
@@ -60,9 +64,9 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         $container->findDefinition(SurvosWorkflowDumpCommand::class)
             ->setArgument('$workflows', tagged_iterator('workflow'));
 
-//        foreach (tagged_iterator('workflow', 'name') as $x) {
-//            dd($x);
-//        }
+        foreach (tagged_iterator('workflow', 'name') as $x) {
+            dd($x);
+        }
         $workflowHelperDefinition->setArgument('$configuration', $workflowConfig);
         $workflowHelperDefinition->setArgument('$workflows', tagged_iterator('workflow'));
 
@@ -100,8 +104,7 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
 //        $workflowHelperService = $container->getDefinition(WorkflowHelperService::class);
 
 //        $workflowHelperService->setArgument('$locator', tagged_locator(tag: 'workflow', indexAttribute: 'name' ))
-        $locateableServices = ['workflow' => new Reference('workflow')];
-        $locateableServices = [];
+        $locatableServices = ['workflow' => new Reference('workflow')];
 
 
         $builder->autowire(TransitionListener::class);
@@ -169,8 +172,6 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             ->arrayNode('entities')
             ->scalarPrototype()
             ->end()->end()
-//            ->booleanNode('unicorns_are_real')->defaultTrue()->end()
-//            ->integerNode('min_sunshine')->defaultValue(3)->end()
             ->end();
     }
 

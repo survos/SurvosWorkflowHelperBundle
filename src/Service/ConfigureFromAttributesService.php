@@ -10,7 +10,9 @@ class ConfigureFromAttributesService
 {
     static public function configureFramework(string $workflowClass, FrameworkConfig $framework, array|string $supports)
     {
+        $framework->ide('myide://open?url=file://%%f&line=%%l');
         $reflectionClass = new \ReflectionClass($workflowClass);
+        dd($reflectionClass);
         // look in attribute first
         $workflow = $framework->workflows()->workflows($reflectionClass->getShortName())
             ->supports($supports);
