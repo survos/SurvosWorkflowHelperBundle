@@ -181,6 +181,7 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             return;
         }
 
+
         $dir = realpath(__DIR__.'/../assets/');
         assert(file_exists($dir), $dir);
 

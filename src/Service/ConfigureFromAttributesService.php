@@ -12,10 +12,10 @@ class ConfigureFromAttributesService
     {
         $framework->ide('myide://open?url=file://%%f&line=%%l');
         $reflectionClass = new \ReflectionClass($workflowClass);
-        dd($reflectionClass);
         // look in attribute first
         $workflow = $framework->workflows()->workflows($reflectionClass->getShortName())
             ->supports($supports);
+//        dd($workflow, $workflowClass);
 
         $constants = $reflectionClass->getConstants();
         $seen = [];
