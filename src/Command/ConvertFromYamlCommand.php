@@ -23,7 +23,7 @@ class ConvertFromYamlCommand extends Command
         parent::__construct($name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->addArgument('flowCode', InputArgument::OPTIONAL, 'workflow name', 'Catelog');

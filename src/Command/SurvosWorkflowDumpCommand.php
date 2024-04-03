@@ -26,7 +26,7 @@ class SurvosWorkflowDumpCommand extends Command
         parent::__construct($name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('create .json file for workflow metadata and translations')

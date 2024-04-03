@@ -15,18 +15,13 @@ use function Symfony\Component\String\u;
 #[AsCommand(name: 'survos:workflow:dump')]
 class SurvosWorkflowConfigureCommand extends Command
 {
-    /**
-     * @var string
-     */
-    protected $projectDir;
 
-    public function __construct(string $projectDir, string $name = null)
+    public function __construct(protected string $projectDir, string $name = null)
     {
         parent::__construct($name);
-        $this->projectDir = $projectDir;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create a workflow from an entity')
