@@ -24,6 +24,7 @@ use Symfony\Component\Workflow\WorkflowInterface;
 class WorkflowHelperService
 {
     private $dumper;
+    private string $direction = 'LR';
 
     public function __construct(
         /** @var WorkflowInterface[] */
@@ -128,11 +129,8 @@ class WorkflowHelperService
      * @param $workflowName
      * @return string
      */
-    public function workflowDiagramDigraph($subject=null, string $workflowName=null, ?string $direction = null)
+    public function workflowDiagramDigraph($subject=null, string $workflowName=null)
     {
-        if ($direction) {
-            $this->direction = $direction;
-        }
         if ($subject) {
             $workflow = $this->getWorkflow($subject, $workflowName);
         } else {
@@ -202,12 +200,11 @@ class WorkflowHelperService
         /**
          * @param $subject
          * @param $workflowName
-         * @param string $direction LR or TB
          * @return string
          */
-        public function workflowDiagram($subject, $workflowName, string $direction)
+        public function workflowDiagram($subject, $workflowName)
         {
-            $dot = $this->workflowDiagramDigraph($subject, $workflowName, $direction);
+            $dot = $this->workflowDiagramDigraph($subject, $workflowName);
 
             // dump($dot); die();
 

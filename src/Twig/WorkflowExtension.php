@@ -54,24 +54,22 @@ class WorkflowExtension extends AbstractExtension
     /**
      * @param $subject
      * @param $workflowName
-     * @param string $direction LR or TB
      * @return string
      */
-    public function workflowDiagram($subject=null, $workflowName=null, $direction = 'LR')
+    public function workflowDiagram($subject = null, $workflowName = null)
     {
         assert($subject || $workflowName, "must pass either a subject or workflowName");
-        return $this->workflowHelper->workflowDiagram($subject, $workflowName, $direction);
+        return $this->workflowHelper->workflowDiagram($subject, $workflowName);
     }
 
     /**
      * @param $subject
      * @param $workflowName
-     * @param string $direction LR or TB
      * @return string
      */
-    public function workflowDigraph($subject, $workflowName, $direction = 'LR')
+    public function workflowDigraph($subject, $workflowName)
     {
-        return $this->workflowHelper->workflowDiagramDigraph($subject, $workflowName, $direction);
+        return $this->workflowHelper->workflowDiagramDigraph($subject, $workflowName);
     }
 
     /**
@@ -88,7 +86,4 @@ class WorkflowExtension extends AbstractExtension
             ->getMetadata($key, $metadataSubject)
             ;
     }
-
-
-
 }

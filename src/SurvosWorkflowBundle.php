@@ -84,7 +84,6 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
 //            ->setArgument('$em', new Reference('doctrine.orm.entity_manager'))
         ;
 
-        $builder->setParameter('survos_workflow.direction', $config['direction']);
         $builder->setParameter('survos_workflow.base_layout', $config['base_layout']);
         $builder->setParameter('survos_workflow.entities', $config['entities']);
 
@@ -167,7 +166,6 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
     {
         $definition->rootNode()
             ->children()
-            ->scalarNode('direction')->defaultValue('LR')->end()
             ->scalarNode('base_layout')->defaultValue('base.html.twig')->end()
             ->arrayNode('entities')
             ->scalarPrototype()
