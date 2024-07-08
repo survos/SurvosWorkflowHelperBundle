@@ -4,18 +4,40 @@ namespace Survos\WorkflowBundle\Service;
 
 use Survos\WorkflowBundle\Attribute\Place;
 use Survos\WorkflowBundle\Attribute\Transition;
+use Survos\WorkflowBundle\Attribute\Workflow;
 use Symfony\Config\FrameworkConfig;
+use function PHPUnit\Framework\isEmpty;
 
 class ConfigureFromAttributesService
 {
     static public function configureFramework(string $workflowClass, FrameworkConfig $framework, array|string $supports)
     {
+
         $framework->ide('myide://open?url=file://%%f&line=%%l');
         $reflectionClass = new \ReflectionClass($workflowClass);
-        // look in attribute first
-        $workflow = $framework->workflows()->workflows($reflectionClass->getShortName())
-            ->supports($supports);
-//        dd($workflow, $workflowClass);
+//        $workflow = $framework->workflows()->workflows($workflowClass);
+        //
+        $classAttributes = $reflectionClass->getAttributes();
+        foreach ($classAttributes as $attribute) {
+            if ($attribute->getName() === Workflow::class) {
+                /** @var Workflow $attributeInstance */
+                $attributeInstance = $attribute->newInstance();
+                if (!$name = $attributeInstance->name) {
+                    $name = $reflectionClass->getShortName();
+                }
+                $workflow = $framework->workflows()->workflows($name);
+                $workflow->supports($attributeInstance->supports);
+            }
+        }
+        // entities are automatically created as shortName if no Workflow attribute
+        if (empty($workflow)) {
+            $name = $reflectionClass->getShortName();
+            $workflow = $framework->workflows()->workflows($name);
+            $workflow->supports($workflowClass);
+
+        }
+        assert($workflow, "Workflow $workflowClass must have a #[Workflow] class attribute");
+//        dd($workflow, __CLASS__);
 
         $constants = $reflectionClass->getConstants();
         $seen = [];
@@ -46,7 +68,9 @@ class ConfigureFromAttributesService
         }
 
         // shortcut to add all places of a certain pattern, if not already seen
+        // this is defined in the workflow attribute
         foreach ($constants as $name => $constantValue) {
+            // @todo: prefix?  Pattern match, e.g. a suffix?
             if (preg_match('/PLACE_/', $name)) {
 
                 if (!in_array($name, $seen)) {

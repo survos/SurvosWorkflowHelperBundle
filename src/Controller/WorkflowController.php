@@ -6,26 +6,24 @@ use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Workflow\Workflow;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class WorkflowController extends AbstractController
 {
-    protected $workflowRegistry;
-
-    protected $helper;
-
-    public function __construct(WorkflowHelperService $helper) // , private Registry $registry)
+    public function __construct(
+        protected WorkflowHelperService $helper) // , private Registry $registry)
     {
+//        foreach ($this->tagged->getIterator() as $workflow) {
+//            dd($workflow);
+//        }
+//        dd($this->tagged);
         // $helper = $this->container->get('survos_workflow_bundle.workflow_helper'); // hmm, doesn't seem right.
         $this->helper = $helper;
         // $this->workflowRegistry = $this->get('workflow.registry'); // $helper->getRegistry();
     }
 
-    /**
-     * @Route("/", name="survos_workflows")
-     */
+    #[Route("/", name: "survos_workflows")]
     public function workflows(Request $request)
     {
 
@@ -94,19 +92,4 @@ class WorkflowController extends AbstractController
         ]);
     }
 
-    /**
-     * @ Route("/workflow/download/{flowName}.svg", name="project_workflow_svg")
-     */
-    public function OLD_downloadWorkflowAction(Request $request, $flowName)
-    {
-        $workflowService = $this->container->get('state_machine.service.workflow');
-        $class = $workflowService->getSupportedClass($flowName);
-        if (! $class) {
-            throw new BadRequestHttpException(sprintf('Workflow "%s" is not supported. Maybe wrong name?', $flowName));
-        }
-        $entity = new $class();
-        $direction = $request->get('direction', 'LR');
-        //        $svg = $this->get('posse.twig.survey_extension')->workflowDiagram($entity, $flowName, $direction);
-        //        return new Response($svg, 200, ['Content-Type' => 'image/svg+xml']);
-    }
 }

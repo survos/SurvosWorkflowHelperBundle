@@ -9,9 +9,9 @@ use Symfony\Component\Workflow\WorkflowInterface;
 interface HandleTransitionsInterface
 {
     public function handleTransitionButtons(
-        WorkflowInterface $workflow,
-        string $transition,
-        MarkingInterface $entity,
+        ?WorkflowInterface $workflow=null,
+        ?string $transition=null,
+        ?MarkingInterface $entity=null,
         ?MessageBusInterface $bus = null,
     ): ?string;
 

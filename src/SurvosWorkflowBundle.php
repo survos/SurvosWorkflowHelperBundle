@@ -44,6 +44,10 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
     #[NoReturn] public function process(ContainerBuilder $container): void
     {
 
+        // for now, look for workflows defined in config/packages/workflow.php
+        // @todo: scan for classes that implement SurvosWorkflowInterface or something
+
+
         $configs = $container->getExtensionConfig('framework');
 
         $configuration = $container
@@ -61,14 +65,17 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         $transitionListenerDefinition->setArgument('$workflows', tagged_iterator('workflow'));
 
         $workflowHelperDefinition = $container->findDefinition(WorkflowHelperService::class);
+        $workflowHelperDefinition->setArgument('$configuration', $workflowConfig);
+//        $workflowHelperDefinition->setArgument('$workflows', tagged_iterator('workflow'));
+
         $container->findDefinition(SurvosWorkflowDumpCommand::class)
             ->setArgument('$workflows', tagged_iterator('workflow'));
 
         foreach (tagged_iterator('workflow', 'name') as $x) {
             dd($x);
         }
-        $workflowHelperDefinition->setArgument('$configuration', $workflowConfig);
-        $workflowHelperDefinition->setArgument('$workflows', tagged_iterator('workflow'));
+//        dd(tagged_iterator('workflow'));
+
 
     }
 
@@ -85,7 +92,8 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         ;
 
         $builder->setParameter('survos_workflow.base_layout', $config['base_layout']);
-        $builder->setParameter('survos_workflow.entities', $config['entities']);
+        // hopefully not needed!
+//        $builder->setParameter('survos_workflow.entities', $config['entities']);
 
         $container->services()
             ->set('console.command.workflow_dump', WorkflowDumpCommand::class)

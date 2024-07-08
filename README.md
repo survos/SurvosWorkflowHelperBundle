@@ -48,3 +48,6 @@ symfony open:local --path=/d3
 
 ```
 
+## Notes
+
+Since the workflow may use a message bus, a reminder on how to configure that with the Symfony CLI: https://symfony.com/doc/current/setup/symfony_server.html#symfony-server_configuring-workers

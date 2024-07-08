@@ -12,11 +12,14 @@ use function Symfony\Component\String\u;
 trait HandleTransitionsTrait
 {
     public function handleTransitionButtons(
-        WorkflowInterface $workflow,
-        string $transition,
-        MarkingInterface $entity,
+        ?WorkflowInterface $workflow=null,
+        ?string $transition=null,
+        ?MarkingInterface $entity=null,
         ?MessageBusInterface $bus = null,
     ): ?string {
+        if (!$transition) {
+            return null;
+        }
         $flashMessage = null;
         // use message handler instead.
         $suffix = '_async';

@@ -5,6 +5,8 @@ namespace Survos\WorkflowBundle\Service;
 use App\Entity\Task;
 use Doctrine\ORM\EntityManagerInterface;
 use Survos\BootstrapBundle\Traits\QueryBuilderHelperInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
@@ -28,10 +30,16 @@ class WorkflowHelperService
 
     public function __construct(
         /** @var WorkflowInterface[] */
-        private iterable $workflows,
+        #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
+
+//        private iterable $workflows,
         private array $configuration,
         private EntityManagerInterface $em,
     ) {
+        foreach ($this->workflows->getIterator() as $workflow) {
+//            dump($workflow, $workflow->getName());
+        }
+//        dd($this->workflows);
 //        dd($this->support, $this->workflows);
         // get the workflows from the registry:
 //        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
@@ -49,7 +57,7 @@ class WorkflowHelperService
         $this->dumper = new SurvosStateMachineGraphVizDumper();
     }
 
-    public function getWorkflowsFromTaggedIterator(): iterable
+    private function getWorkflowsFromTaggedIterator(): iterable
     {
         return $this->workflows;
     }
@@ -59,7 +67,7 @@ class WorkflowHelperService
     {
 //        static $workflows=[];
         $workflows = [];
-            foreach ($this->getWorkflowsFromTaggedIterator() as $workflow) {
+            foreach ($this->workflows as $workflow) {
                 $workflows[$workflow->getName()] = $workflow;
             }
         if (count($workflows)==0) {

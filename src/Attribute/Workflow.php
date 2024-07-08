@@ -9,7 +9,9 @@ class Workflow
 {
     public function __construct(
         public ?string $prefix=null, // place prefix
-        public string $type='state_machine' // or workflow
+        public string $type='state_machine', // or workflow,
+        public array $supports=['stdClass'], // or empty?
+        public ?string $name=null // defaults to shortName
     ) {
     }
 
