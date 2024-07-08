@@ -20,6 +20,13 @@ trait HandleTransitionsTrait
         if (!$transition) {
             return null;
         }
+        // @todo: make a constant and inject into twig
+        // reset does NOT run any other services, just the marking
+        if ($transition === '_reset') {
+            $entity->setMarking(null); // force reset
+            $workflow->getMarking($entity);
+            return "marking has been reset to " . $entity->getMarking();
+        }
         $flashMessage = null;
         // use message handler instead.
         $suffix = '_async';

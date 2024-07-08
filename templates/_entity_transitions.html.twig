@@ -30,26 +30,30 @@
     {% endif %}
 
     {% if transition_path is defined %}
-        {% set formAction =  url(transition_path, entity.rp({return_to_referrer: true, flowName: flowName, transition: '_', _format: 'html'})) %}
+        {% set formAction =  url(transition_path, entity.rp({return_to_referrer: true, flowName: flowName, _format: 'html'})) %}
         <h1>{{ formAction }} {{ transition_path }}</h1>
     {% else %}
         {% set formAction = "#" %}
         <h1>{{ formAction }}</h1>
     {% endif %}
-    <form action="{{ formAction }}" method="POST">
 
         <div class="btn-group-vertical" role="group">
-            <input type="hidden" name="flowName" value="{{ flowName }}"/>
-            <input type="hidden" name="type" value="{{ entity_class(entity) }}"/>
             <table>
                 {% for transition in workflow_transitions(entity, flowName) %}
                     {% set tName = transition.name %}
                     <tr>
                         <td>
+                    {% set formAction =  url(transition_path,
+                        entity.rp({transition: tName, return_to_referrer: true, flowName: flowName, _format: 'html'})) %}
+                            {{ formAction }}
+                            <form action="{{ formAction }}" method="POST">
+                                <input type="hidden" name="flowName" value="{{ flowName }}"/>
+                                <input type="hidden" name="type" value="{{ entity_class(entity) }}"/>
                             <button type="submit" name="transition" class="btn btn-outline-success"
                                     value="{{ transition.name }}">
                                 {{ tName }}
                             </button>
+                            </form>
                         </td>
 
                         {% if async|default(false) %}
@@ -85,19 +89,34 @@
                         {#                    </td> #}
                     </tr>
                 {% endfor %}
-                {#            <tr> #}
-                {#                <td> #}
-                {#                    {% set tName = "Reset" %} #}
-                {#                    <button type="submit" name="transition" value="_hard_reset" #}
-                {#                            class="btn btn-danger" #}
-                {#                    > #}
-                {#                        {{ tName }} #}
-                {#                    </button> #}
-                {#                </td> #}
-                {#                <td rowspan="2"> #}
-                {#                    <b>Reset Workflow</b> #}
-                {#                </td> #}
-                {#            </tr> #}
+                            <tr>
+                                <td>
+                                    {% set formAction = path(transition_path, entity.rp({transition:'_reset'})) %}
+                                    {{ formAction }}
+                                    <form action="{{ formAction }}">
+                                        <button type="submit" value="_hard_reset"
+                                                class="btn btn-danger"
+                                        >
+
+                                            {{ 'reset' }}
+                                        </button>
+                                    </form>
+                                    {% set tName = "Reset" %}
+
+{#                                    {% set formAction =  url(transition_path,#}
+{#                                        entity.rp({transition: tName, return_to_referrer: true, flowName: flowName, _format: 'html'})) %}#}
+{#                                    {{ formAction }}#}
+
+{#                                    <button type="submit" name="transition" value="_hard_reset"#}
+{#                                            class="btn btn-danger"#}
+{#                                    >#}
+{#                                        {{ tName }}#}
+{#                                    </button>#}
+                                </td>
+                                <td rowspan="2">
+                                    <b>Reset Workflow</b>
+                                </td>
+                            </tr>
             </table>
         </div>
     </form>
