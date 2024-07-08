@@ -1,21 +1,10 @@
 # workflow-helper-bundle
 
-https://github.com/survos/SurvosWorkflowHelperBundle/network/dependents
+Configure a workflow using PHP attributes.  Use just one class to configure and act on the workflow events.  (Or create an interface with the configuration for easy separation).
 
-
-Demo available at (heroku URL), source for demo at 
-
-#### If developing WorkflowBundle (WorkflowExtrasBundle?  WorkflowHelperBundle?)
-
-    composer config repositories.survos_workflow_helper '{"type": "path", "url": "/home/tac/survos/bundles/WorkflowBundle/"}'
-```bash
-composer config repositories.survos_workflow_helper '{"type": "path", "url": "/home/tac/survos/bundles/WorkflowBundle"}'
-composer req survos/workflow-helper-bundle:"*@dev"
+```php
+// S
 ```
-
-## Of interest
-
-https://github.com/codereviewvideos/symfony-workflow-example
 
 ```bash
 symfony new workflow-demo  --webapp --version=next --php=8.2 && cd workflow-demo 
@@ -51,3 +40,7 @@ symfony open:local --path=/d3
 ## Notes
 
 Since the workflow may use a message bus, a reminder on how to configure that with the Symfony CLI: https://symfony.com/doc/current/setup/symfony_server.html#symfony-server_configuring-workers
+
+https://github.com/survos/SurvosWorkflowHelperBundle/network/dependents
+https://github.com/codereviewvideos/symfony-workflow-example
+
