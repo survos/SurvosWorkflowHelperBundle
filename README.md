@@ -3,8 +3,45 @@
 Configure a workflow using PHP attributes.  Use just one class to configure and act on the workflow events.  (Or create an interface with the configuration for easy separation).
 
 ```php
-// S
+<?php
+// SubmissionWorkflowInterface.php
+
+namespace App\Workflow;
+
+use Survos\WorkflowBundle\Attribute\Place;
+use Survos\WorkflowBundle\Attribute\Transition;
+
+interface SubmissionWorkflowInterface
+{
+    const WORKFLOW_NAME='SubmissionWorkflow';
+
+    #[Place(initial: true, metadata: ['description' => "starting place after submission"])]
+    const PLACE_NEW='new';
+    #[Place(metadata: ['description' => "waiting for admin approval"])]
+    const PLACE_WAITING='waiting';
+    const PLACE_APPROVED='approved';
+    const PLACE_REJECTED='rejected';
+    const PLACE_WITHDRAWN='withdrawn';
+
+    #[Transition(from:[self::PLACE_NEW], to: self::PLACE_WAITING)]
+    const TRANSITION_SUBMIT='submit';
+    #[Transition(from:[self::PLACE_NEW], to: self::PLACE_APPROVED, guard: "is_granted('ROLE_ADMIN')")]
+    const TRANSITION_APPROVE='approve';
+    #[Transition(from:[self::PLACE_NEW], to: self::PLACE_REJECTED, guard: "is_granted('ROLE_ADMIN')")]
+    const TRANSITION_REJECT='reject';
+
+    #[Transition(from:[self::PLACE_NEW, self::PLACE_APPROVED], to: self::PLACE_WITHDRAWN, guard: "is_granted('ROLE_USER')")]
+    const TRANSITION_WITHDRAW='withdrawn';
+
+    #[Transition(from:[self::PLACE_REJECTED, self::PLACE_APPROVED], to: self::PLACE_NEW)]
+    const TRANSITION_RESET='reset';
+
+}
 ```
+
+Now create a class that implements the interface (to get the constants) and acts on the events.
+
+
 
 ```bash
 symfony new workflow-demo  --webapp --version=next --php=8.2 && cd workflow-demo 
