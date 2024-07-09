@@ -85,14 +85,15 @@
 
 {#    <hr />#}
 
+    <h1>{{ flowCode }} Workflow</h1>
     <div class="row row-fluid">
-        <div class="col-6">
+        <div class="col-8">
             <div id="digraph" class="digraph" >
                 {{ digraphData|raw }}
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
             {{ block('places_with_transitions') }}
         </div>
     </div>
@@ -103,7 +104,7 @@
     <pre style="display: none;">
     <div id="digraph" class="digraph" >{{ workflow_digraph(entity, flowCode, 'LR')|raw }}</div>
     </pre>
-    <pre>{{ digraphData|raw }}</pre>
+{#    <pre>{{ digraphData|raw }}</pre>#}
 
 {% endblock %}
 

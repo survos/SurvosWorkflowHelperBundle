@@ -91,7 +91,7 @@ In this case, I want to email the admins upon submission with a link to approve 
 
      $this->bus->dispatch(new SendSubmissionForApprovalMessage($submission->getId());
 
-While it's easy enought to put this in the SubmissionController:new() method, right after the ->flush() call, suppose the submission comes in via email or Slack?  Instead, after the entity is created we want to apply TRANSITION_SUBMIT by listening for it.
+While it's easy enough to put this in the SubmissionController:new() method, right after the ->flush() call, suppose the submission comes in via email or Slack?  Instead, after the entity is created we want to apply TRANSITION_SUBMIT by listening for it.
 
 We can also make sure that only admins and the owner of the submission are allowed to
 

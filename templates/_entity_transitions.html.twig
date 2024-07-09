@@ -4,11 +4,10 @@
 
 <div class="row">
 
-    <code>{{ entity.marking }} {{ workflow_metadata(entity, 'label', entity.marking, flowName) }}</code>
+    Marking: <code>{{ entity.marking }} {{ workflow_metadata(entity, 'label', entity.marking, flowName) }}</code>
 
-
-    <b>{{ ('workflow.%s.place.%s.display'|format(flowName, entity.marking))|trans }}</b>
-    <i>{{ ('workflow.%s.place.%s.description'|format(flowName, entity.marking))|trans }}</i>
+{#    <b>{{ ('workflow.%s.place.%s.display'|format(flowName, entity.marking))|trans }}</b>#}
+{#    <i>{{ ('workflow.%s.place.%s.description'|format(flowName, entity.marking))|trans }}</i>#}
 
 
     {{ entity.lastTransitionMessage|default('') }}
@@ -31,10 +30,8 @@
 
     {% if transition_path is defined %}
         {% set formAction =  url(transition_path, entity.rp({return_to_referrer: true, flowName: flowName, _format: 'html'})) %}
-        <h1>{{ formAction }} {{ transition_path }}</h1>
     {% else %}
         {% set formAction = "#" %}
-        <h1>{{ formAction }}</h1>
     {% endif %}
 
         <div class="btn-group-vertical" role="group">
@@ -45,7 +42,6 @@
                         <td>
                     {% set formAction =  url(transition_path,
                         entity.rp({transition: tName, return_to_referrer: true, flowName: flowName, _format: 'html'})) %}
-                            {{ formAction }}
                             <form action="{{ formAction }}" method="POST">
                                 <input type="hidden" name="flowName" value="{{ flowName }}"/>
                                 <input type="hidden" name="type" value="{{ entity_class(entity) }}"/>
@@ -92,7 +88,6 @@
                             <tr>
                                 <td>
                                     {% set formAction = path(transition_path, entity.rp({transition:'_reset'})) %}
-                                    {{ formAction }}
                                     <form action="{{ formAction }}">
                                         <button type="submit" value="_hard_reset"
                                                 class="btn btn-danger"
