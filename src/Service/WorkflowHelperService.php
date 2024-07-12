@@ -31,29 +31,10 @@ class WorkflowHelperService
     public function __construct(
         /** @var WorkflowInterface[] */
         #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
-
 //        private iterable $workflows,
         private array $configuration,
         private EntityManagerInterface $em,
     ) {
-        foreach ($this->workflows->getIterator() as $workflow) {
-//            dump($workflow, $workflow->getName());
-        }
-//        dd($this->workflows);
-//        dd($this->support, $this->workflows);
-        // get the workflows from the registry:
-//        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
-//        $workflowCountFromRegistry = count($reflectionProperty->getValue($this->workflowRegistry));
-
-
-//        foreach ($workflows as $name => $workflow) {
-//            // You can dump($workflow); here
-//            $this->workflows[$name] = $workflow;
-//            dd($workflow);
-//        }
-//        assert(count($this->workflows) == $workflowCountFromRegistry, sprintf("$workflowCountFromRegistry workflows in registry, %d from the service_iterator",
-//        count($this->workflows)));
-//        dd($this->locator->count(), count($this->workflowRegistry->all(new Task())));
         $this->dumper = new SurvosStateMachineGraphVizDumper();
     }
 
@@ -70,8 +51,6 @@ class WorkflowHelperService
             foreach ($this->workflows as $workflow) {
                 $workflows[$workflow->getName()] = $workflow;
             }
-        if (count($workflows)==0) {
-        }
         return $workflows;
     }
 
