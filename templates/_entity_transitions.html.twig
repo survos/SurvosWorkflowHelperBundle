@@ -87,16 +87,16 @@
                 {% endfor %}
                             <tr>
                                 <td>
+                                    {# must match PixieController constant #}
                                     {% set formAction = path(transition_path, entity.rp({transition:'_reset'})) %}
-                                    <form action="{{ formAction }}">
+                                    <form action="{{ formAction }}" method="POST">
                                         <button type="submit" value="_hard_reset"
                                                 class="btn btn-danger"
                                         >
-
                                             {{ 'reset' }}
                                         </button>
                                     </form>
-                                    {% set tName = "Reset" %}
+{#                                    {% set tName = "Reset" %}#}
 
 {#                                    {% set formAction =  url(transition_path,#}
 {#                                        entity.rp({transition: tName, return_to_referrer: true, flowName: flowName, _format: 'html'})) %}#}
