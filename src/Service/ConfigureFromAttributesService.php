@@ -34,8 +34,8 @@ class ConfigureFromAttributesService
             $name = $reflectionClass->getShortName();
             $workflow = $framework->workflows()->workflows($name);
             $workflow->supports($workflowClass);
-
         }
+        $workflow->auditTrail()->enabled(false);
         assert($workflow, "Workflow $workflowClass must have a #[Workflow] class attribute");
 //        dd($workflow, __CLASS__);
 

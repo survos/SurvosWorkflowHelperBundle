@@ -110,8 +110,9 @@
 
 {% block places_with_transitions %}
     {% for place in definition.places %}
-        <li><b>
-            {{ survos_workflow_metadata(flowCode, 'label', place)}}
+        <li><code>{{ place }}</code>
+            <b>
+            {{ survos_workflow_metadata(flowCode, 'label', place)|default('~')}}
             </b>
                 <i>
                 {{ survos_workflow_metadata(flowCode, 'description', place)  }}
@@ -125,12 +126,13 @@
                     <li>
                         <span class="fas fa-play"></span>
                         <span class="fw-bold" title="{{ t.name }}">
-                        {{ survos_workflow_metadata(flowCode|default(t.name), 'label', t) }}
+                        {{ survos_workflow_metadata(flowCode|default(t.name), 'label', t)|default(t.name) }}
                         </span>
 
                         <span class="fw-light">
                         {{ survos_workflow_metadata(flowCode, 'description', t)  }}
                         </span>
+                        <span class="text-info-emphasis">{{ t.tos|join(',') }}</span>
                     </li>
                 {% endfor %}
 
