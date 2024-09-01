@@ -11,7 +11,8 @@ class Workflow
         public ?string $prefix=null, // place prefix
         public string $type='state_machine', // or workflow,
         public array $supports=['stdClass'], // or empty?
-        public ?string $name=null // defaults to shortName
+        public ?string $name=null, // defaults to shortName
+        public string|array|null $initial=null // array if type is workflow
     ) {
     }
 
@@ -19,4 +20,5 @@ class Workflow
     {
         return $this->prefix;
     }
+    
 }

@@ -9,6 +9,9 @@
     <b>{{ ('workflow.%s.place.%s.display'|format(flowName, entity.marking))|trans }}</b>
     <i>{{ ('workflow.%s.place.%s.description'|format(flowName, entity.marking))|trans }}</i>
 
+{{ dump(entity.marking, entity) }}
+{{ dump(entity.currentPlaces) }}
+{{ dump(flowName) }}
 
     {{ entity.lastTransitionMessage|default('') }}
 

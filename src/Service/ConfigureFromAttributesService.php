@@ -26,15 +26,27 @@ class ConfigureFromAttributesService
                     $name = $reflectionClass->getShortName();
                 }
                 $workflow = $framework->workflows()->workflows($name);
-                $workflow->supports($attributeInstance->supports);
+                $type = $attributeInstance->type;
+                $initial = $attributeInstance->initial;
+
+                $workflow
+                    ->type($type)
+                    ->supports($attributeInstance->supports)
+                ;
             }
         }
         // entities are automatically created as shortName if no Workflow attribute
         if (empty($workflow)) {
+            $type = 'state_machine';
             $name = $reflectionClass->getShortName();
             $workflow = $framework->workflows()->workflows($name);
             $workflow->supports($workflowClass);
+            $initial = null; // first place, see below
         }
+
+        $isStateMachine = ($type === 'state_machine');
+        $workflow->markingStore()->property($isStateMachine ? 'marking' : 'currentPlaces');
+
         $workflow->auditTrail()->enabled(false);
         assert($workflow, "Workflow $workflowClass must have a #[Workflow] class attribute");
 //        dd($workflow, __CLASS__);
@@ -48,9 +60,12 @@ class ConfigureFromAttributesService
                 assert($reflectionConstant->getValue() == $constantValue);
                 switch ($instance::class) {
                     case Place::class:
-                        // check for initial
+                        // check for initial, but more common is in the #[Workflow] attribute.
                         if ($instance->initial) {
-                            $initial = $constantValue;
+                            if ($isStateMachine) {
+                                assert(is_null($initial), "state machine $workflowClass has only one initial marking  " . $initial);
+                                $initial = $constantValue; // $instance->initial;
+                            }
                         }
                         $seen[] = $name;
                         $workflow->place()->name($constantValue) // the name of the place is the value of the constant
@@ -72,16 +87,20 @@ class ConfigureFromAttributesService
         foreach ($constants as $name => $constantValue) {
             // @todo: prefix?  Pattern match, e.g. a suffix?
             if (preg_match('/PLACE_/', $name)) {
+                if (empty($firstPlace)) {
+                    $firstPlace = $constantValue;
+                }
 
                 if (!in_array($name, $seen)) {
                     $workflow->place()->name($constantValue);
-                    // @todo: look at attributes
-                    if (empty($initial)) {
-                        $initial = $constantValue;
-                    }
                 }
             }
         }
+        if (is_null($initial)) {
+            $initial = $isStateMachine ? $firstPlace: [$firstPlace];
+        }
+//        if (is_array($initial)) dd($initial, $workflowClass);
+
         $workflow->initialMarking($initial);
     }
 }
