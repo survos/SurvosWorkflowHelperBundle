@@ -17,10 +17,9 @@ use Symfony\Component\Workflow\WorkflowInterface;
 class TransitionListener
 {
     public function __construct(
-                                /** @var WorkflowInterface[] */
-                                private iterable $workflows,
-                                private WorkflowHelperService $workflowHelperService,
-                                private LoggerInterface $logger)
+        /** @var WorkflowInterface[] */ private iterable              $workflows,
+                                        private WorkflowHelperService $workflowHelperService,
+                                        private LoggerInterface       $logger)
     {
     }
 
@@ -44,7 +43,7 @@ class TransitionListener
             }
 //            $workflow = $this->registry->get($entity);
             try {
-                $enabledTransitions  = array_values(array_filter(
+                $enabledTransitions = array_values(array_filter(
                     $workflow->getEnabledTransitions($entity),
                     fn(Transition $transition) => substr($transition->getName(), 0, 1) <> '_'));
             } catch (\Exception $exception) {
@@ -59,7 +58,7 @@ class TransitionListener
             // get all the transitions, even the _ ones?
             foreach ($workflow->getDefinition()->getTransitions() as $transition) {
                 $meta = $workflow->getMetadataStore()->getTransitionMetadata($transition);
-                if ( (!empty($meta['label']) && substr($meta['label'], 0, 1) <> '*')) {
+                if ((!empty($meta['label']) && substr($meta['label'], 0, 1) <> '*')) {
                     array_push($enabledTransitions, $transition->getName());
                 }
             }

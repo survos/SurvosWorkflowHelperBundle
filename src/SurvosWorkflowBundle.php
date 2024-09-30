@@ -5,6 +5,7 @@ namespace Survos\WorkflowBundle;
 use JetBrains\PhpStorm\NoReturn;
 use Survos\CoreBundle\Traits\HasAssetMapperTrait;
 use Survos\WorkflowBundle\Command\ConvertFromYamlCommand;
+use Survos\WorkflowBundle\Command\IterateCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand;
 use Survos\WorkflowBundle\Controller\WorkflowController;
@@ -125,6 +126,12 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             ->addArgument(new Reference('translator'))
             ->addTag('console.command')
         ;
+
+        $builder->autowire(IterateCommand::class)
+            ->setAutoconfigured(true)
+            ->addTag('console.command')
+        ;
+
 
 //        $serivceId = 'survos_command.command_controller';
 //        $container->services()->alias(CommandController::class, $serivceId);
