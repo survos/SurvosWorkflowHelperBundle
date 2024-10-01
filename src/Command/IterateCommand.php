@@ -74,6 +74,9 @@ final class IterateCommand extends InvokableServiceCommand
 
         // do we need the Config?  Or is it all in the StorageBox
         $workflow = null;
+        if (!class_exists($className)) {
+            $className = str_replace('\\', '\\\\', $className);
+        }
         $repo = $this->entityManager->getRepository($className);
         $entity = new $className();
 //        $workflow = $this->workflowHelperService->getWorkflow($entity);
@@ -123,6 +126,9 @@ final class IterateCommand extends InvokableServiceCommand
         $iterator = $repo->findBy($where);
 //        $qb->andWhere($where);
 
+        $meta = $this->entityManager->getClassMetadata($className);
+        $identifier = $meta->getSingleIdentifierFieldName();
+
         foreach ($iterator as $key => $item) {
             $idx++;
             if ($dump) {
@@ -139,28 +145,27 @@ final class IterateCommand extends InvokableServiceCommand
                 } else {
                     // if there's a workflow and a transition, dispatch a transition message, otherwise a simple row event
                     $envelope = $this->bus->dispatch($message = new AsyncTransitionMessage(
-                        $key,
+                        $item->{'get'.$identifier}(),
                         $className,
                         $transition,
                         $workflowName,
                     ), $stamps);
                 }
             } else {
+                // @todo: get pk from metadata
+                $pkName = 'id';
+                // $em instanceof EntityManager
+
                 // no workflow, so dispatch the row event and let the listeners handle it.
                 $this->eventDispatcher->dispatch(
                     $rowEvent = new RowEvent(
-                    // this looks more like an item!!
-                        $pixieCode,
-                        $tableName,
-                        (array)$item->getData(),
+                        $className,
                         $item,
-                        $key,
+                        $item->getId(),
                         $idx,
                         $count,
                         type: RowEvent::LOAD,
                         action: self::class,
-                        storageBox: $kv,
-                        config: $config,
                         context: [
 //                                'storageBox' => $kv,
                             'tags' => explode(",", $tags),
@@ -169,7 +174,7 @@ final class IterateCommand extends InvokableServiceCommand
                         ])
                 );
 
-//                    dd($rowEvent);
+                    dd($rowEvent);
             }
 
 

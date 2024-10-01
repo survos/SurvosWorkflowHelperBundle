@@ -127,7 +127,13 @@
                     <li>
                         <span class="fas fa-play"></span>
                         <span class="fw-bold" title="{{ t.name }}">
-                        {{ survos_workflow_metadata(flowCode|default(t.name), 'label', t)|default(t.name) }}
+                            {% set rp = {commandName: 'workflow:iterate', transition: t.name, marking: place} %}
+                            {% if app.request.get('className') %}
+                            {% set rp = rp|merge({className: app.request.get('className')}) %}
+                            {% endif %}
+                            <a href="{{ path('survos_command', rp ) }}">
+                                {{ survos_workflow_metadata(flowCode|default(t.name), 'label', t)|default(t.name) }}
+                            </a>
                         </span>
 
                         <span class="fw-light">

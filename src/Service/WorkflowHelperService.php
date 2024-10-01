@@ -5,9 +5,11 @@ namespace Survos\WorkflowBundle\Service;
 use App\Entity\Task;
 use Doctrine\ORM\EntityManagerInterface;
 use Survos\BootstrapBundle\Traits\QueryBuilderHelperInterface;
+use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
@@ -31,6 +33,7 @@ class WorkflowHelperService
     public function __construct(
         /** @var WorkflowInterface[] */
         #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
+        private EntityManagerInterface $entityManager,
 //        private iterable $workflows,
         private array $configuration,
         private EntityManagerInterface $em,
@@ -282,36 +285,80 @@ class WorkflowHelperService
     {
         return $this->getWorkflowsIndexedByName()[$code];
     }
-    public function OLDgetWorkflowByCode($code = null)
+
+    #[AsMessageHandler]
+    public function handleTransition(AsyncTransitionMessage $message)
     {
-        $registry = $this->workflowRegistry;
+        $object = $this->entityManager->find($message->getClassName(), $message->getId());
+        if (!$flowName = $message->getWorkflow()) {
+            // ..
 
-        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
-        $workflowBlobs = $reflectionProperty->getValue($this->workflowRegistry);
-        $workflowsByCode = [];
-
-        foreach ($workflowBlobs as $workflowBlob) {
-            /** @var StateMachine $x */
-            $x = $workflowBlob[0];
-
-            $class = $workflowBlob[1]->getClassName();
-            // @todo: use a Factory
-            $entity = new $class();
-            $flowCode = $x->getName();
-            /** @var Workflow $workflow */
-
-            $workflow = $registry->get($entity, $flowCode);
-            $places = $workflow->getDefinition()->getPlaces();
-
-            $workflowsByCode[$flowCode] =
-                [
-                    'initialPlace' => $places, // ??
-                    'workflow' => $workflow,
-                    'class' => $class,
-                    'entity' => $entity,
-                    'definition' => $x->getDefinition(),
-                ];
         }
-        return $code ? $workflowsByCode[$code] : $workflowsByCode;
+        $transition = $message->getTransitionName();
+        $workflow = $this->getWorkflow($object, $flowName);
+        if (!$workflow->can($object, $transition)) {
+            return; //
+        }
+
+            $marking = $workflow->apply($object, $transition, [
+//                'kv' => $kv
+            ]);
+            dd($marking);
+        if (0) {
+            $context = $marking->getContext();
+            $markingString = array_key_first($marking->getPlaces());
+            $data = $context['data'] ?? null;
+            $mode = $context['mode'] ?? StorageBox::MODE_NOOP;
+            $kv->beginTransaction();
+            if ($mode !== StorageBox::MODE_NOOP) {
+                if ($data) {
+                    $data['marking'] = $markingString;
+                    //                $row->setMarking($markingString);
+                    //                dd($row);
+                    //                dd($marking->getPlaces());
+                    $x = $kv->set($data, $tableName, key: $key, mode: $mode);
+//                    $current = $kv->get($key, $tableName);
+                } else {
+                    dd($context, $transition, $row);
+                }
+            } else {
+                // update marking for no-op
+                $kv->set([
+                    'marking' => $markingString,
+                ],
+                    tableName: $message->table,
+                    key: $key, mode: StorageBox::MODE_PATCH);
+            }
+            $this->logger->info("Transition $transition  $tableName.$key to $markingString");
+            $kv->commit();
+
+            // dispatch the FIRST valid next transition
+            foreach ($context['nextTransitions']??[] as $transition) {
+                if ($workflow->can($row, $transition)) {
+                    // apply it? Or dispatch it?  or recursively call this?
+                    // since it's been saved (above), we will refetch it when this is recursively called
+                    $this->handleTransition(new PixieTransitionMessage(
+                        $message->pixieCode,
+                        $message->key,
+                        $message->table,
+                        $transition,
+                        $message->workflow
+                    ));
+//                    $marking = $workflow->apply($row, $transition, [
+//                        'kv' => $kv
+//                    ]);
+//                    dd($marking, $row, $message, $transition);
+                } else {
+//                    dd($row, $transition, $context);
+                }
+            }
+
+        } else {
+            // no biggie, we can't transition, but the message itself doesn't fail.
+            $marking = $row->getMarking();
+            $this->logger->info("cannot transition from $marking to $transition");
+        }
+
     }
+
 }

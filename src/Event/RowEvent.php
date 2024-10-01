@@ -17,8 +17,8 @@ class RowEvent extends Event
 
     public function __construct(
         public string $className,
-        public ?array $row=null, // return null to not add to database
-        public int|string|null $key=null,
+        public ?object $row=null,
+        public int|string|null $key=null, // the pk
         public ?int $index=null, // numeric index so callback can stop after a limit or show progress
         public ?int $total=null, // so we can act on the first or last row, add a progressBar, etc.
         public ?string $type=self::LOAD, // defaults to regular row load
