@@ -300,64 +300,37 @@ class WorkflowHelperService
             return; //
         }
 
-            $marking = $workflow->apply($object, $transition, [
-//                'kv' => $kv
-            ]);
-            dd($marking);
-        if (0) {
-            $context = $marking->getContext();
-            $markingString = array_key_first($marking->getPlaces());
-            $data = $context['data'] ?? null;
-            $mode = $context['mode'] ?? StorageBox::MODE_NOOP;
-            $kv->beginTransaction();
-            if ($mode !== StorageBox::MODE_NOOP) {
-                if ($data) {
-                    $data['marking'] = $markingString;
-                    //                $row->setMarking($markingString);
-                    //                dd($row);
-                    //                dd($marking->getPlaces());
-                    $x = $kv->set($data, $tableName, key: $key, mode: $mode);
-//                    $current = $kv->get($key, $tableName);
-                } else {
-                    dd($context, $transition, $row);
-                }
-            } else {
-                // update marking for no-op
-                $kv->set([
-                    'marking' => $markingString,
-                ],
-                    tableName: $message->table,
-                    key: $key, mode: StorageBox::MODE_PATCH);
-            }
-            $this->logger->info("Transition $transition  $tableName.$key to $markingString");
-            $kv->commit();
+        if ($workflow->can($object, $transition)) {
+            $marking = $workflow->apply($object, $transition, []);
+            $this->entityManager->flush(); // save the marking and any updates
+        } else {
+            $this->logger->info("cannot transition from {$object->getMarking()} to $transition");
+        }
+        // is this the best place to flush?  or only if workflow applied
 
-            // dispatch the FIRST valid next transition
-            foreach ($context['nextTransitions']??[] as $transition) {
-                if ($workflow->can($row, $transition)) {
-                    // apply it? Or dispatch it?  or recursively call this?
-                    // since it's been saved (above), we will refetch it when this is recursively called
-                    $this->handleTransition(new PixieTransitionMessage(
-                        $message->pixieCode,
-                        $message->key,
-                        $message->table,
-                        $transition,
-                        $message->workflow
-                    ));
+
+        // dispatch the FIRST valid next transition
+        foreach ($context['nextTransitions']??[] as $transition) {
+            dd(nextTransition: $transition);
+            if ($workflow->can($row, $transition)) {
+                // apply it? Or dispatch it?  or recursively call this?
+                // since it's been saved (above), we will refetch it when this is recursively called
+                $this->handleTransition(new PixieTransitionMessage(
+                    $message->pixieCode,
+                    $message->key,
+                    $message->table,
+                    $transition,
+                    $message->workflow
+                ));
 //                    $marking = $workflow->apply($row, $transition, [
 //                        'kv' => $kv
 //                    ]);
 //                    dd($marking, $row, $message, $transition);
-                } else {
+            } else {
 //                    dd($row, $transition, $context);
-                }
             }
-
-        } else {
-            // no biggie, we can't transition, but the message itself doesn't fail.
-            $marking = $row->getMarking();
-            $this->logger->info("cannot transition from $marking to $transition");
         }
+
 
     }
 

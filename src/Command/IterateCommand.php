@@ -191,9 +191,7 @@ final class IterateCommand extends InvokableServiceCommand
         // final dispatch, to process
         $this->eventDispatcher->dispatch(
             $rowEvent = new RowEvent(
-                $pixieCode,
-                $tableName,
-                storageBox: $kv,
+                $className,
                 type: RowEvent::POST_LOAD,
                 action: self::class,
                 context: [
@@ -204,12 +202,12 @@ final class IterateCommand extends InvokableServiceCommand
         );
 
         if ($indexAfterFlush) { // || $transport==='sync') { @todo: check for tags, e.g. create-owners
-            $cli = "pixie:index $pixieCode  --reset"; // trans simply _gets_ existing translations
+            $cli = "db:index $className  --reset"; // trans simply _gets_ existing translations
             $this->io()->warning('bin/console ' . $cli);
             $this->runCommand($cli);
         }
 
-        $io->success($this->getName() . ' success ' . $kv->getFilename());
+        $io->success($this->getName() . ' success ' . $className);
         return self::SUCCESS;
     }
 
