@@ -63,7 +63,7 @@ final class IterateCommand extends InvokableServiceCommand
         // marking CAN be null, which is why we should set it when inserting
         #[Option(description: 'workflow marking')] ?string                     $marking = null,
         #[Option(description: 'tags (for listeners)')] ?string                 $tags = null,
-        #[Option(description: 'grid:index after flush?')] ?bool $indexAfterFlush = false,
+        #[Option(name: 'index', description: 'grid:index after flush?')] ?bool $indexAfterFlush = false,
         #[Option] int                                                          $limit = 0,
         #[Option] string                                                       $dump = '',
 
