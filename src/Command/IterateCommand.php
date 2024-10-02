@@ -54,16 +54,16 @@ final class IterateCommand extends InvokableServiceCommand
 
     public function __invoke(
         IO                                                                     $io,
-        #[Argument(description: 'class name')] string                          $className,
+        #[Argument(name: 'class', description: 'class name')] string                          $className,
         #[Autowire('%env(DEFAULT_TRANSPORT)%')] ?string                        $defaultTransport = null,
         # to override the default
         #[Option(description: 'message transport')] ?string                    $transport = null,
         #[Option(description: 'workflow transition')] ?string                  $transition = null,
-        #[Option(description: 'workflow (if multiple on class)')] ?string      $workflowName = null,
+        #[Option(name: 'worflow', description: 'workflow (if multiple on class)')] ?string      $workflowName = null,
         // marking CAN be null, which is why we should set it when inserting
         #[Option(description: 'workflow marking')] ?string                     $marking = null,
         #[Option(description: 'tags (for listeners)')] ?string                 $tags = null,
-        #[Option(name: 'index', description: 'grid:index after flush?')] ?bool $indexAfterFlush = false,
+        #[Option(description: 'grid:index after flush?')] ?bool $indexAfterFlush = false,
         #[Option] int                                                          $limit = 0,
         #[Option] string                                                       $dump = '',
 
