@@ -54,7 +54,7 @@ final class IterateCommand extends InvokableServiceCommand
 
     public function __invoke(
         IO                                                                     $io,
-        #[Argument(name: 'class', description: 'class name')] string                          $className,
+        #[Argument(name: 'className', description: 'class name')] string                          $className,
         #[Autowire('%env(DEFAULT_TRANSPORT)%')] ?string                        $defaultTransport = null,
         # to override the default
         #[Option(description: 'message transport')] ?string                    $transport = null,
