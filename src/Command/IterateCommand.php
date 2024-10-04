@@ -86,7 +86,10 @@ final class IterateCommand extends InvokableServiceCommand
             $workflow = $this->workflowHelperService->getWorkflowByCode($workflowName);
             if ($marking) {
                 $places = array_values($workflow->getDefinition()->getPlaces());
-                assert(in_array($marking, $places), "invalid marking:\n\n$marking: use\n\n" . join("\n", $places));
+                foreach (explode(',', $marking) as $m) {
+                    // could also check if there's a transition that it's a valid "from"
+                    assert(in_array($m, $places), "invalid marking:\n\n$m: valid markings are\n\n" . join("\n", $places));
+                }
             }
             if ($transition) {
                 $transitions = array_unique(array_map(fn(Transition $transition) => $transition->getName(), $workflow->getDefinition()->getTransitions()));
@@ -97,10 +100,8 @@ final class IterateCommand extends InvokableServiceCommand
         $io->title($className);
         $where = [];
         if ($marking) {
-            $where = ['marking' => $marking];
+            $where = ['marking' => explode(',', $marking)];
         }
-        $qb = $repo->createQueryBuilder('t');
-
         $count = $repo->count(criteria: $where);
         if (!$count) {
             $this->io()->warning("No items found for " . json_encode($where));
