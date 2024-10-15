@@ -5,6 +5,7 @@ namespace Survos\WorkflowBundle\Service;
 use App\Entity\Task;
 use Doctrine\ORM\EntityManagerInterface;
 use Survos\BootstrapBundle\Traits\QueryBuilderHelperInterface;
+use Survos\CoreBundle\Service\SurvosUtils;
 use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
@@ -283,6 +284,7 @@ class WorkflowHelperService
 
     public function getWorkflowByCode(string $code)
     {
+        SurvosUtils::assertKeyExists($code, $this->getWorkflowsIndexedByName());
         return $this->getWorkflowsIndexedByName()[$code];
     }
 

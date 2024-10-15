@@ -78,9 +78,6 @@ final class IterateCommand extends InvokableServiceCommand
             $className = str_replace('\\', '\\\\', $className);
         }
         $repo = $this->entityManager->getRepository($className);
-        $entity = new $className();
-//        $workflow = $this->workflowHelperService->getWorkflow($entity);
-//        dd($workflow->getName());
 
         if ($workflowName = $this->workflowHelperService->getWorkflowsGroupedByClass()[$className][0]) {
             $workflow = $this->workflowHelperService->getWorkflowByCode($workflowName);
@@ -174,7 +171,6 @@ final class IterateCommand extends InvokableServiceCommand
                             'transport' => $transport
                         ])
                 );
-
                     dd($rowEvent);
             }
 
