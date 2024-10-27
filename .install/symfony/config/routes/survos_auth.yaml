@@ -1,3 +1,0 @@
-survos_auth:
-  resource: '@SurvosAuthBundle/config/routes.php'
-  prefix: '/auth'

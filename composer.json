@@ -9,12 +9,12 @@
     "require": {
         "php": "^8.3",
         "doctrine/orm": "^2.12 || ^3.0",
-        "symfony/console": "^6.4 || ^7.0.0",
-        "symfony/http-kernel": "^6.4 || ^7.0.0",
-        "symfony/messenger": "^6.4 || ^7.0.0",
-        "symfony/process": "^6.4 || ^7.0.0",
-        "symfony/workflow": "^6.4 || ^7.0.0",
-        "symfony/yaml": "^6.4 || ^7.0.0",
+        "symfony/console": "^6.4 || ^7.1",
+        "symfony/http-kernel": "^6.4 || ^7.1",
+        "symfony/messenger": "^6.4 || ^7.1",
+        "symfony/process": "^6.4 || ^7.1",
+        "symfony/workflow": "^6.4 || ^7.1",
+        "symfony/yaml": "^6.4 || ^7.1",
         "survos/core-bundle": "^1.5.374",
         "endroid/installer": "*",
         "zenstruck/console-extra": "^1.4"
@@ -22,15 +22,16 @@
     "require-dev": {
         "ekino/phpstan-banned-code": "^1.0",
         "phpstan/phpstan": "^1.8",
-        "symfony/browser-kit": "^6.4 || ^7.0.0",
-        "symfony/config": "^6.4 || ^7.0.0",
-        "symfony/dependency-injection": "^6.4 || ^7.0.0",
-        "symfony/form": "^6.4 || ^7.0.0",
-        "symfony/framework-bundle": "^6.4 || ^7.0.0",
+        "symfony/browser-kit": "^6.4 || ^7.1",
+        "symfony/config": "^6.4 || ^7.1",
+        "symfony/dependency-injection": "^6.4 || ^7.1",
+        "symfony/form": "^6.4 || ^7.1",
+        "symfony/framework-bundle": "^6.4 || ^7.1",
         "symfony/maker-bundle": "^1.38",
-        "symfony/phpunit-bridge": "^6.4 || ^7.0.0",
-        "symfony/twig-bundle": "^6.4 || ^7.0.0",
-        "symfony/var-dumper": "^6.4 || ^7.0.0"
+        "symfony/phpunit-bridge": "^6.4 || ^7.1",
+        "symfony/twig-bundle": "^6.4 || ^7.1",
+        "symfony/var-dumper": "^6.4 || ^7.1",
+        "zenstruck/class-metadata": "*"
     },
     "license": "MIT",
     "authors": [
@@ -46,7 +47,7 @@
     },
     "extra": {
         "symfony": {
-            "require": "^6.4 || ^7.0.0",
+            "require": "^6.4 || ^7.1",
             "allow-contrib": "true"
         },
         "branch-alias": {
@@ -78,7 +79,8 @@
     "prefer-stable": true,
     "config": {
         "allow-plugins": {
-            "endroid/installer": true
+            "endroid/installer": true,
+            "zenstruck/class-metadata": true
         }
     }
 }

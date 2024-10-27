@@ -6,11 +6,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Survos\WorkflowBundle\Event\RowEvent;
 use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
-use Survos\WorkflowBundle\Message\PixieTransitionMessage;
-use Survos\WorkflowBundle\Model\Config;
-use Survos\WorkflowBundle\Service\PixieService;
-use Survos\WorkflowBundle\Service\PixieImportService;
-use Survos\WorkflowBundle\StorageBox;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -23,13 +18,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Yaml\Yaml;
+use Zenstruck\Alias;
 use Zenstruck\Console\Attribute\Argument;
 use Zenstruck\Console\Attribute\Option;
 use Zenstruck\Console\InvokableServiceCommand;
 use Zenstruck\Console\IO;
 use Zenstruck\Console\RunsCommands;
 use Zenstruck\Console\RunsProcesses;
-
+use Zenstruck\Metadata;
+use Zenstruck\Metadata\Bridge\Doctrine\AliasManagerRegistry;
 #[AsCommand('workflow:iterate', 'Iterative over an doctrine table, sending events"')]
 final class IterateCommand extends InvokableServiceCommand
 {
@@ -72,10 +69,12 @@ final class IterateCommand extends InvokableServiceCommand
         $transport ??= $defaultTransport;
 
 
+
         // do we need the Config?  Or is it all in the StorageBox
         $workflow = null;
         if (!class_exists($className)) {
-            $className = str_replace('\\', '\\\\', $className);
+            $metaData = Metadata::for($className); // ['track' => true, 'identifier' => 'getId'] (alternatively, fetch metadata by a class' alias)
+            $className = Alias::classFor($className);
         }
         $repo = $this->entityManager->getRepository($className);
 
@@ -150,10 +149,6 @@ final class IterateCommand extends InvokableServiceCommand
                     ), $stamps);
                 }
             } else {
-                // @todo: get pk from metadata
-                $pkName = 'id';
-                // $em instanceof EntityManager
-
                 // no workflow, so dispatch the row event and let the listeners handle it.
                 $this->eventDispatcher->dispatch(
                     $rowEvent = new RowEvent(
@@ -166,12 +161,11 @@ final class IterateCommand extends InvokableServiceCommand
                         action: self::class,
                         context: [
 //                                'storageBox' => $kv,
-                            'tags' => explode(",", $tags),
+                            'tags' => $tags ? explode(",", $tags) : [],
                             'transition' => $transition,
                             'transport' => $transport
                         ])
                 );
-                    dd($rowEvent);
             }
 
 
