@@ -21,7 +21,7 @@ class SurvosWorkflowDumpCommand extends Command
     public function __construct(private WorkflowHelperService $helper, private TranslatorInterface $translator,
                             /** @var WorkflowInterface[] */
                                 private iterable $workflows,
-                                ?string $name = null)
+                                string|null $name = null)
     {
         parent::__construct($name);
     }

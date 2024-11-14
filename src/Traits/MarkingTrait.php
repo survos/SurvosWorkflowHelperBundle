@@ -3,12 +3,11 @@
 namespace Survos\WorkflowBundle\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use JetBrains\PhpStorm\Deprecated;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Workflow\WorkflowInterface;
+
 use function Symfony\Component\String\u;
 
 trait MarkingTrait
