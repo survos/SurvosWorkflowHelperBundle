@@ -15,7 +15,7 @@
         "symfony/process": "^6.4 || ^7.1",
         "symfony/workflow": "^6.4 || ^7.1",
         "symfony/yaml": "^6.4 || ^7.1",
-        "survos/core-bundle": "^1.5.381",
+        "survos/core-bundle": "^1.5.382",
         "endroid/installer": "*",
         "zenstruck/console-extra": "^1.4"
     },
