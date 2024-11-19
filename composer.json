@@ -15,7 +15,7 @@
         "symfony/process": "^6.4 || ^7.1",
         "symfony/workflow": "^6.4 || ^7.1",
         "symfony/yaml": "^6.4 || ^7.1",
-        "survos/core-bundle": "^1.5.384",
+        "survos/core-bundle": "^1.5",
         "endroid/installer": "*",
         "zenstruck/console-extra": "^1.4"
     },
@@ -79,7 +79,7 @@
     "prefer-stable": true,
     "config": {
         "allow-plugins": {
-            "endroid/installer": true,
+            "survos/installer": true,
             "zenstruck/class-metadata": true
         }
     }
