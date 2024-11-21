@@ -80,7 +80,8 @@
     "config": {
         "allow-plugins": {
             "survos/installer": true,
-            "zenstruck/class-metadata": true
+            "zenstruck/class-metadata": true,
+            "endroid/installer": true
         }
     }
 }

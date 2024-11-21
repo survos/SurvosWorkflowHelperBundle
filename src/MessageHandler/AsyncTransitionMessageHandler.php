@@ -6,11 +6,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
 
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Workflow\Registry;
 
-final class AsyncTransitionMessageHandler implements MessageHandlerInterface
+final class AsyncTransitionMessageHandler
 {
     public function __construct(
         private Registry $workflowRegistry,
@@ -25,6 +24,7 @@ final class AsyncTransitionMessageHandler implements MessageHandlerInterface
 //        yield AsyncTransitionMessage::class;
 //    }
 //
+    #[AsMessageHandler()]
     public function __invoke(AsyncTransitionMessage $message)
     {
         $entity = $this->entityManager->find($message->className, $message->id);
