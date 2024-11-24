@@ -6,8 +6,6 @@ use Survos\WorkflowBundle\Attribute\Place;
 use Survos\WorkflowBundle\Attribute\Transition;
 use Survos\WorkflowBundle\Attribute\Workflow;
 use Symfony\Config\FrameworkConfig;
-use function PHPUnit\Framework\isEmpty;
-
 class ConfigureFromAttributesService
 {
     static public function configureFramework(string $workflowClass, FrameworkConfig $framework, array|string $supports)

@@ -42,7 +42,7 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         $container->addCompilerPass($this);
     }
 
-    #[NoReturn] public function process(ContainerBuilder $container): void
+    public function process(ContainerBuilder $container): void
     {
 
         // for now, look for workflows defined in config/packages/workflow.php
@@ -170,11 +170,6 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             ->addArgument('%kernel.project_dir%')
         ;
 
-        $builder->autowire(ConvertFromYamlCommand::class)
-            ->addTag('console.command')
-        ;
-
-        //        $container->import('../config/services.xml');
     }
 
     public function configure(DefinitionConfigurator $definition): void

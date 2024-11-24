@@ -37,7 +37,8 @@
         "symfony/phpunit-bridge": "^6.4 || ^7.1",
         "symfony/twig-bundle": "^6.4 || ^7.1",
         "symfony/var-dumper": "^6.4 || ^7.1",
-        "zenstruck/class-metadata": "*"
+        "zenstruck/class-metadata": "*",
+        "psr/log": "^3.0"
     },
     "autoload": {
         "psr-4": {

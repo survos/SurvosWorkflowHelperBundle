@@ -4,7 +4,8 @@ namespace Survos\WorkflowBundle\Service;
 
 use App\Entity\Task;
 use Doctrine\ORM\EntityManagerInterface;
-use Survos\BootstrapBundle\Traits\QueryBuilderHelperInterface;
+use Psr\Log\LoggerInterface;
+use Survos\CoreBundle\Traits\QueryBuilderHelperInterface;
 use Survos\CoreBundle\Service\SurvosUtils;
 use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -35,9 +36,8 @@ class WorkflowHelperService
         /** @var WorkflowInterface[] */
         #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
         private EntityManagerInterface $entityManager,
-//        private iterable $workflows,
         private array $configuration,
-        private EntityManagerInterface $em,
+        private ?LoggerInterface $logger = null,
     ) {
         $this->dumper = new SurvosStateMachineGraphVizDumper();
     }
@@ -67,7 +67,7 @@ class WorkflowHelperService
     // @idea: pass in the repository to make the counts call.
     public function getMarkingData(WorkflowInterface $workflow, string $class, array $counts = null): array
     {
-        $repo = $this->em->getRepository($class);
+        $repo = $this->entityManager->getRepository($class);
         if (empty($counts)) {
             if (method_exists($repo, 'findBygetCountsByField')) {
                 $counts = $repo->findBygetCountsByField('marking'); //
@@ -306,32 +306,30 @@ class WorkflowHelperService
             $marking = $workflow->apply($object, $transition, []);
             $this->entityManager->flush(); // save the marking and any updates
         } else {
-            $this->logger->info("cannot transition from {$object->getMarking()} to $transition");
+            $this->logger?->info("cannot transition from {$object->getMarking()} to $transition");
         }
         // is this the best place to flush?  or only if workflow applied
 
 
         // dispatch the FIRST valid next transition
-        foreach ($context['nextTransitions']??[] as $transition) {
-            dd(nextTransition: $transition);
-            if ($workflow->can($row, $transition)) {
+//        foreach ($context['nextTransitions']??[] as $transition) {
+//            assert(!$transition, "@todo: handle next transition $transition");
+//            if ($workflow->can($object, $transition)) {
                 // apply it? Or dispatch it?  or recursively call this?
                 // since it's been saved (above), we will refetch it when this is recursively called
-                $this->handleTransition(new PixieTransitionMessage(
-                    $message->pixieCode,
-                    $message->key,
-                    $message->table,
-                    $transition,
-                    $message->workflow
-                ));
+//                $this->handleTransition(new AsyncTransitionMessage(
+////                    $message->pixieCode,
+////                    $message->key,
+////                    $message->table,
+//                    $transition,
+//                    $message->workflow
+//                ));
 //                    $marking = $workflow->apply($row, $transition, [
 //                        'kv' => $kv
 //                    ]);
 //                    dd($marking, $row, $message, $transition);
-            } else {
-//                    dd($row, $transition, $context);
-            }
-        }
+//            }
+//        }
 
 
     }
