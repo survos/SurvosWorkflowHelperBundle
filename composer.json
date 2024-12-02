@@ -1,38 +1,10 @@
 {
     "name": "survos/workflow-helper-bundle",
     "description": "Add some tools for using the Symfony Workflow Component",
-    "type": "symfony-bundle",
     "keywords": [
         "symfony-ux",
         "workflow"
     ],
-    "require": {
-        "php": "^8.3",
-        "doctrine/orm": "^2.12 || ^3.0",
-        "symfony/console": "^6.4 || ^7.1",
-        "symfony/http-kernel": "^6.4 || ^7.1",
-        "symfony/messenger": "^6.4 || ^7.1",
-        "symfony/process": "^6.4 || ^7.1",
-        "symfony/workflow": "^6.4 || ^7.1",
-        "symfony/yaml": "^6.4 || ^7.1",
-        "survos/core-bundle": "^1.5.391",
-        "endroid/installer": "*",
-        "zenstruck/console-extra": "^1.4"
-    },
-    "require-dev": {
-        "ekino/phpstan-banned-code": "^1.0",
-        "phpstan/phpstan": "^1.8",
-        "symfony/browser-kit": "^6.4 || ^7.1",
-        "symfony/config": "^6.4 || ^7.1",
-        "symfony/dependency-injection": "^6.4 || ^7.1",
-        "symfony/form": "^6.4 || ^7.1",
-        "symfony/framework-bundle": "^6.4 || ^7.1",
-        "symfony/maker-bundle": "^1.38",
-        "symfony/phpunit-bridge": "^6.4 || ^7.1",
-        "symfony/twig-bundle": "^6.4 || ^7.1",
-        "symfony/var-dumper": "^6.4 || ^7.1",
-        "zenstruck/class-metadata": "*"
-    },
     "license": "MIT",
     "authors": [
         {
@@ -40,6 +12,35 @@
             "email": "tacman@gmail.com"
         }
     ],
+    "type": "symfony-bundle",
+    "require": {
+        "php": "^8.3",
+        "doctrine/orm": "^2.12||^3.3",
+        "symfony/console": "^6.4 || ^7.1",
+        "symfony/http-kernel": "^6.4 || ^7.1",
+        "symfony/messenger": "^6.4 || ^7.1",
+        "symfony/process": "^6.4 || ^7.1",
+        "symfony/workflow": "^6.4 || ^7.1",
+        "symfony/yaml": "^6.4 || ^7.1",
+        "survos/core-bundle": "^1.5.396",
+        "endroid/installer": "*",
+        "zenstruck/console-extra": "^1.4"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "symfony/browser-kit": "^6.4 || ^7.1",
+        "symfony/config": "^6.4 || ^7.1",
+        "symfony/dependency-injection": "^6.4 || ^7.1",
+        "symfony/form": "^6.4 || ^7.1",
+        "symfony/framework-bundle": "^6.4 || ^7.1",
+        "symfony/maker-bundle": "^1.5",
+        "symfony/phpunit-bridge": "^6.4 || ^7.1",
+        "symfony/twig-bundle": "^6.4 || ^7.1",
+        "symfony/var-dumper": "^6.4 || ^7.1",
+        "zenstruck/class-metadata": "*",
+        "psr/log": "^3.0",
+        "survos/bootstrap-bundle": "^1.5"
+    },
     "autoload": {
         "psr-4": {
             "Survos\\WorkflowBundle\\": "src/"
@@ -52,6 +53,13 @@
         },
         "branch-alias": {
             "dev-master": "1.5-dev"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "survos/installer": true,
+            "zenstruck/class-metadata": true,
+            "endroid/installer": true
         }
     },
     "conflict": {
@@ -76,12 +84,5 @@
         "survos/import-bridge": "<1.2.57",
         "survos/grid-group-bundle": "<1.2.57"
     },
-    "prefer-stable": true,
-    "config": {
-        "allow-plugins": {
-            "survos/installer": true,
-            "zenstruck/class-metadata": true,
-            "endroid/installer": true
-        }
-    }
+    "prefer-stable": true
 }
