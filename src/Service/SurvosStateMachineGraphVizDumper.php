@@ -39,7 +39,7 @@ class SurvosStateMachineGraphVizDumper implements DumperInterface
      *  * node: The default options for nodes (places)
      *  * edge: The default options for edges
      */
-    public function dump(Definition $definition, Marking $marking = null, array $options = []): string
+    public function dump(Definition $definition, ?Marking $marking = null, array $options = []): string
     {
         $places = $this->findPlaces($definition, $marking);
         $edges = $this->findEdges($definition);
@@ -53,7 +53,7 @@ class SurvosStateMachineGraphVizDumper implements DumperInterface
         ;
     }
 
-    protected function findPlaces(Definition $definition, Marking $marking = null): array
+    protected function findPlaces(Definition $definition, ?Marking $marking = null): array
     {
         $workflowMetadata = $definition->getMetadataStore();
 

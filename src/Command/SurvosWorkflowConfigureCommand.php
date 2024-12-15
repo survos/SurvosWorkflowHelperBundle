@@ -16,7 +16,7 @@ use function Symfony\Component\String\u;
 class SurvosWorkflowConfigureCommand extends Command
 {
 
-    public function __construct(protected string $projectDir, string $name = null)
+    public function __construct(protected string $projectDir, ?string $name = null)
     {
         parent::__construct($name);
     }

@@ -25,7 +25,7 @@ trait MarkingTrait
     #[Groups(['transitions'])]
     private array $enabledTransitions = [];
 
-    public function getMarkingData(WorkflowInterface $workflow, array $counts = null): array
+    public function getMarkingData(WorkflowInterface $workflow, ?array $counts = null): array
     {
         return array_map(fn ($marking) =>
         array_merge([

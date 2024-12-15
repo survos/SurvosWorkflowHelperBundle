@@ -79,7 +79,7 @@ class WorkflowExtension extends AbstractExtension
      *                                                Use a string (the place name) to get place metadata
      *                                                Use a Transition instance to get transition metadata
      */
-    public function getWorkflowMetadata(string $name, string $key, string|Transition $metadataSubject = null)
+    public function getWorkflowMetadata(string $name, string $key, string|Transition|null $metadataSubject = null)
     {
         return $this->workflowHelper->getWorkflowByCode($name)
             ->getMetadataStore()
