@@ -26,7 +26,6 @@ class WorkflowController extends AbstractController
     #[Route("/", name: "survos_workflows")]
     public function workflows(Request $request): Response
     {
-
         $workflowsGroupedByCode = $this->helper->getWorkflowsIndexedByName();
         $workflowsGroupedByClass = $this->helper->getWorkflowsGroupedByClass();
         return $this->render("@SurvosWorkflow/index.html.twig", [

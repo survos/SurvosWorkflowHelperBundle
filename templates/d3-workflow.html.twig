@@ -7,23 +7,19 @@
     {{ parent() }}
 {#    <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>#}
 
+{#    https://stackoverflow.com/questions/50606982/what-is-the-correct-way-to-import-and-use-d3-and-its-submodules-in-es6#}
     <script src="//d3js.org/d3.v5.min.js"></script>
     <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
     <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
-    <script>
-        // $(function() {
-        //
-        //     let d = $('#digraph').text();
-        //     console.log(d);
+    <script type="module">
+        // import d3 from 'd3';
+        // import d3-graphviz from 'd3-graphviz';
         document.addEventListener("DOMContentLoaded", function(){
             document.querySelectorAll(".digraph").forEach(box => {
-                box.style.display = 'block';
+                // box.style.display = 'block';
                 // document.querySelector(".box").style.display = "none";
                 // document.querySelector(".box").style.display = "block";
-
                 let d = box.textContent;
-                console.log(d);
-                // box.style = 'display:show';
                 box.innerHTML = '';
 
             d3.select(box).graphviz()
@@ -31,64 +27,17 @@
                 .renderDot(d);
             })
         })
-        //     // Handler for .ready() called.
-        // });
-        document.addEventListener('DOMContentLoaded', function() {
-            let d = document.getElementById('digraph').innerText;
-            console.log(d);
-                d3.select("#graph").graphviz()
-                    .fade(false)
-                    .renderDot(d);
-            //     // Handler for .ready() called.
-            // your code here
-        }, false);
-        window.onload = ( () => {
-        });
-        // $(function() {
-        //     let d = $('#digraph').text()
-        // });
-
-
     </script>
-
-{#    <script>#}
-{#        $(function() {#}
-{#            let d = $('#digraph').text();#}
-{#            console.log(d);#}
-{#            d3.select("#graph").graphviz()#}
-{#                .fade(false)#}
-{#                .renderDot(d);#}
-{#            // Handler for .ready() called.#}
-{#        });#}
-{#    </script>#}
 
 {% endblock %}
 
 {% block body %}
 
     {% set digraphData = workflow_digraph(entity, flowCode, 'TB') %}
-
-{#    survos_workflow_body#}
-{#    {{ block('main') }}#}
-
-{#    <div class="container-fluid">#}
-{#        {{ workflow_diagram(entity, flowCode, 'LR') }}#}
-{#        <div class="row row-fluid">#}
-{#            <div class="col-md-6 col-6">#}
-{#                {{ block('places') }}#}
-{#            </div>#}
-{#            <div class="col-md-6">#}
-{#                {{ block('transitions') }}#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
-
-{#    <hr />#}
-
     <h1>{{ flowCode }} Workflow</h1>
     <div class="row row-fluid">
         <div class="col-8">
-            <div id="digraph" class="digraph" >
+            <div id="digraphData" class="{{ app.request.get('debug', false) ? 'show' : 'digraph' }}" >
                 {{ digraphData|raw }}
             </div>
         </div>
@@ -101,8 +50,8 @@
 {#    <pre>{{ digraphData }}</pre>#}
 
     {# the actual data, will be passed when moved to Stimulus #}
-    <pre style="display: none;">
-    <div id="digraph" class="digraph" >{{ workflow_digraph(entity, flowCode, 'LR')|raw }}</div>
+    <pre id="digraph" class="digraph" style="display:{{ app.request.get('debug', false) ? 'show' : 'none' }};">
+    {{ workflow_digraph(entity, flowCode, 'LR')|raw }}
     </pre>
 {#    <pre>{{ digraphData|raw }}</pre>#}
 
