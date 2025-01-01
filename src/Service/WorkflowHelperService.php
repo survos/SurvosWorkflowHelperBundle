@@ -299,7 +299,10 @@ class WorkflowHelperService
         $transition = $message->getTransitionName();
         $workflow = $this->getWorkflow($object, $flowName);
         if (!$workflow->can($object, $transition)) {
-            return; //
+            foreach ($workflow->buildTransitionBlockerList($object, $transition) as $blocker) {
+                $this->logger->info($blocker->getMessage());
+            }
+            return;
         }
 
         if ($workflow->can($object, $transition)) {

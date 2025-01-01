@@ -2,16 +2,21 @@
 
 namespace Survos\WorkflowBundle\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
+use Survos\WorkflowBundle\Traits\MarkingInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Workflow\WorkflowInterface;
 
 class WorkflowController extends AbstractController
 {
     public function __construct(
+        private EntityManagerInterface $em,
         protected WorkflowHelperService $helper) // , private Registry $registry)
     {
 //        foreach ($this->tagged->getIterator() as $workflow) {
@@ -33,6 +38,43 @@ class WorkflowController extends AbstractController
             'workflowsGroupedByClass' => $workflowsGroupedByClass,
             'workflowsByCode' => $workflowsGroupedByCode,
         ]);
+    }
+
+    #[Route(path: '/workflow/transition/{workflowCode}/{entityIdentifier}/{transition}.{_format}', name: 'survos_workflow_transition', options: ['expose' => true])]
+    public function _transition(Request                $request,
+                                WorkflowHelperService  $workflowHelperService,
+                                EntityManagerInterface $entityManager,
+                                string|int $entityIdentifier, // for now, must be unique, we could somehow use rp though
+                                string                $workflowCode,
+                                ?string                $transition = null, // for the POST requests
+                                #[MapQueryParameter] ?string $className=null,
+                                #[MapQueryParameter] ?string $redirectRoute=null,
+                                #[MapQueryParameter] array $redirectParams=[],
+                                string                 $_format = 'html',
+    ): Response
+    {
+        /** @var MarkingInterface $entity */
+        $entity = $this->em->getRepository($className)->find($entityIdentifier);
+        assert($entity, "$entityIdentifier not found in $className");
+
+        $stateMachine = $workflowHelperService->getWorkflowByCode($workflowCode);
+//        dd($stateMachine, $entity);
+
+        //        $repo = $this->entityManager->getRepository($entity::class);
+        if ($transition === '_hard_reset') {
+            $entity->setMarking($stateMachine->getDefinition()->getInitialPlaces()[0]);
+        } else {
+            if ($stateMachine->can($entity, $transition)) {
+                $stateMachine->apply($entity, $transition);
+            } else {
+                foreach ($stateMachine->buildTransitionBlockerList($entity, $transition) as $block) {
+                    dump($block);
+                }
+            }
+        }
+        $entityManager->flush();
+        return $this->redirectToRoute($redirectRoute, $redirectParams);
+        return $this->jsonResponse($entity, $request, $_format);
     }
 
     #[Route("/workflow/{flowCode}", name: "survos_workflow")]

@@ -27,6 +27,7 @@ final class AsyncTransitionMessageHandler
     #[AsMessageHandler()]
     public function __invoke(AsyncTransitionMessage $message)
     {
+        dd('moved to WorkflowHelperService');
         $entity = $this->entityManager->find($message->className, $message->id);
         $transitionName = $message->getTransitionName();
         //        dd($transitionName, __FILE__);
