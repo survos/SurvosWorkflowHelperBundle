@@ -126,6 +126,13 @@ final class IterateCommand extends InvokableServiceCommand
         $meta = $this->entityManager->getClassMetadata($className);
         $identifier = $meta->getSingleIdentifierFieldName();
 
+        $this->eventDispatcher->dispatch(
+            $rowEvent = new RowEvent(
+                $className,
+                type: RowEvent::PRE_ITERATE,
+                action: self::class,
+        ));
+
         foreach ($iterator as $key => $item) {
             $idx++;
             if ($dump) {
