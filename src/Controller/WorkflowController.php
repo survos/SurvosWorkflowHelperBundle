@@ -7,6 +7,7 @@ use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Survos\WorkflowBundle\Traits\MarkingInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,7 +18,8 @@ class WorkflowController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
-        protected WorkflowHelperService $helper) // , private Registry $registry)
+        protected WorkflowHelperService $helper
+    ) // , private Registry $registry)
     {
 //        foreach ($this->tagged->getIterator() as $workflow) {
 //            dd($workflow);
@@ -68,7 +70,7 @@ class WorkflowController extends AbstractController
                 $stateMachine->apply($entity, $transition);
             } else {
                 foreach ($stateMachine->buildTransitionBlockerList($entity, $transition) as $block) {
-                    dump($block);
+                    $this->addFlash('warning', $block->getMessage());
                 }
             }
         }
@@ -78,7 +80,7 @@ class WorkflowController extends AbstractController
     }
 
     #[Route("/workflow/{flowCode}", name: "survos_workflow")]
-    public function workflow(Request $request, $flowCode = null, $entityClass = null): Response
+    public function workflow(Request $request, $flowCode, $entityClass = null): Response
     {
         // @todo: handle empty flowcode, needs to look up by class
 
