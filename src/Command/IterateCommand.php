@@ -27,6 +27,7 @@ use Zenstruck\Console\RunsCommands;
 use Zenstruck\Console\RunsProcesses;
 use Zenstruck\Metadata;
 use Zenstruck\Metadata\Bridge\Doctrine\AliasManagerRegistry;
+
 #[AsCommand('workflow:iterate', 'Iterative over an doctrine table, sending events"')]
 final class IterateCommand extends InvokableServiceCommand
 {
@@ -50,24 +51,24 @@ final class IterateCommand extends InvokableServiceCommand
     }
 
     public function __invoke(
-        IO                                                                     $io,
-        #[Argument(name: 'className', description: 'class name')] string                          $className,
-        #[Autowire('%env(DEFAULT_TRANSPORT)%')] ?string                        $defaultTransport = null,
+        IO                                                                                 $io,
+        #[Argument(name: 'className', description: 'class name')] string                   $className,
+        #[Autowire('%env(DEFAULT_TRANSPORT)%')] ?string                                    $defaultTransport = null,
         # to override the default
-        #[Option(description: 'message transport')] ?string                    $transport = null,
-        #[Option(description: 'workflow transition')] ?string                  $transition = null,
-        #[Option(name: 'worflow', description: 'workflow (if multiple on class)')] ?string      $workflowName = null,
+        #[Option(description: 'message transport')] ?string                                $transport = null,
+        #[Option(description: 'workflow transition')] ?string                              $transition = null,
+        #[Option(name: 'worflow', description: 'workflow (if multiple on class)')] ?string $workflowName = null,
         // marking CAN be null, which is why we should set it when inserting
-        #[Option(description: 'workflow marking')] ?string                     $marking = null,
-        #[Option(description: 'tags (for listeners)')] ?string                 $tags = null,
-        #[Option(name: 'index', description: 'grid:index after flush?')] ?bool $indexAfterFlush = false,
-        #[Option] int                                                          $limit = 0,
-        #[Option] string                                                       $dump = '',
+        #[Option(description: 'workflow marking')] ?string                                 $marking = null,
+        #[Option(description: 'tags (for listeners)')] ?string                             $tags = null,
+        #[Option(name: 'index', description: 'grid:index after flush?')] ?bool             $indexAfterFlush = false,
+        #[Option] int                                                                      $limit = 0,
+        #[Option(description: "use this count for progressBar")] int                       $count = 0,
+        #[Option] string                                                                   $dump = '',
 
     ): int
     {
         $transport ??= $defaultTransport;
-
 
 
         // do we need the Config?  Or is it all in the StorageBox
@@ -98,10 +99,12 @@ final class IterateCommand extends InvokableServiceCommand
         if ($marking) {
             $where = ['marking' => explode(',', $marking)];
         }
-        $count = $repo->count(criteria: $where);
         if (!$count) {
-            $this->io()->warning("No items found for " . json_encode($where));
-            return self::SUCCESS;
+            $count = $repo->count(criteria: $where);
+            if (!$count) {
+                $this->io()->warning("No items found for " . json_encode($where));
+                return self::SUCCESS;
+            }
         }
 
         $progressBar = new ProgressBar($io, $count);
@@ -120,21 +123,28 @@ final class IterateCommand extends InvokableServiceCommand
             $table->render();
         }
 
-        $iterator = $repo->findBy($where);
+        $qb = $this->entityManager->getRepository($className)->createQueryBuilder('t');
+        foreach ($where as $key => $value) {
+            $qb->andWhere("t.$key = :{$key}")
+                ->setParameter($key, $value);
+        }
+//        $iterator = $repo->findBy($where);
 //        $qb->andWhere($where);
 
         $meta = $this->entityManager->getClassMetadata($className);
         $identifier = $meta->getSingleIdentifierFieldName();
+        $iterator = $qb->getQuery()->toIterable();
 
         $this->eventDispatcher->dispatch(
             $rowEvent = new RowEvent(
                 $className,
                 type: RowEvent::PRE_ITERATE,
                 action: self::class,
-        ));
+            ));
 
-        foreach ($iterator as $key => $item) {
-            $idx++;
+        foreach ($iterator as $idx => $item) {
+            $method = 'get' . ucfirst($identifier);
+            $key = $item->{$method}();
             if ($dump) {
                 $values = array_map(fn($key) => substr($item->{$key}(), 0, 40), $headers);
                 $table->addRow($values);
@@ -149,7 +159,7 @@ final class IterateCommand extends InvokableServiceCommand
                 } else {
                     // if there's a workflow and a transition, dispatch a transition message, otherwise a simple row event
                     $envelope = $this->bus->dispatch($message = new AsyncTransitionMessage(
-                        $item->{'get'.$identifier}(),
+                        $item->{'get' . $identifier}(),
                         $className,
                         $transition,
                         $workflowName,
