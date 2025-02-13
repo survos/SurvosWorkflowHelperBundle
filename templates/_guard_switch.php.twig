@@ -1,0 +1,17 @@
+/** @var {{ shortName }} {{ varName }} */
+${{ varName  }} = $event->getSubject();
+
+switch ($event->getTransition()) {
+/*
+e.g.
+if ($event->getSubject()->cannotTransition()) {
+  $event->setBlocked(true, "reason");
+}
+{{ entityClassName }}
+*/
+{% for t in transitions %}
+    case {{ t }}:
+        break;
+{% endfor %}
+}
+

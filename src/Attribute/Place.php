@@ -9,7 +9,7 @@ class Place
 {
     public function __construct(
         public bool $initial=false,
-        public ?array $metadata=null
+        public array $metadata=[]
     ) {
 
     }

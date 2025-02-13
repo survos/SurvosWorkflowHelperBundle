@@ -85,6 +85,7 @@ class WorkflowHelperService
     public function getWorkflow($subject, string $workflowName): WorkflowInterface
     {
 
+        SurvosUtils::assertKeyExists($workflowName, $this->getWorkflowsIndexedByName());
         return $this->getWorkflowsIndexedByName()[$workflowName];
 
 //        /** @var WorkflowInterface $workflow */
@@ -292,6 +293,7 @@ class WorkflowHelperService
     public function handleTransition(AsyncTransitionMessage $message)
     {
         $object = $this->entityManager->find($message->getClassName(), $message->getId());
+        assert($object, sprintf( "missing %s for %s", $message->getClassName(), $message->getId()));
         if (!$flowName = $message->getWorkflow()) {
             // ..
 
@@ -304,7 +306,6 @@ class WorkflowHelperService
             }
             return;
         }
-
         if ($workflow->can($object, $transition)) {
             $marking = $workflow->apply($object, $transition, []);
             $this->entityManager->flush(); // save the marking and any updates

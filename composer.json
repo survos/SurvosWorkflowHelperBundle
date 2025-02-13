@@ -34,12 +34,13 @@
         "symfony/form": "^6.4 || ^7.1",
         "symfony/framework-bundle": "^6.4 || ^7.1",
         "symfony/maker-bundle": "^1.5",
-        "symfony/phpunit-bridge": "^6.4 || ^7.1",
         "symfony/twig-bundle": "^6.4 || ^7.1",
         "symfony/var-dumper": "^6.4 || ^7.1",
         "zenstruck/class-metadata": "*",
         "psr/log": "^3.0",
-        "survos/bootstrap-bundle": "^1.5"
+        "survos/bootstrap-bundle": "^1.5",
+        "nette/php-generator": "^4.1",
+        "phpunit/phpunit": "^11.5"
     },
     "autoload": {
         "psr-4": {

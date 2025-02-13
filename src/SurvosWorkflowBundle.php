@@ -6,6 +6,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Survos\CoreBundle\Traits\HasAssetMapperTrait;
 use Survos\WorkflowBundle\Command\ConvertFromYamlCommand;
 use Survos\WorkflowBundle\Command\IterateCommand;
+use Survos\WorkflowBundle\Command\MakeWorkflowCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowConfigureCommand;
 use Survos\WorkflowBundle\Command\SurvosWorkflowDumpCommand;
 use Survos\WorkflowBundle\Controller\WorkflowController;
@@ -87,10 +88,6 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
 //            ->setArgument('$workflowRegistry', new Reference('workflow.registry'))
             ->setAutoconfigured(true)
         ;
-//            ->setArgument('$locator', ServiceLocatorTagPass::register($builder, $locateableServices))
-//            ->setArgument('$direction', $config['direction'])
-//            ->setArgument('$em', new Reference('doctrine.orm.entity_manager'))
-        ;
 
         $builder->setParameter('survos_workflow.base_layout', $config['base_layout']);
         // hopefully not needed!
@@ -127,10 +124,14 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             ->addTag('console.command')
         ;
 
-        $builder->autowire(IterateCommand::class)
-            ->setAutoconfigured(true)
-            ->addTag('console.command')
-        ;
+
+        foreach ([IterateCommand::class, MakeWorkflowCommand::class] as $commandClass) {
+            $builder->autowire($commandClass)
+                ->setAutoconfigured(true)
+                ->addTag('console.command')
+            ;
+
+        }
 
 
 //        $serivceId = 'survos_command.command_controller';

@@ -24,7 +24,7 @@ final class AsyncTransitionMessageHandler
 //        yield AsyncTransitionMessage::class;
 //    }
 //
-    #[AsMessageHandler()]
+//    #[AsMessageHandler()]
     public function __invoke(AsyncTransitionMessage $message)
     {
         dd('moved to WorkflowHelperService');
