@@ -10,6 +10,8 @@ use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -70,27 +72,54 @@ final class IterateCommand extends InvokableServiceCommand
     {
         $transport ??= $defaultTransport;
 
+        // inject entities that implement marking interface
+
 
         // do we need the Config?  Or is it all in the StorageBox
         $workflow = null;
+        $helper = $this->getHelper('question');
         if (!class_exists($className)) {
             $metaData = Metadata::for($className); // ['track' => true, 'identifier' => 'getId'] (alternatively, fetch metadata by a class' alias)
             $className = Alias::classFor($className);
+        }
+        if (!$marking) {
+
         }
         $repo = $this->entityManager->getRepository($className);
 
         if ($workflowName = $this->workflowHelperService->getWorkflowsGroupedByClass()[$className][0]) {
             $workflow = $this->workflowHelperService->getWorkflowByCode($workflowName);
+            $places = $workflow->getDefinition()->getPlaces();
             if ($marking) {
                 $places = array_values($workflow->getDefinition()->getPlaces());
                 foreach (explode(',', $marking) as $m) {
                     // could also check if there's a transition that it's a valid "from"
                     assert(in_array($m, $places), "invalid marking:\n\n$m: valid markings are\n\n" . join("\n", $places));
                 }
+            } else {
+                $question = new ChoiceQuestion(
+                    'From which marking?',
+                    // choices can also be PHP objects that implement __toString() method
+                    $places,
+                    0
+                );
+
+                $marking = $io->askQuestion($question);
+
             }
+            $transitions = array_unique(array_map(fn(Transition $transition) => $transition->getName(), $workflow->getDefinition()->getTransitions()));
             if ($transition) {
-                $transitions = array_unique(array_map(fn(Transition $transition) => $transition->getName(), $workflow->getDefinition()->getTransitions()));
                 assert(in_array($transition, $transitions), "invalid transition:\n\n$transition: use\n\n" . join("\n", $transitions));
+            } else {
+                $question = new ChoiceQuestion(
+                    'Transition?',
+                    // choices can also be PHP objects that implement __toString() method
+                    $transitions,
+                    0
+                );
+
+                $transition = $io->askQuestion($question);
+
             }
         }
 

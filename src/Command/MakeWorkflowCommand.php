@@ -2,6 +2,7 @@
 
 namespace Survos\WorkflowBundle\Command;
 
+use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpNamespace;
 use ReflectionClass;
 use Survos\WorkflowBundle\Attribute\Place;
@@ -24,7 +25,7 @@ use Symfony\Component\Workflow\Attribute\AsTransitionListener;
 use Symfony\Component\Workflow\Event\GuardEvent;
 use Symfony\Component\Workflow\Event\TransitionEvent;
 
-#[AsCommand('survos:workflow:make', 'Generate src/Workflow/(class)Workflow and Interface')]
+#[AsCommand('survos:workflow:generate', 'Generate src/Workflow/(class)Workflow and Interface')]
 #[WhenNot('prod')]
 final class MakeWorkflowCommand extends InvokableServiceCommand
 {
@@ -81,7 +82,8 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
             $pUp = strtoupper($place);
             $constant = $class->addConstant('PLACE_' . $pUp, $place);
             $constant->addAttribute(Place::class, $idx == 0 ? ['initial' => true] : []);
-            $placeConstants[] = 'self::' . $constant->getName();
+//            $placeConstants[] = 'self::' . $constant->getName();
+            $placeConstants[] = new Literal('self::' . $constant->getName());
         }
         foreach ($transitions = explode(',', $transitionNames) as $idx => $t) {
             $from = [$placeConstants[$idx]];
@@ -111,9 +113,8 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
                      GuardEvent::class,
                      TransitionEvent::class,
                  ] as $use) {
-            $x = $namespace->addUse($use);
 
-//            dd($x->getUses(), $use);
+            $x = $namespace->addUse($use);
         }
 //        dd($namespace->getUses(), $fullInterfaceClass);
 
@@ -125,14 +126,16 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
 // create new classes in the namespace
         $class = $namespace->addClass($workflowClass);
         $class->addImplement($fullInterfaceClass);
-        $class->addAttribute(Workflow::class, ['supports' => [$entityClassName], 'name' => 'self::WORKFLOW_NAME']);
+        $class->addAttribute(Workflow::class, [
+            'supports' => [new Literal($shortName.'::class')],
+            'name' => new Literal('self::WORKFLOW_NAME')]);
         $class->addConstant('WORKFLOW_NAME', $workflowClass);
         $method = $class->addMethod('__construct');
 
         // catches everything
         $method = $class->addMethod('onGuard')
             ->setReturnType('void')
-            ->addAttribute(AsGuardListener::class, ['self::WORKFLOW_NAME']);
+            ->addAttribute(AsGuardListener::class, [new Literal('self::WORKFLOW_NAME')]);
         $method
             ->addParameter('event')
             ->setType(GuardEvent::class);
@@ -168,7 +171,8 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
         $fn = $this->dir . "/$className.php";
 
         $code = "<?php\n\n" . $namespace;
-        $code = preg_replace('/\'(self.*?)\'/', "$1", $code);
+//        $code = preg_replace('/\'(self.*?)\'/', "$1", $code);
+
         file_put_contents($fn, $code);
 
     }
