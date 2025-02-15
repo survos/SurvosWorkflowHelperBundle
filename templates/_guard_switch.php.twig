@@ -1,7 +1,7 @@
 /** @var {{ shortName }} {{ varName }} */
 ${{ varName  }} = $event->getSubject();
 
-switch ($event->getTransition()) {
+switch ($event->getTransition()->getName()) {
 /*
 e.g.
 if ($event->getSubject()->cannotTransition()) {

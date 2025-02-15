@@ -152,7 +152,7 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
         // now the transitons
         $method = $class->addMethod('onTransition')
             ->setReturnType('void')
-            ->addAttribute(AsTransitionListener::class, ['self::WORKFLOW_NAME']);
+            ->addAttribute(AsTransitionListener::class, [new Literal('self::WORKFLOW_NAME')]);
         $method
             ->addParameter('event')
             ->setType(TransitionEvent::class);
