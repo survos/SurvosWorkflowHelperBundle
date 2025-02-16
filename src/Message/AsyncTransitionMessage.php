@@ -9,7 +9,13 @@ final class AsyncTransitionMessage
         private string $className,
         private string $transitionName,
         private string $workflow,
+        private array $context=[], // to pass around tags and other extra properties
     ) {
+    }
+
+    public function getContext(): array
+    {
+        return $this->context;
     }
 
     public function getId(): int|string

@@ -293,7 +293,7 @@ class WorkflowHelperService
     public function handleTransition(AsyncTransitionMessage $message)
     {
         $object = $this->entityManager->find($message->getClassName(), $message->getId());
-        assert($object, sprintf( "missing %s for %s", $message->getClassName(), $message->getId()));
+        assert($object, sprintf( "missing entity %s for %s", $message->getClassName(), $message->getId()));
         if (!$flowName = $message->getWorkflow()) {
             // ..
 
@@ -307,7 +307,7 @@ class WorkflowHelperService
             return;
         }
         if ($workflow->can($object, $transition)) {
-            $marking = $workflow->apply($object, $transition, []);
+            $marking = $workflow->apply($object, $transition, $message->getContext());
             $this->entityManager->flush(); // save the marking and any updates
         } else {
             $this->logger?->info("cannot transition from {$object->getMarking()} to $transition");
