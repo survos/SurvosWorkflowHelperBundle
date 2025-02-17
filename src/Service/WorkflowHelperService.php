@@ -294,6 +294,10 @@ class WorkflowHelperService
     {
         $object = $this->entityManager->find($message->getClassName(), $message->getId());
         assert($object, sprintf( "missing entity %s for %s", $message->getClassName(), $message->getId()));
+        // removed, throw error (above) during testing only.
+        if (!$object) {
+            return;
+        }
         if (!$flowName = $message->getWorkflow()) {
             // ..
 
