@@ -4,6 +4,7 @@ namespace Survos\WorkflowBundle\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Survos\CoreBundle\Traits\QueryBuilderHelperInterface;
 use Survos\WorkflowBundle\Event\RowEvent;
 use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
@@ -64,6 +65,7 @@ final class IterateCommand extends InvokableServiceCommand
         #[Option(description: 'workflow marking')] ?string                                 $marking = null,
         #[Option(description: 'tags (for listeners)')] ?string                             $tags = null,
         #[Option(name: 'index', description: 'grid:index after flush?')] ?bool             $indexAfterFlush = false,
+        #[Option(description: 'show stats only')] ?bool             $stats = false,
         #[Option] int                                                                      $limit = 0,
         #[Option(description: "use this count for progressBar")] int                       $count = 0,
         #[Option] string                                                                   $dump = '',
@@ -85,7 +87,20 @@ final class IterateCommand extends InvokableServiceCommand
         if (!$marking) {
 
         }
+
+        /** @var QueryBuilderHelperInterface $repo */
         $repo = $this->entityManager->getRepository($className);
+        if ($stats) {
+            $counts = $repo->getCounts('marking');
+            $table = new Table($io->output());
+            $table->setHeaderTitle($className);
+            $table->setHeaders(['marking','count','Available Transitions']);
+            foreach ($counts as $name => $count) {
+                $table->addRow([$name, $count, '@todo']);
+            }
+            $table->render();
+            return self::SUCCESS;
+        }
 
         if ($workflowName = $this->workflowHelperService->getWorkflowsGroupedByClass()[$className][0]) {
             $workflow = $this->workflowHelperService->getWorkflowByCode($workflowName);

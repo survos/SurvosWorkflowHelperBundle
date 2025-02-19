@@ -36,7 +36,7 @@
         "symfony/maker-bundle": "^1.5",
         "symfony/twig-bundle": "^6.4 || ^7.1",
         "symfony/var-dumper": "^6.4 || ^7.1",
-        "zenstruck/class-metadata": "*",
+        "zenstruck/class-metadata": "^1.1",
         "psr/log": "^3.0",
         "survos/bootstrap-bundle": "^1.5",
         "nette/php-generator": "^4.1",
