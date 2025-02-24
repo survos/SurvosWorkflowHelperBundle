@@ -16,8 +16,6 @@ trait MarkingTrait
     #[Groups(['transition', 'minimum', 'marking','searchable'])]
     private ?string $marking = null; // self::INITIAL_MARKING;
 
-    private array $context = [];
-
     private array $markingHistory = [];
 
     private ?\DateTime $lastTransitionTime = null;
@@ -39,11 +37,6 @@ trait MarkingTrait
         return $this->marking;
     }
 
-    public function getContext(): ?array
-    {
-        return $this->context;
-    }
-
     /**
      *   Note : type must be 'method', see https://symfony.com/blog/new-in-symfony-4-3-workflow-improvements#added-a-context-to-workflow-apply
      *   get the context with $event->getContext();
@@ -53,8 +46,6 @@ trait MarkingTrait
     {
         $this->marking = $marking;
         // not persisted!
-        $this->context = $context;
-
         return $this;
     }
 
