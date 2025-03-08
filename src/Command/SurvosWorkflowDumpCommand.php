@@ -18,9 +18,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SurvosWorkflowDumpCommand extends Command
 {
 
-    public function __construct(private WorkflowHelperService $helper, private TranslatorInterface $translator,
+    public function __construct(private WorkflowHelperService $helper,
                             /** @var WorkflowInterface[] */
                                 private iterable $workflows,
+                                private ?TranslatorInterface $translator=null,
                                 string|null $name = null)
     {
         parent::__construct($name);

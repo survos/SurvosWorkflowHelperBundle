@@ -22,6 +22,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
@@ -119,8 +120,8 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             ->addTag('twig.extension');
 
         $builder->autowire(SurvosWorkflowDumpCommand::class)
-            ->addArgument(new Reference(WorkflowHelperService::class))
-            ->addArgument(new Reference('translator'))
+            ->setArgument('$helper', new Reference(WorkflowHelperService::class))
+            ->setArgument('$translator', new Reference('translator', ContainerInterface::NULL_ON_INVALID_REFERENCE))
             ->addTag('console.command')
         ;
 
@@ -154,6 +155,7 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         $builder->autowire(WorkflowController::class)
             ->addTag('container.service_subscriber')
             ->addTag('controller.service_arguments')
+            ->setAutowired(true)
             ->setAutoconfigured(true)
             ->setPublic(true)
         ;

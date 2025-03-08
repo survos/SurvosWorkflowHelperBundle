@@ -4,6 +4,7 @@ namespace Survos\WorkflowBundle\Command;
 
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpNamespace;
+use Nette\PhpGenerator\Type;
 use ReflectionClass;
 use Survos\WorkflowBundle\Attribute\Place;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,7 +19,6 @@ use Zenstruck\Console\IO;
 use Zenstruck\Console\RunsCommands;
 use Zenstruck\Console\RunsProcesses;
 use Survos\WorkflowBundle\Attribute\Transition;
-
 use Survos\WorkflowBundle\Attribute\Workflow;
 use Symfony\Component\Workflow\Attribute\AsGuardListener;
 use Symfony\Component\Workflow\Attribute\AsTransitionListener;
@@ -34,21 +34,19 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
 
     public function __construct(
         #[Autowire('%kernel.project_dir%/src/Workflow')] private string $dir,
-        private Environment                                             $twig
-    )
-    {
+        private Environment $twig
+    ) {
         parent::__construct();
     }
 
 
     public function __invoke(
-        IO                                                                                             $io,
-        #[Argument(name: 'class-name', description: 'entity class name')] string                       $entityClassName,
+        IO $io,
+        #[Argument(name: 'class-name', description: 'entity class name')] string $entityClassName,
         #[Argument(name: 'place-names', description: 'place names, e.g. new,loaded,processed')] string $placeNames = 'new,loaded',
-        #[Argument(name: 'transition-names', description: 'transitions, e.g. load,process')] string    $transitionNames = 'load',
-        #[Option(description: 'namespace')] string                                                     $ns = "App\\Workflow"
-    )
-    {
+        #[Argument(name: 'transition-names', description: 'transitions, e.g. load,process')] string $transitionNames = 'load',
+        #[Option(description: 'namespace')] string $ns = "App\\Workflow"
+    ) {
         // @todo: check that class must implement MarkingInterface
         try {
             $shortName = (new ReflectionClass($entityClassName))->getShortName();
@@ -103,7 +101,8 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
 
         // now the workflow events
         $namespace = new PhpNamespace($ns);
-        foreach ([
+        foreach (
+            [
                      $fullInterfaceClass,
                      $entityClassName,
 //            $ns . "\\" . $interfaceClass, //  because they're in the same namespace, this isn't required
@@ -112,8 +111,8 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
                      AsTransitionListener::class,
                      GuardEvent::class,
                      TransitionEvent::class,
-                 ] as $use) {
-
+                 ] as $use
+        ) {
             $x = $namespace->addUse($use);
         }
 //        dd($namespace->getUses(), $fullInterfaceClass);
@@ -127,10 +126,23 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
         $class = $namespace->addClass($workflowClass);
         $class->addImplement($fullInterfaceClass);
         $class->addAttribute(Workflow::class, [
-            'supports' => [new Literal($shortName.'::class')],
+            'supports' => [new Literal($shortName . '::class')],
             'name' => new Literal('self::WORKFLOW_NAME')]);
         $class->addConstant('WORKFLOW_NAME', $workflowClass);
+
         $method = $class->addMethod('__construct');
+
+        // catches everything
+        $method = $class->addMethod('get' . $shortName)
+            ->setReturnType($entityClassName);
+        $parameter = $method
+            ->addParameter('event');
+        $parameter
+            ->setType(Type::union(TransitionEvent::class, GuardEvent::class));
+
+        $method->setBody(sprintf(<<<'PHP'
+		/** @var %s */ return $event->getSubject();
+PHP, $shortName));
 
         // catches everything
         $method = $class->addMethod('onGuard')
@@ -163,7 +175,6 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
 
 
         return self::SUCCESS;
-
     }
 
     private function writeFile(PhpNamespace $namespace, string $className)
@@ -174,8 +185,5 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
 //        $code = preg_replace('/\'(self.*?)\'/', "$1", $code);
 
         file_put_contents($fn, $code);
-
     }
-
-
 }

@@ -12,13 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
 
 class WorkflowController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
-        protected WorkflowHelperService $helper
+        protected WorkflowHelperService $helper,
+
     ) // , private Registry $registry)
     {
 //        foreach ($this->tagged->getIterator() as $workflow) {
@@ -80,11 +82,14 @@ class WorkflowController extends AbstractController
     }
 
     #[Route("/workflow/{flowCode}", name: "survos_workflow")]
-    public function workflow(Request $request, $flowCode, $entityClass = null): Response
+    public function workflow(Request $request,
+                             $flowCode, $entityClass = null): Response
     {
         // @todo: handle empty flowcode, needs to look up by class
 
         $workflow = $this->helper->getWorkflowByCode($flowCode);
+        $json = $this->serializer->serialize($workflow->getDefinition(), 'json');
+        dd($json, $workflow, json_encode($workflow->getDefinition()));
         $classes = $this->helper->getSupports($flowCode);
 
 //        dd($workflow, $classes);
