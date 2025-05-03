@@ -1,3 +1,0 @@
-survos_workflow:
-  resource: '@SurvosWorkflowBundle/config/routes.yaml'
-  prefix: '/workflow'
