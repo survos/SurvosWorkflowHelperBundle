@@ -1,0 +1,33 @@
+
+{% extends ['base.html.twig', '@SurvosWorkflow/layout.html.twig'] %}
+
+{% block body %}
+    <h1>{{ workflowsByCode|length }} Workflows</h1>
+
+    {% for code, config in configs %}
+        {% if config.type == 'state_machine' %}
+        <h1>{{ code }}</h1>
+        <a href="{{ path('survos_workflow', {flowCode: code}) }}">Show More</a>
+        <div class="row">
+            <h3>Places</h3>
+            <ul>
+            {% for place in config.places %}
+                <li>
+                    {{ place.name }}
+                    {{ place.metadata ? place.metadata|json_encode }}
+                </li>
+            {% endfor %}
+            </ul>
+            <h3>Transitions</h3>
+            <ul>
+                {% for t in config.transitions %}
+                    <li>
+                        {{ t.name }}
+                        {{ t.metadata ? t.metadata|json_encode }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

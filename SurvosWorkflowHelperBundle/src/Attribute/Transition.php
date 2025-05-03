@@ -10,16 +10,9 @@ class Transition
     public function __construct(
         public array|string $from,
         public array|string $to,
-        public ?string $info=null,
         public ?string $guard=null,
-        public ?array $metadata=[],
+        public ?array $metadata=[]
     ) {
-        if ($guard) {
-            $this->metadata['guard'] = $guard;
-        }
-        if ($this->info) {
-            $this->metadata['description'] = $this->info;
-        }
 
     }
 

@@ -1,0 +1,16 @@
+${{ varName  }} = $this->get{{ shortName }}($event);
+
+switch ($event->getTransition()->getName()) {
+/*
+e.g.
+if ($event->getSubject()->cannotTransition()) {
+  $event->setBlocked(true, "reason");
+}
+{{ entityClassName }}
+*/
+{% for t in transitions %}
+    case {{ t }}:
+        break;
+{% endfor %}
+}
+

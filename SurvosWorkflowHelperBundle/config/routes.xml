@@ -1,0 +1,18 @@
+<!--<?xml version="1.0" encoding="UTF-8" ?>-->
+<!--<routes xmlns="http://symfony.com/schema/routing"-->
+<!--        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
+<!--        xsi:schemaLocation="http://symfony.com/schema/routing-->
+<!--        https://symfony.com/schema/routing/routing-1.0.xsd">-->
+
+<!--&lt;!&ndash;    <route id="x" path="/edit/{collection?}/{scope?}/{section?}"&ndash;&gt;-->
+<!--&lt;!&ndash;           controller="tzunghaor_settings.editor_controller::edit">&ndash;&gt;-->
+<!--&lt;!&ndash;    </route>&ndash;&gt;-->
+
+<!--    <route id="survos_workflows" path="/workflows"-->
+<!--           controller="survos_workflow_bundle.workflow_controller::workflows">-->
+<!--    </route>-->
+
+<!--    <route id="survos_workflow" path="/workflow/{flowCode}"-->
+<!--           controller="survos_workflow_bundle.workflow_controller::workflow">-->
+<!--    </route>-->
+<!--</routes>-->

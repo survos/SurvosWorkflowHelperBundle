@@ -4,48 +4,115 @@
 {% block page_subtitle "Place count?" %}
 
 {% block javascripts %}
-    {{ parent() }}
-{#    <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>#}
+    <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>
+    <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+    <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+    <script src="//d3js.org/d3.v5.min.js"></script>
+  {{ parent() }}
+{% endblock %}
 
-{#    https://stackoverflow.com/questions/50606982/what-is-the-correct-way-to-import-and-use-d3-and-its-submodules-in-es6#}
-{#    <script src="//d3js.org/d3.v5.min.js"></script>#}
-{#    <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>#}
-{#    <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>#}
-    <script type="module">
-        // import d3 from 'd3';
-        import {graphviz} from 'd3-graphviz';
-        // import d3-graphviz from 'd3-graphviz';
+{% block XXjavascripts %}
+    <script>
+        // $(function() {
+        //
+        //     let d = $('#digraph').text();
+        //     console.log(d);
+        if (0)
         document.addEventListener("DOMContentLoaded", function(){
             document.querySelectorAll(".digraph").forEach(box => {
-                // box.style.display = 'block';
+                box.style.display = 'block';
                 // document.querySelector(".box").style.display = "none";
                 // document.querySelector(".box").style.display = "block";
-                let d = box.textContent;
-                box.innerHTML = '';
-                graphviz('#digraphData').renderDot(d)
 
-            // d3.select(box).graphviz()
-            //     .fade(false)
-            //     .renderDot(d);
+                let d = box.textContent;
+                console.log(d);
+                // box.style = 'display:show';
+                box.innerHTML = '';
+
+            d3.select(box).graphviz()
+                .fade(false)
+                .renderDot(d);
             })
         })
+        //     // Handler for .ready() called.
+        // });
+        document.addEventListener('DOMContentLoaded', function() {
+            let d = document.getElementById('digraph').innerText;
+            console.log(d);
+                d3.select("#graph").graphviz()
+                    .fade(false)
+                    .renderDot(d);
+            //     // Handler for .ready() called.
+            // your code here
+        }, false);
+        window.onload = ( () => {
+        });
+        // $(function() {
+        //     let d = $('#digraph').text()
+        // });
+
 
     </script>
 
+{#    <script>#}
+{#        $(function() {#}
+{#            let d = $('#digraph').text();#}
+{#            console.log(d);#}
+{#            d3.select("#graph").graphviz()#}
+{#                .fade(false)#}
+{#                .renderDot(d);#}
+{#            // Handler for .ready() called.#}
+{#        });#}
+{#    </script>#}
+
 {% endblock %}
 
-{% block body %}
+{% block content %}
 
-    {% set digraphData = workflow_digraph(entity, flowCode, 'TB') %}
-    <h1>{{ flowCode }} Workflow</h1>
+    {% set digraphData %}
+    digraph G { a -> b [label="  a to b" labeltooltip="this is a tooltip"]; b -> c [label="  another label" ];}
+    {% endset %}
+    <pre>{{ digraphData }}</pre>
+
+<div
+        {% set _controller = '@survos/workflow-helper-bundle/workflow' %}
+    {{ stimulus_controller(_controller, {
+        digraph: digraphData
+    }) }}
+    >
+    <div {{ stimulus_target(_controller, 'graph') }}>
+        Workflow SVG here
+    </div>
+
+</div>
+
+
+    {#    {% set digraphData = workflow_digraph(entity, flowCode, 'TB') %}#}
+{#    survos_workflow_body#}
+{#    {{ block('main') }}#}
+
+{#    <div class="container-fluid">#}
+{#        {{ workflow_diagram(entity, flowCode, 'LR') }}#}
+{#        <div class="row row-fluid">#}
+{#            <div class="col-md-6 col-6">#}
+{#                {{ block('places') }}#}
+{#            </div>#}
+{#            <div class="col-md-6">#}
+{#                {{ block('transitions') }}#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+
+{#    <hr />#}
+
     <div class="row row-fluid">
-        <div class="col-8">
-            <div id="digraphData" class="{{ app.request.get('debug', false) ? 'show' : 'digraph' }}" >
+        <div class="col-6">
+            <div id="digraph" class="digraph" >
                 {{ digraphData|raw }}
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6">
             {{ block('places_with_transitions') }}
         </div>
     </div>
@@ -53,24 +120,22 @@
 {#    <pre>{{ digraphData }}</pre>#}
 
     {# the actual data, will be passed when moved to Stimulus #}
-    <pre id="digraph" class="digraph" style="display:{{ app.request.get('debug', false) ? 'show' : 'none' }};">
-    {{ workflow_digraph(entity, flowCode, 'LR')|raw }}
+    <pre style="display: none;">
+    <div id="digraph" class="digraph" >{{ workflow_digraph(entity, flowCode, 'LR')|raw }}</div>
     </pre>
-{#    <pre>{{ digraphData|raw }}</pre>#}
+    <pre>{{ digraphData|raw }}</pre>
 
 {% endblock %}
 
 {% block places_with_transitions %}
     {% for place in definition.places %}
-        <li>
-            <i class="badge badge-info text-info-emphasis">{{ place }}</i>
-            <b>
-            {{ survos_workflow_metadata(flowCode, 'label', place)|default('~')}}
+        <li><b>
+            {{ workflow_metadata(entity, 'label', place, flowCode) ? workflow_metadata(entity, 'label', place, flowCode)|trans : place }}
             </b>
                 <i>
-                {{ survos_workflow_metadata(flowCode, 'description', place)  }}
+                {{ workflow_metadata(entity, 'description', place, flowCode) ? workflow_metadata(entity, 'description', place, flowCode)|trans : '' }}
             </i>
-            <a class="hidden-print" href="{{ path('survos_workflow', {flowCode: flowCode, states: place|json_encode}) }}">Set</a>
+            <a class="hidden-print" href="{{ path('survos_workflow', {flowCode: flowCode, class: class, states: place|json_encode}) }}">Set</a>
 
             {% set transitions = definition.transitions|filter( (t) => place in t.froms) %}
             {{ transitions|length }} Transitions:
@@ -79,20 +144,12 @@
                     <li>
                         <span class="fas fa-play"></span>
                         <span class="fw-bold" title="{{ t.name }}">
-                            {% set rp = {commandName: 'workflow:iterate', transition: t.name, marking: place} %}
-                            {% if app.request.get('className') %}
-                            {% set rp = rp|merge({className: app.request.get('className')}) %}
-                            {% endif %}
-                            <a href="{{ path('survos_command', rp ) }}">
-                                {{ survos_workflow_metadata(flowCode|default(t.name), 'label', t)|default(t.name) }}
-                            </a>
+                        {{ workflow_metadata(entity, 'label', t, flowCode)|default(t.name)  }}
                         </span>
 
                         <span class="fw-light">
-                        {{ survos_workflow_metadata(flowCode, 'description', t)  }}
+                        {{ workflow_metadata(entity, 'description', t, flowCode)  }}
                         </span>
-                        <span class="badge badge-info text-info-emphasis">
-                            {{ t.tos|join(',') }}</span>
                     </li>
                 {% endfor %}
 
@@ -126,8 +183,7 @@
             <i>{{ t.name }}</i>
             <span class="pull-right">
                                 {{ t.froms|join(',') }}
-                                <i class="fa fa-arrow-circle-right"></i>
-                -> {{ t.tos|join(',') }}
+                                <i class="fa fa-arrow-circle-right"></i> {{ t.tos|join(',') }}
                             </span>
             <br />
             {{ workflow_metadata(entity, 'description', t, flowCode)  }}

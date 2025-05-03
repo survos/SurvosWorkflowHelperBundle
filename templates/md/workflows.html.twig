@@ -1,0 +1,21 @@
+Markdown for {{ workflowName }}
+
+![{{ workflowName }}.svg]({{ workflowName }}.svg)
+
+{% for type, e in events %}
+
+{% for code, x in e %}
+
+## {{ code }} -- {{ type }}
+
+{#{{ e|json_encode }}#}
+
+{% for a in x %}
+```php
+{{ a.source|raw }}
+```
+{{ a.link }}
+        {% endfor %}
+
+{% endfor %}
+{%- endfor -%}

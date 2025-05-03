@@ -20,7 +20,6 @@ class WorkflowController extends AbstractController
     public function __construct(
         private EntityManagerInterface $em,
         protected WorkflowHelperService $helper,
-        private SerializerInterface $serializer,
 
     ) // , private Registry $registry)
     {
@@ -90,7 +89,7 @@ class WorkflowController extends AbstractController
 
         $workflow = $this->helper->getWorkflowByCode($flowCode);
         $json = $this->serializer->serialize($workflow->getDefinition(), 'json');
-//        dd($json, $workflow, json_encode($workflow->getDefinition()));
+        dd($json, $workflow, json_encode($workflow->getDefinition()));
         $classes = $this->helper->getSupports($flowCode);
 
 //        dd($workflow, $classes);

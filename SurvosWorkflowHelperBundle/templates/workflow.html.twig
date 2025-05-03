@@ -1,0 +1,144 @@
+{% extends '@SurvosWorkflow/layout.html.twig' %}
+
+
+
+
+
+
+
+
+
+
+
+
+{#  see d3-workflow instead! #}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% block javascripts %}
+
+    {{ parent() }}
+    <script src="//d3js.org/d3.v4.min.js"></script>
+    <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>
+    <script src="https://unpkg.com/d3-graphviz@1.4.0/build/d3-graphviz.min.js"></script>
+
+    <script>
+        let d = document.getElementById('digraph').textContent;
+        console.log(d);
+        // $(function() {
+        //     let d = $('#digraph').text()
+        //     d3.select("#graph").graphviz()
+        //         .fade(false)
+        //         .renderDot(d);
+        //     // Handler for .ready() called.
+        // });
+
+
+    </script>
+
+{% endblock %}
+
+{% block page_title "%s Workflow"|format(flowCode) %}
+{% block page_subtitle "Place count?" %}
+{% block survos_workflow_body %}
+
+    <h1>workflow?</h1>
+    {{ 'missing'|trans }}
+    <hr />
+    <div id="graph" style="text-align: center;"></div>
+
+    {% set allowTransitions = true %}
+
+        <h2><a href="{{ path('survos_workflow', {class: class, flowCode: flowCode}) }}">{{ flowCode }} {{ entity.id }} {{ class }}</a></h2>
+
+
+        <div class="row-fluid">
+            <div class="col-lg-12 col-md-12 col-sm-12" >
+                {% if allowTransitions %}
+                    {% include "@SurvosWorkflow/workflow_transitions.html.twig" with {entity: entity, class: class, transitions: definition.transitions} %}
+                {% endif %}
+                {#
+
+                {{ object.marking }}
+                <img class="workflow" style="width: 345px" src='data:image/svg+xml;utf8,
+{{ workflow_diagram(entity.object,'LR') }} />
+        {{ workflow_diagram(entity, flowCode, 'LR') }}
+#}
+
+
+            </div>
+
+        </div>
+
+            <div class="row-fluid">
+
+            <div class="col-sm-6 col-lg-6 col">
+                <h3>{{ flowCode }} Transitions</h3>
+                <ul class="list list-unstyled">
+                    {% for t in definition.transitions %}
+                        <li>
+                            <i>{{ t.name }}</i>
+                            <span class="pull-right">
+                                {{ t.froms|join(',') }}
+                                <i class="fa fa-arrow-circle-right"></i> {{ t.tos|join(',') }}
+                            </span>
+                            <br />
+                            {{ workflow_metadata(entity, 'description', t, flowCode)|trans  }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col-sm-6 col-lg-3">
+                <h3>{{ flowCode }} States</h3>
+                <ul class="list list-unstyled">
+                    {% for place in definition.places | filter (place => place != definition.initialPlace) %}
+                        <li><b>{{ place }}</b>: {{ "%s.places.%s.description"|format(flowCode, place)|trans }}
+                        <a href="{{ path('survos_workflow', {flowCode: flowCode, class: class, states: place|json_encode}) }}">Set</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    <pre>
+                <div id="digraph" style="display: none">{{ workflow_digraph(entity, flowCode)|raw }}</div>
+            </pre>
+
+{% endblock %}

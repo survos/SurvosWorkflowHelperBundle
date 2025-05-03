@@ -1,0 +1,5 @@
+survos_workflow:
+  type: attribute
+  resource:
+    path: '@SurvosWorkflowBundle/src/Controller/'
+    namespace: Survos\WorkflowBundle\Controller

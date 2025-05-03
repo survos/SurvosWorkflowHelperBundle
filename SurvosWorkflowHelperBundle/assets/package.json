@@ -1,0 +1,27 @@
+{
+  "name": "@survos/workflow-helper-bundle",
+  "description": "display workflow digraph using stimulus",
+  "license": "MIT",
+  "version": "1.0.3",
+  "symfony": {
+    "controllers": {
+      "workflow": {
+        "main": "src/controllers/workflow_controller.js",
+        "webpackMode": "eager",
+        "fetch": "eager",
+        "enabled": true
+      }
+    }
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.2.2"
+  },
+  "devDependencies": {
+    "@hotwired/stimulus": "^3.2.2"
+  },
+  "dependencies": {
+    "d3": "^7.8.5",
+    "d3-graphviz": "^5.1",
+    "d3-selection": "^3.0.0"
+  }
+}
