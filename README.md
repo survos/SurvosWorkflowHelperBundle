@@ -6,6 +6,9 @@ auto-registration!
 
 @todo: https://joppe.dev/2024/10/11/dynamic-workflows-with-symfony-workflow-component/
 
+for easyadmin integration, also see https://github.com/WandiParis/EasyAdminPlusBundle
+
+
 ```php
 <?php
 // SubmissionWorkflowInterface.php

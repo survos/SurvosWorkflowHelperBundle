@@ -77,5 +77,8 @@
             "type": "path",
             "url": "../"
         }
+    },
+    "require-dev": {
+        "symfony/maker-bundle": "^1.63"
     }
 }

@@ -6,8 +6,11 @@
 
     Marking: <code>{{ entity.marking }} {{ workflow_metadata(entity, 'label', entity.marking, flowName) }}</code>
 
-    <b>{{ ('workflow.%s.place.%s.display'|format(flowName, entity.marking))|trans }}</b>
-    <i>{{ ('workflow.%s.place.%s.description'|format(flowName, entity.marking))|trans }}</i>
+    {{ workflow_metadata(entity, 'description', entity.marking, flowName) }}
+{#    {{ workflow_metadata(entity, 'description', flowName) }}#}
+{#    {{ survos_workflow_metadata(entity, 'description', entity.marking) }}#}
+{#    <b>{{ ('workflow.%s.place.%s.display'|format(flowName, entity.marking))|trans }}</b>#}
+{#    <i>{{ ('workflow.%s.place.%s.description'|format(flowName, entity.marking))|trans }}</i>#}
 
 {#{{ dump(entity.marking, entity) }}#}
 {#{{ dump(flowName) }}#}

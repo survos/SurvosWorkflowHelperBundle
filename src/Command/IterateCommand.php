@@ -53,19 +53,22 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         SymfonyStyle                                                                                $io,
         #[Argument(description: 'class name')] ?string                  $className = null,
         # to override the default
-        #[Option(description: 'message transport')] ?string $transport = null,
-        #[Option(description: 'workflow transition')] ?string $transition = null,
-        #[Option(name: 'worflow', description: 'workflow (if multiple on class)')] ?string $workflowName = null,
+
+        // these used to be nullable!!
+        #[Option(description: 'message transport')] string $transport = '',
+        #[Option(description: 'workflow transition')] string $transition = '',
+        #[Option(description: 'workflow marking')] string $marking = '',
+        #[Option(name: 'worflow', description: 'workflow (if multiple on class)')] string $workflowName = '',
         // marking CAN be null, which is why we should set it when inserting
-        #[Option(description: 'workflow marking')] ?string $marking = null,
-        #[Option(description: 'tags (for listeners)')] ?string $tags = null,
-        #[Option(name: 'index', description: 'grid:index after flush?')] ?bool $indexAfterFlush = false,
-        #[Option(description: 'show stats only')] ?bool $stats = false,
+        #[Option(description: 'tags (for listeners)')] string $tags = '',
+        #[Option] string $dump = '',
+
+        #[Option(name: 'index', description: 'grid:index after flush?')] bool $indexAfterFlush = false,
+        #[Option(description: 'show stats only')] bool $stats = false,
         #[Option] int $limit = 0,
         #[Option(description: "use this count for progressBar")] int $count = 0,
-        #[Option] string $dump = '',
     ): int {
-        $transport ??= $this->defaultTransport;
+        $transport = $transport ?: $this->defaultTransport;
 
         // inject entities that implement marking interface
 
@@ -94,6 +97,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
 
         /** @var QueryBuilderHelperInterface $repo */
         $repo = $this->entityManager->getRepository($className);
+//        dd($this->workflowHelperService->getWorkflowsGroupedByClass());
         if ($workflowName = $this->workflowHelperService->getWorkflowsGroupedByClass()[$className][0]) {
             $workflow = $this->workflowHelperService->getWorkflowByCode($workflowName);
             $places = $workflow->getDefinition()->getPlaces();
@@ -163,7 +167,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         if (!$count) {
             $count = $repo->count(criteria: $where);
             if (!$count) {
-                $this->io()->warning("No items found for " . json_encode($where));
+                $io->warning("No items found for " . json_encode($where));
                 return self::SUCCESS;
             }
         }
