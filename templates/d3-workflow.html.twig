@@ -3,6 +3,8 @@
 {% block page_title "%s Workflow"|format(flowCode) %}
 {% block page_subtitle "Place count?" %}
 
+{# ux icon lock issue #}
+    {% set iterateCommand = 'workflow' ~ ':iterate' %}
 {% block javascripts %}
     {{ parent() }}
 {#    <script src="https://unpkg.com/viz.js@1.8.0/viz.js" type="javascript/worker"></script>#}
@@ -79,7 +81,7 @@
                     <li>
                         <span class="fas fa-play"></span>
                         <span class="fw-bold" title="{{ t.name }}">
-                            {% set rp = {commandName: 'workflow:iterate', transition: t.name, marking: place} %}
+                            {% set rp = {commandName: iterateCommand , transition: t.name, marking: place} %}
                             {% if app.request.get('className') %}
                             {% set rp = rp|merge({className: app.request.get('className')}) %}
                             {% endif %}
