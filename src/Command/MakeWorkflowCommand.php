@@ -8,6 +8,8 @@ use Nette\PhpGenerator\Type;
 use ReflectionClass;
 use Survos\WorkflowBundle\Attribute\Place;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\DependencyInjection\Attribute\WhenNot;
@@ -26,12 +28,10 @@ use Symfony\Component\Workflow\Event\GuardEvent;
 use Symfony\Component\Workflow\Event\TransitionEvent;
 use function Symfony\Component\String\u;
 
-#[AsCommand('survos:workflow:generate', 'Generate src/Workflow/(class)Workflow and Interface using nette/php-generator')]
+#[AsCommand('survos:workflow:generate', 'IS THIS RIGHT?  Generate src/Workflow/(class)Workflow and Interface using nette/php-generator')]
 #[WhenNot('prod')]
-final class MakeWorkflowCommand extends InvokableServiceCommand
+final class MakeWorkflowCommand extends Command
 {
-    use RunsCommands;
-    use RunsProcesses;
 
     public function __construct(
         #[Autowire('%kernel.project_dir%/src/Workflow')] private string $dir,
@@ -43,7 +43,7 @@ final class MakeWorkflowCommand extends InvokableServiceCommand
 
 
     public function __invoke(
-        IO                                                                                             $io,
+        SymfonyStyle                                                                                             $io,
         #[Argument(name: 'class-name', description: 'entity class name')] string                       $entityClassName,
         #[Argument(name: 'place-names', description: 'place names, e.g. new,loaded,processed')] string $placeNames = 'new,loaded',
         #[Argument(name: 'transition-names', description: 'transitions, e.g. load,process')] string    $transitionNames = 'load',

@@ -146,7 +146,7 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         ;
 
 
-        foreach ([IterateCommand::class, Iterate72Command::class, MakeWorkflowCommand::class] as $commandClass) {
+        foreach ([IterateCommand::class, MakeWorkflowCommand::class] as $commandClass) {
             $builder->autowire($commandClass)
                 ->setAutoconfigured(true)
                 ->addTag('console.command')

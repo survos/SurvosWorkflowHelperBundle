@@ -63,8 +63,8 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         #[Option(description: 'tags (for listeners)')] string $tags = '',
         #[Option] string $dump = '',
 
-        #[Option(name: 'index', description: 'grid:index after flush?')] bool $indexAfterFlush = false,
-        #[Option(description: 'show stats only')] bool $stats = false,
+        #[Option(name: 'index', description: 'grid:index after flush?')] ?bool $indexAfterFlush = null,
+        #[Option(description: 'show stats only')] ?bool $stats = null,
         #[Option] int $limit = 0,
         #[Option(description: "use this count for progressBar")] int $count = 0,
     ): int {
