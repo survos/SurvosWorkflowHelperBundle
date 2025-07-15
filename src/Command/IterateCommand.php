@@ -24,6 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 use Symfony\Component\Workflow\Transition;
+use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Yaml\Yaml;
 use Zenstruck\Alias;
 use Zenstruck\Metadata;
@@ -112,14 +113,14 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             $availableTransitions=[];
             foreach ($workflow->getDefinition()->getTransitions() as $t) {
                 foreach ($t->getFroms() as $from) {
-                    $availableTransitions[$from][] = $t->getName();
+                    $availableTransitions[$from][] = $t;
                 }
             }
 //        $transitions = array_filter(array_unique(array_map(fn(Transition $transition) =>
 //        in_array($marking, $transition->getFroms()) ? $transition->getName() : null,
 //            )));
             if ($stats) {
-                $this->showStats($repo, $io, $className, $availableTransitions);
+                $this->showStats($repo, $io, $className, $availableTransitions, $workflow);
                 return Command::SUCCESS;
             }
 
@@ -301,7 +302,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             $this->runCommand($cli);
         }
 
-        $this->showStats($repo, $io, $className, $availableTransitions);
+        $this->showStats($repo, $io, $className, $availableTransitions, $workflow);
 
         $io->success($this->getName() . ' success ' . $className);
         return self::SUCCESS;
@@ -330,14 +331,27 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
      * @param array $availableTransitions
      * @return int
      */
-    public function showStats(QueryBuilderHelperInterface $repo, SymfonyStyle $io, mixed $className, array $availableTransitions): void
+    public function showStats(QueryBuilderHelperInterface $repo,
+                              SymfonyStyle $io, mixed $className,
+                              array $availableTransitions,
+    WorkflowInterface $workflow
+    ): void
     {
+
         $counts = $repo->getCounts('marking');
         $table = new Table($io);
         $table->setHeaderTitle($className);
-        $table->setHeaders(['marking', 'count', 'Available Transitions']);
+        $table->setHeaders(['marking', 'description', 'count', 'Available Transitions']);
+        $meta = $workflow->getMetadataStore();
         foreach ($counts as $name => $count) {
-            $table->addRow([$name, $count, join(', ', $availableTransitions[$name] ?? [])]);
+            $markingHelp = $meta->getMetadata('description', $name)??null;
+            $x = [];
+            foreach ($availableTransitions[$name] as $t) {
+                $description = $meta->getMetadata('description', $t);
+                dd($t, $description, $name);
+                $x[] = sprintf("(%s) %s", $t->getName(), $description);
+            }
+            $table->addRow([$name, $markingHelp, $count, join("\n", $x ?? [])]);
         }
         $table->render();
     }
