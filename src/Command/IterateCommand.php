@@ -348,7 +348,6 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             $x = [];
             foreach ($availableTransitions[$name] as $t) {
                 $description = $meta->getMetadata('description', $t);
-                dd($t, $description, $name);
                 $x[] = sprintf("(%s) %s", $t->getName(), $description);
             }
             $table->addRow([$name, $markingHelp, $count, join("\n", $x ?? [])]);
