@@ -58,7 +58,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         #[Option('message transport', shortcut: 'tr')] string $transport = '',
         #[Option('workflow transition', shortcut: 't')] ?string $transition = null,
         #[Option('workflow marking', shortcut: 'm')] ?string $marking = null,
-        #[Option(name: 'worflow', description: 'workflow (if multiple on class)')] string $workflowName = '',
+        #[Option(name: 'workflow', description: 'workflow (if multiple on class)')] string $workflowName = '',
         // marking CAN be null, which is why we should set it when inserting
         #[Option('tags (for listeners)')] string $tags = '',
         #[Option] string $dump = '',
@@ -82,10 +82,13 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         }
 
         if (!$className) {
-            $className = $io->choice(
-                'Which Doctrine entity are you going to iterate?',
-                $doctrineEntitiesFqcn
-            );
+            if (!$className = $doctrineEntitiesFqcn[$className] ?? null) {
+                $className = $io->choice(
+                    'Which Doctrine entity are you going to iterate?',
+                    $doctrineEntitiesFqcn
+                );
+                $className = $doctrineEntitiesFqcn[$className] ?? $className;
+            }
         }
 
         $helper = $this->getHelper('question');
@@ -101,6 +104,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         /** @var QueryBuilderHelperInterface $repo */
         $repo = $this->entityManager->getRepository($className);
 //        dd($this->workflowHelperService->getWorkflowsGroupedByClass());
+
         if ($workflowName = $this->workflowHelperService->getWorkflowsGroupedByClass()[$className][0]) {
             $workflow = $this->workflowHelperService->getWorkflowByCode($workflowName);
             $places = $workflow->getDefinition()->getPlaces();
@@ -309,11 +313,11 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         foreach ($this->doctrine->getManagers() as $entityManager) {
             $classesMetadata = $entityManager->getMetadataFactory()->getAllMetadata();
             foreach ($classesMetadata as $classMetadata) {
-                $entitiesFqcn[] = $classMetadata->getName();
+                $entitiesFqcn[lcfirst($classMetadata->getReflectionClass()->getShortName())] = $classMetadata->getName();
             }
         }
 
-        sort($entitiesFqcn);
+//        sort($entitiesFqcn);
 
         return $entitiesFqcn;
     }
