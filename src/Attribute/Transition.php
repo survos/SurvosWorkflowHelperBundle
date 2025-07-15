@@ -13,6 +13,7 @@ class Transition
         public ?string $info=null,
         public ?string $guard=null,
         public ?array $metadata=[],
+        
     ) {
         if ($guard) {
             $this->metadata['guard'] = $guard;

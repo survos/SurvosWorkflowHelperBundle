@@ -290,10 +290,11 @@ class WorkflowHelperService
     public function handleTransition(AsyncTransitionMessage $message)
     {
         $object = $this->entityManager->find($message->getClassName(), $message->getId());
-        assert($object, sprintf( "missing entity %s for %s", $message->getClassName(), $message->getId()));
+        $debugMessage = sprintf( "missing entity %s for %s", $message->getClassName(), $message->getId());
+//        assert($object, $message);
         // removed, throw error (above) during testing only.
         if (!$object) {
-            return;
+            return ['message' => $debugMessage];
         }
         if (!$flowName = $message->getWorkflow()) {
             // ..
@@ -305,15 +306,25 @@ class WorkflowHelperService
             foreach ($workflow->buildTransitionBlockerList($object, $transition) as $blocker) {
                 $this->logger->info($blocker->getMessage());
             }
-            return;
-        }
-        if ($workflow->can($object, $transition)) {
-            $marking = $workflow->apply($object, $transition, $message->getContext());
-            $this->entityManager->flush(); // save the marking and any updates
+            return ['message' => $blocker->getMessage()];
         } else {
-            $this->logger?->info("cannot transition from {$object->getMarking()} to $transition");
+            $marking = $workflow->apply($object, $transition, $message->getContext());
+            // is this the best place to flush?  or only if workflow applied
+            $this->entityManager->flush(); // save the marking and any updates
+
         }
-        // is this the best place to flush?  or only if workflow applied
+//        if ($workflow->can($object, $transition)) {
+//            $marking = $workflow->apply($object, $transition, $message->getContext());
+//            // is this the best place to flush?  or only if workflow applied
+//            $this->entityManager->flush(); // save the marking and any updates
+//        } else {
+//            $this->logger?->info("cannot transition from {$object->getMarking()} to $transition");
+//        }
+
+        // so we have it for the monitor.
+        return [
+            'message' => json_encode((array)$message),
+        ];
 
 
         // dispatch the FIRST valid next transition

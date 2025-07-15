@@ -30,7 +30,7 @@ use Zenstruck\Metadata;
 
 use function Symfony\Component\String\u;
 
-#[AsCommand('workflow:iterate', 'Iterative over an doctrine table, sending events, Symfony 7.3"')]
+#[AsCommand('workflow:iterate', 'Iterative over an doctrine table, sending events, Symfony 7.3"', aliases: ['iterate'])]
 final class IterateCommand extends Command // extends is for 7.2/7.3 compatibility
 {
     private bool $initialized = false; // so the event listener can be called from outside the command
@@ -51,22 +51,22 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
 
     public function __invoke(
         SymfonyStyle                                                                                $io,
-        #[Argument(description: 'class name')] ?string                  $className = null,
+        #[Argument('class name')] ?string                  $className = null,
         # to override the default
 
         // these used to be nullable!!
-        #[Option(description: 'message transport')] string $transport = '',
-        #[Option(description: 'workflow transition')] string $transition = '',
-        #[Option(description: 'workflow marking')] string $marking = '',
+        #[Option('message transport', shortcut: 'tr')] string $transport = '',
+        #[Option('workflow transition', shortcut: 't')] ?string $transition = null,
+        #[Option('workflow marking', shortcut: 'm')] ?string $marking = null,
         #[Option(name: 'worflow', description: 'workflow (if multiple on class)')] string $workflowName = '',
         // marking CAN be null, which is why we should set it when inserting
-        #[Option(description: 'tags (for listeners)')] string $tags = '',
+        #[Option('tags (for listeners)')] string $tags = '',
         #[Option] string $dump = '',
 
         #[Option(name: 'index', description: 'grid:index after flush?')] ?bool $indexAfterFlush = null,
-        #[Option(description: 'show stats only')] ?bool $stats = null,
+        #[Option('show stats only')] ?bool $stats = null,
         #[Option] int $limit = 0,
-        #[Option(description: "use this count for progressBar")] int $count = 0,
+        #[Option("use this count for progressBar")] int $count = 0,
     ): int {
         $transport = $transport ?: $this->defaultTransport;
 
@@ -115,15 +115,8 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
 //        in_array($marking, $transition->getFroms()) ? $transition->getName() : null,
 //            )));
             if ($stats) {
-                $counts = $repo->getCounts('marking');
-                $table = new Table($io);
-                $table->setHeaderTitle($className);
-                $table->setHeaders(['marking', 'count', 'Available Transitions']);
-                foreach ($counts as $name => $count) {
-                    $table->addRow([$name, $count, join(', ', $availableTransitions[$name]??[])]);
-                }
-                $table->render();
-                return self::SUCCESS;
+                $this->showStats($repo, $io, $className, $availableTransitions);
+                return Command::SUCCESS;
             }
 
 
@@ -144,18 +137,29 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
 
                 $marking = $io->askQuestion($question);
             }
-            $transitions = array_filter(array_unique(array_map(fn(Transition $transition) =>
-                in_array($marking, $transition->getFroms()) ? $transition->getName() : null,
-                $workflow->getDefinition()->getTransitions())));
+
+            $transitions = [];
+            foreach ($workflow->getDefinition()->getTransitions() as $t) {
+                if (in_array($marking, $t->getFroms())) {
+                    $help = $workflow->getMetadataStore()->getMetadata('description', $t)??$t->getName();
+                    if ($guardExpression = $workflow->getMetadataStore()->getMetadata('guard', $t)) {
+                        $help .= " (if: " . $guardExpression . ")";
+                    }
+                    $transitions[$t->getName()] = $help;
+                }
+            }
+//            dd($transitions);
+//            $transitions = array_filter(array_unique(array_map(fn(Transition $transition) =>
+//                in_array($marking, $transition->getFroms()) ? $transition->getName() : null,
+//                $workflow->getDefinition()->getTransitions())));
 
             if ($transition) {
-                assert(in_array($transition, $transitions), "invalid transition:\n\n$transition: use\n\n" . join("\n", $transitions));
+                assert(array_key_exists($transition, $transitions), "invalid transition:\n\n$transition: use\n\n" . join("\n", $transitions));
             } else {
                 $question = new ChoiceQuestion(
                     'Transition?',
                     // choices can also be PHP objects that implement __toString() method
                     $transitions,
-                    0
                 );
 
                 $transition = $io->askQuestion($question);
@@ -223,9 +227,13 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             // since we have the workflow and transition, we can do a "can" here.
             if ($workflow && $transition) {
                 if (!$workflow->can($item, $transition)) {
-                    $io->warning(" cannot transition from {$item->getMarking()} to $transition");
                     foreach ($workflow->buildTransitionBlockerList($item, $transition) as $blocker) {
-                        $io->warning($blocker->getMessage());
+                        if ($io->isVerbose()) {
+                            $io->warning($blocker->getMessage());
+                            foreach ($blocker->getParameters() as $param) {
+                                $io->warning($param);
+                            }
+                        }
                     }
                     continue;
                 } else {
@@ -289,6 +297,8 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             $this->runCommand($cli);
         }
 
+        $this->showStats($repo, $io, $className, $availableTransitions);
+
         $io->success($this->getName() . ' success ' . $className);
         return self::SUCCESS;
     }
@@ -306,5 +316,25 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         sort($entitiesFqcn);
 
         return $entitiesFqcn;
+    }
+
+    /**
+     * @param QueryBuilderHelperInterface $repo
+     * @param SymfonyStyle $io
+     * @param mixed $className
+     * @param mixed $count
+     * @param array $availableTransitions
+     * @return int
+     */
+    public function showStats(QueryBuilderHelperInterface $repo, SymfonyStyle $io, mixed $className, array $availableTransitions): void
+    {
+        $counts = $repo->getCounts('marking');
+        $table = new Table($io);
+        $table->setHeaderTitle($className);
+        $table->setHeaders(['marking', 'count', 'Available Transitions']);
+        foreach ($counts as $name => $count) {
+            $table->addRow([$name, $count, join(', ', $availableTransitions[$name] ?? [])]);
+        }
+        $table->render();
     }
 }
