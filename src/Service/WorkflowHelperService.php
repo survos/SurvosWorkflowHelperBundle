@@ -82,6 +82,22 @@ class WorkflowHelperService
             ], $workflow->getMetadataStore()->getPlaceMetadata($marking)), $workflow->getDefinition()->getPlaces());
     }
 
+    public function getTransitionMetadata(string $transitionName, WorkflowInterface $workflow): array
+    {
+        // Get all transitions
+        $transitions = $workflow->getDefinition()->getTransitions();
+
+        foreach ($transitions as $transition) {
+            if ($transition->getName() === $transitionName) {
+                // Fetch metadata for this specific transition
+                return $workflow->getMetadataStore()->getTransitionMetadata($transition);
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('Transition "%s" not found in the workflow.', $transitionName));
+    }
+
+
     public function getWorkflow($subject, string $workflowName): WorkflowInterface
     {
 
@@ -322,8 +338,13 @@ class WorkflowHelperService
 //        }
 
         // so we have it for the monitor.
+        // return [
+        //     'message' => json_encode((array)$message),
+        // ];
         return [
-            'message' => json_encode((array)$message),
+            'message' => sprintf("Transitioned %s to %s", $object->getMarking(), $transition),
+            'marking' => $marking,
+            'object' => $object,
         ];
 
 

@@ -5,6 +5,7 @@ namespace Survos\WorkflowBundle\Command;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
+use Survos\CoreBundle\Service\SurvosUtils;
 use Survos\CoreBundle\Traits\QueryBuilderHelperInterface;
 use Survos\WorkflowBundle\Event\RowEvent;
 use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
@@ -23,6 +24,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -56,7 +58,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         # to override the default
 
         // these used to be nullable!!
-        #[Option('message transport', shortcut: 'tr')] string $transport = '',
+        #[Option('message transport', shortcut: 'tr')] ?string $transport = null,
         #[Option('workflow transition', shortcut: 't')] ?string $transition = null,
         #[Option('workflow marking', shortcut: 'm')] ?string $marking = null,
         #[Option(name: 'workflow', description: 'workflow (if multiple on class)')] string $workflowName = '',
@@ -69,7 +71,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         #[Option] int $limit = 0,
         #[Option("use this count for progressBar")] int $count = 0,
     ): int {
-        $transport = $transport ?: $this->defaultTransport;
+//        $transport = $transport ?: $this->defaultTransport;
 
         // inject entities that implement marking interface
 
@@ -170,6 +172,8 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
                 $transition = $io->askQuestion($question);
             }
         }
+        $transitionMeta = $this->workflowHelperService->getTransitionMetadata($transition, $workflow);
+        $transport = $transport??$transitionMeta['transport']??$this->defaultTransport;
 
         $io->title($className);
         $where = [];
@@ -220,9 +224,11 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             )
         );
 
+        $accessor = new PropertyAccessor();
         foreach ($iterator as $idx => $item) {
-            $method = 'get' . ucfirst($identifier);
-            $key = $item->{$method}();
+            $key = $accessor->getValue($item, $identifier);
+//            $method = 'get' . ucfirst($identifier);
+//            $key = $item->{$method}();
             if ($dump) {
                 $values = array_map(fn($key) => substr($item->{$key}(), 0, 40), $headers);
                 $table->addRow($values);
@@ -244,7 +250,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
                 } else {
                     // if there's a workflow and a transition, dispatch a transition message, otherwise a simple row event
                     $envelope = $this->bus->dispatch($message = new AsyncTransitionMessage(
-                        $item->{'get' . $identifier}(),
+                        $key,
                         $className,
                         $transition,
                         $workflowName,
@@ -346,7 +352,8 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         foreach ($counts as $name => $count) {
             $markingHelp = $meta->getMetadata('description', $name)??null;
             $x = [];
-            foreach ($availableTransitions[$name] as $t) {
+//            SurvosUtils::assertKeyExists($name, $availableTransitions);
+            foreach ($availableTransitions[$name]??[] as $t) {
                 $description = $meta->getMetadata('description', $t);
                 $x[] = sprintf("(%s) %s", $t->getName(), $description);
             }
@@ -354,4 +361,5 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         }
         $table->render();
     }
+
 }
