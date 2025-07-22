@@ -82,22 +82,6 @@ class WorkflowHelperService
             ], $workflow->getMetadataStore()->getPlaceMetadata($marking)), $workflow->getDefinition()->getPlaces());
     }
 
-    public function getTransitionMetadata(string $transitionName, WorkflowInterface $workflow): array
-    {
-        // Get all transitions
-        $transitions = $workflow->getDefinition()->getTransitions();
-
-        foreach ($transitions as $transition) {
-            if ($transition->getName() === $transitionName) {
-                // Fetch metadata for this specific transition
-                return $workflow->getMetadataStore()->getTransitionMetadata($transition);
-            }
-        }
-
-        throw new \InvalidArgumentException(sprintf('Transition "%s" not found in the workflow.', $transitionName));
-    }
-
-
     public function getWorkflow($subject, string $workflowName): WorkflowInterface
     {
 
