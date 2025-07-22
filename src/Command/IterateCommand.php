@@ -28,6 +28,7 @@ use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Yaml\Yaml;
 use Zenstruck\Alias;
+use Zenstruck\Messenger\Monitor\Stamp\DescriptionStamp;
 use Zenstruck\Messenger\Monitor\Stamp\TagStamp;
 use Zenstruck\Metadata;
 
@@ -58,10 +59,10 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         # to override the default
 
         // these used to be nullable!!
-        #[Option('message transport', shortcut: 'tr')] string $transport = '',
+        #[Option('message transport', shortcut: 'tr')] ?string $transport = null,
         #[Option('workflow transition', shortcut: 't')] ?string $transition = null,
         #[Option('workflow marking', shortcut: 'm')] ?string $marking = null,
-        #[Option(name: 'workflow', description: 'workflow (if multiple on class)')] string $workflowName = '',
+        #[Option(name: 'workflow', description: 'workflow (if multiple on class)')] ?string $workflowName = null,
         // marking CAN be null, which is why we should set it when inserting
         #[Option('tags (for listeners)')] string $tags = '',
         #[Option] string $dump = '',
@@ -71,7 +72,6 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         #[Option] int $limit = 0,
         #[Option("use this count for progressBar")] int $count = 0,
     ): int {
-        $transport = $transport ?: $this->defaultTransport;
 
         // inject entities that implement marking interface
 
@@ -188,9 +188,12 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
 
         $progressBar = new ProgressBar($io, $count);
         $idx = 0;
+        $meta = $this->workflowHelperService->getTransitionMetadata($transition, $workflow);
+        $transport ??= $meta['transport']??$this->defaultTransport;
         if ($transport) {
             $stamps[] = new TransportNamesStamp($transport);
         }
+        $shortClass = new \ReflectionClass($className)->getShortName();
         if (class_exists(TagStamp::class)) {
             $stamps[] = new TagStamp($transition);
         }
@@ -226,6 +229,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         );
 
         foreach ($iterator as $idx => $item) {
+            // @todo: hande property hooks, etc.
             $method = 'get' . ucfirst($identifier);
             $key = $item->{$method}();
             if ($dump) {
@@ -247,13 +251,18 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
                     }
                     continue;
                 } else {
+                    $messageStamps = $stamps;
+                    if (class_exists(DescriptionStamp::class)) {
+                        $messageStamps[] = new DescriptionStamp("$shortClass:$key $marking->$transition");
+                    }
                     // if there's a workflow and a transition, dispatch a transition message, otherwise a simple row event
+                    // description is message-specific
                     $envelope = $this->bus->dispatch($message = new TransitionMessage(
                         $key,
                         $className,
                         $transition,
                         $workflowName,
-                    ), $stamps);
+                    ), $messageStamps);
                 }
             } else {
                 // no workflow, so dispatch the row event and let the listeners handle it.

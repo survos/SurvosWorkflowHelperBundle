@@ -11,6 +11,7 @@ final class AsyncTransitionMessage
         private string $workflow,
         private array $context=[], // to pass around tags and other extra properties
     ) {
+        assert(false, "use TransitionMessage instead of AsyncTransitionMessage");
     }
 
     public function getContext(): array
