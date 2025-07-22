@@ -16,6 +16,7 @@ use Survos\WorkflowBundle\Doctrine\TransitionListener;
 use Survos\WorkflowBundle\Service\ConfigureFromAttributesService;
 use Survos\WorkflowBundle\Service\SurvosGraphVizDumper;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
+use Survos\WorkflowBundle\Service\WorkflowListener;
 use Survos\WorkflowBundle\Twig\WorkflowExtension;
 use Survos\WorkflowHelperBundle\Attribute\Workflow;
 use Symfony\Bundle\FrameworkBundle\Command\WorkflowDumpCommand;
@@ -31,6 +32,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Workflow\Registry;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
@@ -145,6 +147,11 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             ->addTag('console.command')
         ;
 
+
+        $builder->autowire(WorkflowListener::class)
+            ->setArgument('$workflowHelperService', new Reference(WorkflowHelperService::class))
+            ->setArgument('$messageBus', new Reference(MessageBusInterface::class))
+            ->addTag('kernel.event_listener', ['event' => 'workflow.completed', 'method' => 'onCompleted']);
 
         foreach ([IterateCommand::class, MakeWorkflowCommand::class] as $commandClass) {
             $builder->autowire($commandClass)

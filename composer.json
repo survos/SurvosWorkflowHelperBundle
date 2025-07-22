@@ -14,7 +14,7 @@
     ],
     "type": "symfony-bundle",
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "doctrine/orm": "^3.5",
         "symfony/console": "^7.3",
         "symfony/http-kernel": "^7.3",
@@ -40,7 +40,8 @@
         "survos/bootstrap-bundle": "^1.5.529",
         "nette/php-generator": "^4.1.8",
         "phpunit/phpunit": "^12.2.6",
-        "roave/better-reflection": "^6.59"
+        "roave/better-reflection": "^6.59",
+        "zenstruck/messenger-monitor-bundle": "^0.5.4"
     },
     "autoload": {
         "psr-4": {

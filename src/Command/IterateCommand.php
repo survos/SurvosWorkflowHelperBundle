@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Survos\CoreBundle\Traits\QueryBuilderHelperInterface;
 use Survos\WorkflowBundle\Event\RowEvent;
 use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
+use Survos\WorkflowBundle\Message\TransitionMessage;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -27,6 +28,7 @@ use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Yaml\Yaml;
 use Zenstruck\Alias;
+use Zenstruck\Messenger\Monitor\Stamp\TagStamp;
 use Zenstruck\Metadata;
 
 use function Symfony\Component\String\u;
@@ -186,10 +188,13 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
 
         $progressBar = new ProgressBar($io, $count);
         $idx = 0;
-        $stamps = [];
         if ($transport) {
             $stamps[] = new TransportNamesStamp($transport);
         }
+        if (class_exists(TagStamp::class)) {
+            $stamps[] = new TagStamp($transition);
+        }
+//        new TagStamp('tag-1')
         if ($dump) {
             $headers = explode(',', $dump);
             if (!in_array('key', $headers)) {
@@ -243,8 +248,8 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
                     continue;
                 } else {
                     // if there's a workflow and a transition, dispatch a transition message, otherwise a simple row event
-                    $envelope = $this->bus->dispatch($message = new AsyncTransitionMessage(
-                        $item->{'get' . $identifier}(),
+                    $envelope = $this->bus->dispatch($message = new TransitionMessage(
+                        $key,
                         $className,
                         $transition,
                         $workflowName,
@@ -346,7 +351,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         foreach ($counts as $name => $count) {
             $markingHelp = $meta->getMetadata('description', $name)??null;
             $x = [];
-            foreach ($availableTransitions[$name] as $t) {
+            foreach ($availableTransitions[$name]??[] as $t) {
                 $description = $meta->getMetadata('description', $t);
                 $x[] = sprintf("(%s) %s", $t->getName(), $description);
             }

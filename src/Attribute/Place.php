@@ -11,9 +11,13 @@ class Place
         public bool $initial=false,
         public array $metadata=[],
         public ?string $info=null,
+        public ?string $bgColor=null, // graph color
   ) {
         if ($this->info) {
             $this->metadata['description'] = $this->info;
+        }
+        if ($this->bgColor) {
+            $this->metadata['bgColor'] = $this->bgColor;
         }
 
     }
