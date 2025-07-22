@@ -7,7 +7,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Survos\CoreBundle\Traits\QueryBuilderHelperInterface;
 use Survos\WorkflowBundle\Event\RowEvent;
-use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
 use Survos\WorkflowBundle\Message\TransitionMessage;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Symfony\Component\Console\Attribute\Argument;

@@ -3,7 +3,7 @@
 namespace Survos\WorkflowBundle\Traits;
 
 use Survos\BootstrapBundle\Entity\SurvosBaseEntity;
-use Survos\WorkflowBundle\Message\AsyncTransitionMessage;
+use Survos\WorkflowBundle\Message\TransitionMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Workflow\WorkflowInterface;
@@ -41,7 +41,7 @@ trait HandleTransitionsTrait
             //                    ->getTransitionMetadata($t)['messageClass'];
             //            ;
             //            $message = new $messageClass($entity->getId());
-            $message = (new AsyncTransitionMessage($entity->getId(), $entity::class, $tName));
+            $message = (new TransitionMessage($entity->getId(), $entity::class, $tName));
             $envelope = $bus->dispatch($message);
             //            dd($envelope, $message);
             $flashMessage = $message::class . ' has been dispatched, ' . $tName . " will happen in the message handler.";
