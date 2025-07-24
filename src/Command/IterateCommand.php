@@ -23,6 +23,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -47,6 +48,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         private ?MessageBusInterface $bus = null,
         private ?EntityManagerInterface $entityManager = null,
         private ?ManagerRegistry $doctrine=null,
+        private ?PropertyAccessorInterface $propertyAccessor = null,
         #[Autowire('%env(DEFAULT_TRANSPORT)%')] private ?string $defaultTransport = null,
     ) {
         parent::__construct();
@@ -110,6 +112,8 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         if ($workflowName = $this->workflowHelperService->getWorkflowsGroupedByClass()[$className][0]) {
             $workflow = $this->workflowHelperService->getWorkflowByCode($workflowName);
             $places = $workflow->getDefinition()->getPlaces();
+
+//            dd($places);
 
             $availableTransitions=[];
             foreach ($workflow->getDefinition()->getTransitions() as $t) {
@@ -228,9 +232,10 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
         );
 
         foreach ($iterator as $idx => $item) {
-            // @todo: hande property hooks, etc.
-            $method = 'get' . ucfirst($identifier);
-            $key = $item->{$method}();
+            $key = $this->propertyAccessor->getValue($item, $identifier);
+//            // @todo: hande property hooks, etc.
+//            $method = 'get' . ucfirst($identifier);
+//            $key = $item->{$method}();
             if ($dump) {
                 $values = array_map(fn($key) => substr($item->{$key}(), 0, 40), $headers);
                 $table->addRow($values);

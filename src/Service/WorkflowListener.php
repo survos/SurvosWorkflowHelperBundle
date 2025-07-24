@@ -24,6 +24,7 @@ use Symfony\Component\Workflow\StateMachine;
 use Symfony\Component\Workflow\SupportStrategy\InstanceOfSupportStrategy;
 use Symfony\Component\Workflow\Workflow;
 use Symfony\Component\Workflow\WorkflowInterface;
+use Zenstruck\Messenger\Monitor\Stamp\DescriptionStamp;
 use Zenstruck\Messenger\Monitor\Stamp\TagStamp;
 
 /**
@@ -53,16 +54,15 @@ class WorkflowListener
     {
         $transition = $event->getTransition();
         $workflow = $this->workflowHelperService->getWorkflow($event->getSubject(), $event->getWorkflowName());
-//        dd($transition, $event->getWorkflowName(),          ));
 //        $workflow = $event->getWorkflow();
         foreach ($event->getMetadata('next', $transition)??[] as $nextTransition) {
-            if ($workflow->can($event->getSubject(), $nextTransition)) {
+            if ($workflow->can($event->getSubject(), $nextTransition))
+            {
                 // we need the next transport of the _next_ transition
 //                $nextTransport = $event->getMetadata('transport', $nextTransition);
                 $transitionMeta = $this->workflowHelperService->getTransitionMetadata($nextTransition, $workflow);
                 $nextTransport = $transitionMeta['transport']??null;
-
-//                $nextTransport = $workflow    ->getMetadataStore()->getMetadata('transport', $nextTransition);
+                $nextTransport ??= 'async';
                 $stamps = [];
                 if (class_exists(TagStamp::class)) {
                     $stamps[] = new TagStamp($nextTransition);
@@ -70,23 +70,38 @@ class WorkflowListener
 
                 if ($nextTransport) {
                     $stamps[] = new TransportNamesStamp($nextTransport);
+                }
+                // always?
                     $msg = new TransitionMessage(
                         $event->getSubject()->getId(),
                         $event->getSubject()::class,
                         $nextTransition,
                         $workflow->getName()
                     );
+                    if (class_exists(DescriptionStamp::class)) {
+                        $stamps[] = new DescriptionStamp(sprintf("Next/%s-%s @%s: %s",
+                        new \ReflectionClass($event->getSubject())->getShortName(),
+                        $event->getSubject()->getId(),
+                        $event->getSubject()->getMarking(),
+                        $nextTransition
+                        ));
+                    }
                     $env = $this->messageBus->dispatch($msg, $stamps);
-                } else {
-                    // we don't get the log
-                    $workflow->apply($event->getSubject(), $nextTransition);
-                }
+//                } else {
+//                    // we don't get the log
+//                    $workflow->apply($event->getSubject(), $nextTransition);
+//                    break; // stop dispatching after first match
+//                }
+
                 // getId()??  getKey()?  so that async messages have an id
 //                dd($nextTransition, $nextTransport, $stamps, $msg);
 //                dd(msg: $msg, env: $env, nextTransport: $nextTransport, nextTransition: $nextTransition);
-                break; // stop dispatching after first match
+            } else {
+                $this->logger->warning("Cannot transition to $nextTransition");
             }
         }
+//        dd($transition, $event->getWorkflowName());
+
 
     }
 

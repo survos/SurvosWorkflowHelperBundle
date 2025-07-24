@@ -2,6 +2,9 @@
 
 namespace Survos\WorkflowBundle\Message;
 
+use JetBrains\PhpStorm\Deprecated;
+
+#[Deprecated]
 final class AsyncTransitionMessage
 {
     public function __construct(
@@ -14,28 +17,4 @@ final class AsyncTransitionMessage
         assert(false, "use TransitionMessage instead of AsyncTransitionMessage");
     }
 
-    public function getContext(): array
-    {
-        return $this->context;
-    }
-
-    public function getId(): int|string
-    {
-        return $this->id;
-    }
-
-    public function getClassName(): string
-    {
-        return $this->className;
-    }
-
-    public function getWorkflow(): string
-    {
-        return $this->workflow;
-    }
-
-    public function getTransitionName(): string
-    {
-        return $this->transitionName;
-    }
 }

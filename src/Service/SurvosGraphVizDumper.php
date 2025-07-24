@@ -15,7 +15,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
     private string $transitionShape = 'box';
 
     protected static array $defaultOptions = [
-        'graph' => ['ratio' => 'compress', 'rankdir' => 'LR'],
+        'graph' => ['ratio' => 'compress', 'rankdir' => 'TB'],
         'node' => ['fontsize' => '8', 'fontname' => 'Arial', 'color' => '#333333',
             'fillcolor' => 'lightgreen',
             'fixedsize' => 'false', 'width' => '1'],
@@ -354,6 +354,13 @@ class SurvosGraphVizDumper extends GraphvizDumper
                 $skipSeparator = false;
             } else {
                 switch ($key) {
+                    case 'next':
+                        $code[] = "Next: ";
+                        foreach ($value??[] as $nextValue) {
+                            $code[] = $nextValue;
+//                            $code[] = \sprintf('-><U>%s</U>', $this->escape($nextValue));
+                        }
+                        break;
                     case 'guard':
 
                         $value = preg_replace('/\.(is|has)/', '.', $value);
