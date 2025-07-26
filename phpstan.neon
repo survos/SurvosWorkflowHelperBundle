@@ -6,7 +6,6 @@ parameters:
 
     excludePaths:
        analyse:
-          - ./vendor
 
     reportUnmatchedIgnoredErrors: false
 #    checkMissingIterableValueType: false
