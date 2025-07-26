@@ -67,7 +67,7 @@ class ConfigureFromAttributesService
                         }
                         $seen[] = $name;
                         $workflow->place()->name($constantValue) // the name of the place is the value of the constant
-                        ->metadata($instance->metadata);
+                            ->metadata($instance->metadata);
                         break;
                     case Transition::class:
                         $transition = $workflow->transition()
@@ -79,9 +79,12 @@ class ConfigureFromAttributesService
                             $transition->guard($instance->guard);
                         }
                         break;
+                    default:
+                        assert(false, "not handled: " . $instance::class);
                 }
             }
         }
+        return;
 
         // shortcut to add all places of a certain pattern, if not already seen
         // this is defined in the workflow attribute
@@ -92,9 +95,9 @@ class ConfigureFromAttributesService
                     $firstPlace = $constantValue;
                 }
 
-                if (!in_array($name, $seen)) {
-                    $workflow->place()->name($constantValue);
-                }
+//                if (!in_array($name, $seen)) {
+//                    $workflow->place()->name($name);
+//                }
             }
         }
         if (is_null($initial)) {
@@ -102,6 +105,6 @@ class ConfigureFromAttributesService
         }
 //        if (is_array($initial)) dd($initial, $workflowClass);
 
-        $workflow->initialMarking($initial);
+//        $workflow->initialMarking($initial);
     }
 }
