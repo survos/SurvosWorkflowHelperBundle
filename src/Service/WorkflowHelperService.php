@@ -252,7 +252,6 @@ class WorkflowHelperService
     public function getWorkflowsGroupedByClass(): array
     {
 
-
 //        /** @var Workflow $x */
 //        foreach ($this->getWorkflowsFromTaggedIterator() as $y=>$x) {
 //            dump($x, $x->getMarkingStore(), $x->getDefinition());

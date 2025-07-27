@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AppController!{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        {% for class, chartData in charts %}
+            <div style="max-width: 200px" class="col-md-2">
+                <h3>{{ class }}
+                    <sup>{{ chartData.total }}</sup>
+                </h3>
+                {{ render_chart(chartData.chart) }}
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% for class, count in counts %}
+        <h3>
+            {{ class }}
+            ({{ count.total|number_format }})
+            {{ count.workflow }}
+        </h3>
+
+        <ol>
+            {% for m,c in count.marking %}
+
+                <li>{{ m }}: {{ c|number_format }}
+                    {% if count.workflow %}
+                        <code>{{ survos_workflow_metadata(count.workflow, 'description', m) ?: '??'}}</code>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+    {% endfor %}
+{% endblock %}
