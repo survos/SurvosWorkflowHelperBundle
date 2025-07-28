@@ -299,6 +299,81 @@ class WorkflowHelperService
         SurvosUtils::assertKeyExists($code, $this->getWorkflowsIndexedByName());
         return $this->getWorkflowsIndexedByName()[$code];
     }
+    public function getCounts(string $field): array
+    {
+        $results = $this->createQueryBuilder('s')
+            ->groupBy('s.' . $field)
+            ->select(["s.$field, count(s) as count"])
+            ->getQuery()
+            ->getArrayResult();
+        $counts = [];
+        foreach ($results as $r) {
+            assert(is_string($field));
+            assert(is_array($r));
+//            dump($field, $r, $r['count'], $r['field']);
+            $key = $r[$field] ?? ''; // not really...
+            if (is_array($key)) {
+                continue; // doctrine can't handle arrays for facets, just scalars
+                dd($key, $field, $r);
+            }
+
+            $count = $r['count'];
+            assert(is_integer($key) || is_string($key), json_encode($key));
+            assert(is_integer($count));
+            $counts[$key] = $count;
+        }
+//        dd($counts);
+
+        return $counts;
+    }
+
+    public function getApproxCount(string $class): ?int
+    {
+        static $counts = null;
+        $repo = $this->entityManager->getRepository($class);
+
+        if (is_null($counts)) {
+            $rows = $this->entityManager->getConnection()->fetchAllAssociative(
+                "SELECT n.nspname AS schema_name,
+       c.relname AS table_name,
+       c.reltuples AS estimated_rows
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE c.relkind = 'r'
+  AND n.nspname NOT IN ('pg_catalog', 'information_schema')  -- exclude system schemas
+ORDER BY n.nspname, c.relname;");
+
+            $counts = array_combine(
+                array_map(fn($r) => "{$r['table_name']}", $rows),
+                array_map(fn($r) => (int)$r['estimated_rows'], $rows)
+            );
+        }
+        $count = $counts[$repo->getClassMetadata()->getTableName()]??-1;
+
+//            // might be sqlite
+//            $count =  (int) $this->getEntityManager()->getConnection()->fetchOne(
+//                'SELECT reltuples::BIGINT FROM pg_class WHERE relname = :table',
+//                ['table' => $this->getClassMetadata()->getTableName()]
+//            );
+        try {
+        } catch (\Exception $e) {
+            $count = -1;
+        }
+
+        // if no analysis
+        // Fallback to exact count
+        if ($count < 0) {
+            $count = $repo->count();
+//            // or $repo->count[]
+//            $count = (int)$repo->createQueryBuilder('e')
+//                ->select('COUNT(e)')
+//                ->getQuery()
+//                ->getSingleScalarResult();
+        }
+
+        return $count;
+    }
+
 
     #[AsMessageHandler]
     // @todo: make sure this is property configured in SurvosWorkflowBundle

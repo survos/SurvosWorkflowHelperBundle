@@ -74,7 +74,7 @@ class WorkflowController extends AbstractController
             $markingCounts = $repo->getCounts('marking');
 
             $workflow = $this->workflowHelperService->getWorkflowsGroupedByClass()[$class][0] ?? null;
-            $total = $repo->count([]);
+            $total = $this->workflowHelperService->getApproxCount($class);
             $counts[$class] =
                 [
                     'total' => $total,
