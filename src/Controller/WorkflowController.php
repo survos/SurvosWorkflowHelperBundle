@@ -75,7 +75,8 @@ class WorkflowController extends AbstractController
 
             $workflow = $this->workflowHelperService->getWorkflowsGroupedByClass()[$class][0] ?? null;
             $total = $this->workflowHelperService->getApproxCount($class);
-            $counts[$class] =
+            $shortClass = new \ReflectionClass($class)->getShortName();
+            $counts[$shortClass] =
                 [
                     'total' => $total,
                     'workflow' => $workflow,

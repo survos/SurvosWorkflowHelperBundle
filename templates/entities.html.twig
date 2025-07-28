@@ -1,38 +1,83 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello AppController!{% endblock %}
+{% block title %}Entity States Overview{% endblock %}
 
 {% block body %}
 
-    <div class="row">
-        {% for class, chartData in charts %}
-            <div style="max-width: 200px" class="col-md-2">
-                <h3>{{ class }}
-                    <sup>{{ chartData.total }}</sup>
-                </h3>
-                {{ render_chart(chartData.chart) }}
+    <div class="container my-4">
+        <h1 class="mb-4">Entity State Distribution</h1>
+
+        <div class="row g-3">
+            {% for class, chartData in charts %}
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="card shadow-sm">
+                        <div class="card-header text-center">
+                            <span class="fw-bold">{{ class|short_class }}</span>
+                            <span class="badge xsubg-primary ms-2">{{ chartData.total }}</span>
+                        </div>
+                        <div class="card-body p-2 text-center">
+                            {{ render_chart(chartData.chart) }}
+                        </div>
+                        {% if chartData.legend is defined %}
+                            <div class="card-footer p-2">
+                                <ul class="list-unstyled m-0">
+                                    {% for label, color in chartData.legend %}
+                                        <li class="d-flex align-items-center mb-1">
+
+                                            <span class="me-2"
+                          style="background-color: {{ color }};
+                                  width: 14px;
+                                  height: 14px;
+                                  display: inline-block;
+                                  border-radius: 3px;
+                                  border: 1px solid #ccc;">
+                    </span>
+                                            <span class="text-body">{{ label }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <hr class="my-5">
+
+        {% for class, count in counts %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title m-0">{{ class }}</h3>
+                    <span class="badge xbg-success fs-6">{{ count.total|number_format }}</span>
+                </div>
+                <div class="card-body">
+                    {% if count.workflow %}
+                        <p class="text-muted small mb-2">
+                            Workflow: <code>{{ count.workflow }}</code>
+                        </p>
+                    {% endif %}
+
+                    <ul class="list-group list-group-flush">
+                        {% for m, c in count.marking %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <span class="fw-semibold">{{ m }}</span>
+                                    {% if count.workflow %}
+                                        <span class="text-muted small ms-1">
+                                            {{ survos_workflow_metadata(count.workflow, 'description', m) ?: ''}}
+                                        </span>
+                                    {% endif %}
+                                </span>
+                                <span class="badge xbg-secondary">
+                                    {{ c|number_format }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-
         {% endfor %}
-
     </div>
 
-    {% for class, count in counts %}
-        <h3>
-            {{ class }}
-            ({{ count.total|number_format }})
-            {{ count.workflow }}
-        </h3>
-
-        <ol>
-            {% for m,c in count.marking %}
-
-                <li>{{ m }}: {{ c|number_format }}
-                    {% if count.workflow %}
-                        <code>{{ survos_workflow_metadata(count.workflow, 'description', m) ?: '??'}}</code>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ol>
-    {% endfor %}
 {% endblock %}
