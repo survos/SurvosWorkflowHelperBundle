@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Process\Process;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
 use Symfony\Component\Workflow\Marking;
@@ -35,6 +36,7 @@ class WorkflowHelperService
         /** @var WorkflowInterface[] */
         #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
         private EntityManagerInterface                                      $entityManager,
+        private PropertyAccessorInterface $propertyAccessor,
         private array                                                       $configuration,
         private ?LoggerInterface                                            $logger = null,
     )

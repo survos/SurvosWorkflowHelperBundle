@@ -14,6 +14,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 use Symfony\Component\Process\Process;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Workflow\Attribute\AsCompletedListener;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
@@ -38,6 +39,7 @@ class WorkflowListener
         /** @var WorkflowInterface[] */
         #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
         private WorkflowHelperService $workflowHelperService,
+        private PropertyAccessorInterface $propertyAccessor,
         private MessageBusInterface $messageBus,
         private ?LoggerInterface                                            $logger = null,
     )
@@ -56,7 +58,8 @@ class WorkflowListener
         $workflow = $this->workflowHelperService->getWorkflow($event->getSubject(), $event->getWorkflowName());
 //        $workflow = $event->getWorkflow();
         foreach ($event->getMetadata('next', $transition)??[] as $nextTransition) {
-            if ($workflow->can($event->getSubject(), $nextTransition))
+            $object = $event->getSubject();
+            if ($workflow->can($object, $nextTransition))
             {
                 // we need the next transport of the _next_ transition
 //                $nextTransport = $event->getMetadata('transport', $nextTransition);
@@ -72,16 +75,18 @@ class WorkflowListener
                     $stamps[] = new TransportNamesStamp($nextTransport);
                 }
                 // always?
+                // add getId() if id isn't the pk
+                $id = $this->propertyAccessor->getValue($object, 'id');
                     $msg = new TransitionMessage(
-                        $event->getSubject()->getId(),
-                        $event->getSubject()::class,
+                        $id,
+                        $object::class,
                         $nextTransition,
                         $workflow->getName()
                     );
                     if (class_exists(DescriptionStamp::class)) {
                         $stamps[] = new DescriptionStamp(sprintf("Next/%s-%s @%s: %s",
                         new \ReflectionClass($event->getSubject())->getShortName(),
-                        $event->getSubject()->getId(),
+                        $id,
                         $event->getSubject()->getMarking(),
                         $nextTransition
                         ));
@@ -97,7 +102,7 @@ class WorkflowListener
 //                dd($nextTransition, $nextTransport, $stamps, $msg);
 //                dd(msg: $msg, env: $env, nextTransport: $nextTransport, nextTransition: $nextTransition);
             } else {
-                $this->logger->warning("Cannot transition to $nextTransition");
+                $this->logger->warning("Cannot transition " . $object::class . "  to $nextTransition from " . $object->getMarking());
             }
         }
 //        dd($transition, $event->getWorkflowName());

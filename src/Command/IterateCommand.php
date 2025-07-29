@@ -70,9 +70,14 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
 
         #[Option(name: 'index', description: 'grid:index after flush?')] ?bool $indexAfterFlush = null,
         #[Option('show stats only')] ?bool $stats = null,
+        #[Option] int $max = 0,
         #[Option] int $limit = 0,
         #[Option("use this count for progressBar")] int $count = 0,
     ): int {
+        if ($limit) {
+            $io->error("--limit has been replaced with --max");
+            return Command::FAILURE;
+        }
 
         // inject entities that implement marking interface
 
@@ -293,7 +298,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             // if it's an event that changes the values, like a cleanup, we need to update the row.
             // if it's just dispatching an event, then we don't.
             // @todo: update
-            if ($limit && $idx >= ($limit - 1)) {
+            if ($limit && ($progressBar->getProgress() >= ($limit - 1))) {
                 break;
             }
             $progressBar->advance();

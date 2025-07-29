@@ -45,7 +45,7 @@ class ConfigureFromAttributesService
         $isStateMachine = ($type === 'state_machine');
         $workflow->markingStore()->property($isStateMachine ? 'marking' : 'currentPlaces');
 
-        $workflow->auditTrail()->enabled(true);
+        $workflow->auditTrail()->enabled(false);
         assert($workflow, "Workflow $workflowClass must have a #[Workflow] class attribute");
 //        dd($workflow, __CLASS__);
 
