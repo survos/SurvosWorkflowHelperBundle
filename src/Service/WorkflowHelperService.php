@@ -34,10 +34,11 @@ class WorkflowHelperService
     public function __construct(
         /** @var WorkflowInterface[] */
         #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
-        private EntityManagerInterface $entityManager,
-        private array $configuration,
-        private ?LoggerInterface $logger = null,
-    ) {
+        private EntityManagerInterface                                      $entityManager,
+        private array                                                       $configuration,
+        private ?LoggerInterface                                            $logger = null,
+    )
+    {
         $this->dumper = new SurvosStateMachineGraphVizDumper();
     }
 
@@ -51,9 +52,9 @@ class WorkflowHelperService
     {
 //        static $workflows=[];
         $workflows = [];
-            foreach ($this->workflows as $workflow) {
-                $workflows[$workflow->getName()] = $workflow;
-            }
+        foreach ($this->workflows as $workflow) {
+            $workflows[$workflow->getName()] = $workflow;
+        }
         return $workflows;
     }
 
@@ -74,11 +75,10 @@ class WorkflowHelperService
                 throw new \Exception("Marking data requires as findBygetCountsByField in the repository, use QueryBuilderHelperInterface from BaseBundle");
             }
         }
-        return array_map(fn ($marking) =>
-            array_merge([
-                'marking' => $marking,
-                'count' => $counts[$marking] ?? null,
-            ], $workflow->getMetadataStore()->getPlaceMetadata($marking)), $workflow->getDefinition()->getPlaces());
+        return array_map(fn($marking) => array_merge([
+            'marking' => $marking,
+            'count' => $counts[$marking] ?? null,
+        ], $workflow->getMetadataStore()->getPlaceMetadata($marking)), $workflow->getDefinition()->getPlaces());
     }
 
     public function getTransitionMetadata(string $transitionName, WorkflowInterface $workflow): array
@@ -121,12 +121,11 @@ class WorkflowHelperService
         $definition = $workflow->getDefinition();
         $workflowPlaces = $workflow->getDefinition()->getPlaces();
 
-        foreach ($workflowPlaces as $code=>$value) {
+        foreach ($workflowPlaces as $code => $value) {
 
         }
 
 //        dd($workflowPlaces);
-
 
 
     }
@@ -136,7 +135,7 @@ class WorkflowHelperService
      * @param $workflowName
      * @return string
      */
-    public function workflowDiagramDigraph($subject=null, ?string $workflowName=null)
+    public function workflowDiagramDigraph($subject = null, ?string $workflowName = null)
     {
         if ($subject) {
             $workflow = $this->getWorkflow($subject, $workflowName);
@@ -201,36 +200,36 @@ class WorkflowHelperService
         return $dot;
     }
 
-        /**
-         * @param $subject
-         * @param $workflowName
-         * @return string
-         */
-        public function workflowDiagram($subject, $workflowName)
-        {
-            $dot = $this->workflowDiagramDigraph($subject, $workflowName);
+    /**
+     * @param $subject
+     * @param $workflowName
+     * @return string
+     */
+    public function workflowDiagram($subject, $workflowName)
+    {
+        $dot = $this->workflowDiagramDigraph($subject, $workflowName);
 
-            // dump($dot); die();
+        // dump($dot); die();
 
-            try {
-                $process = new Process(['dot', '-Tsvg']);
-                $process->setInput($dot);
-                $process->mustRun();
+        try {
+            $process = new Process(['dot', '-Tsvg']);
+            $process->setInput($dot);
+            $process->mustRun();
 
-                $svg = $process->getOutput();
-            } catch (\Exception $e) { //. if dot not installed
-                // @todo: configure paths to the .svg files (for filesystem and url)
-                $svg = sprintf("<!-- return a static svg if dot isn't working --><img src='/svg/%s.svg' />", $workflowName);
-                // return $svg; // hack
-                return $svg;
-            }
-
-            // @todo: set the cache path in the workflow.yaml config
-
-            //  return sprintf("Workflow: <code>%s</code>%s", $workflowName, $svg);
-
+            $svg = $process->getOutput();
+        } catch (\Exception $e) { //. if dot not installed
+            // @todo: configure paths to the .svg files (for filesystem and url)
+            $svg = sprintf("<!-- return a static svg if dot isn't working --><img src='/svg/%s.svg' />", $workflowName);
+            // return $svg; // hack
             return $svg;
         }
+
+        // @todo: set the cache path in the workflow.yaml config
+
+        //  return sprintf("Workflow: <code>%s</code>%s", $workflowName, $svg);
+
+        return $svg;
+    }
 
     /**
      * @return <string, Workflow[]>
@@ -252,22 +251,13 @@ class WorkflowHelperService
     public function getWorkflowsGroupedByClass(): array
     {
 
-//        /** @var Workflow $x */
-//        foreach ($this->getWorkflowsFromTaggedIterator() as $y=>$x) {
-//            dump($x, $x->getMarkingStore(), $x->getDefinition());
-////            $reflectionProperty = new \ReflectionProperty(get_class($x), 'supports');
-////            $supports = $reflectionProperty->getValue($x);
-//            dd($y, $x);
-//            dump($x, $x->getMarkingStore(), $x->getDefinition());
-//        }
-
         /**
          * @var InstanceOfSupportStrategy $suportStrategy
          * @var StateMachine $stateMachine
          */
         $workflowsByClass = [];
 
-        $x = $this->getWorkflowsIndexedByName();
+//        $x = $this->getWorkflowsIndexedByName();
 
         foreach ($this->configuration as $workflowName => $config) {
             $classes = $config['supports'];
@@ -280,18 +270,6 @@ class WorkflowHelperService
             }
         }
         return $workflowsByClass;
-        dd($workflowsByClass, $x, $this->workflows, $this->configuration);
-
-
-        $reflectionProperty = new \ReflectionProperty(get_class($this->workflowRegistry), 'workflows');
-        $workflowBlobs = $reflectionProperty->getValue($this->workflowRegistry);
-        foreach ($workflowBlobs as [$stateMachine, $suportStrategy]) {
-            $class = $suportStrategy->getClassName();
-//            dd($this->configuration, $workflowBlobs, $class, $stateMachine, $suportStrategy);
-
-//            $name = $stateMachine->getName();
-            $workflowsByClass[$class][$workflowName] = $x[$workflowName];
-        }
     }
 
     public function getWorkflowByCode(string $code)
@@ -299,9 +277,11 @@ class WorkflowHelperService
         SurvosUtils::assertKeyExists($code, $this->getWorkflowsIndexedByName());
         return $this->getWorkflowsIndexedByName()[$code];
     }
-    public function getCounts(string $field): array
+
+    public function getCounts(string $class, string $field): array
     {
-        $results = $this->createQueryBuilder('s')
+        $repo = $this->entityManager->getRepository($class);
+        $results = $repo->createQueryBuilder('s')
             ->groupBy('s.' . $field)
             ->select(["s.$field, count(s) as count"])
             ->getQuery()
@@ -332,9 +312,10 @@ class WorkflowHelperService
         static $counts = null;
         $repo = $this->entityManager->getRepository($class);
 
-        if (is_null($counts)) {
-            $rows = $this->entityManager->getConnection()->fetchAllAssociative(
-                "SELECT n.nspname AS schema_name,
+        try {
+            if (is_null($counts)) {
+                $rows = $this->entityManager->getConnection()->fetchAllAssociative(
+                    "SELECT n.nspname AS schema_name,
        c.relname AS table_name,
        c.reltuples AS estimated_rows
 FROM pg_class c
@@ -343,19 +324,18 @@ WHERE c.relkind = 'r'
   AND n.nspname NOT IN ('pg_catalog', 'information_schema')  -- exclude system schemas
 ORDER BY n.nspname, c.relname;");
 
-            $counts = array_combine(
-                array_map(fn($r) => "{$r['table_name']}", $rows),
-                array_map(fn($r) => (int)$r['estimated_rows'], $rows)
-            );
-        }
-        $count = $counts[$repo->getClassMetadata()->getTableName()]??-1;
+                $counts = array_combine(
+                    array_map(fn($r) => "{$r['table_name']}", $rows),
+                    array_map(fn($r) => (int)$r['estimated_rows'], $rows)
+                );
+            }
+            $count = $counts[$repo->getClassMetadata()->getTableName()] ?? -1;
 
 //            // might be sqlite
 //            $count =  (int) $this->getEntityManager()->getConnection()->fetchOne(
 //                'SELECT reltuples::BIGINT FROM pg_class WHERE relname = :table',
 //                ['table' => $this->getClassMetadata()->getTableName()]
 //            );
-        try {
         } catch (\Exception $e) {
             $count = -1;
         }
@@ -379,14 +359,14 @@ ORDER BY n.nspname, c.relname;");
     // @todo: make sure this is property configured in SurvosWorkflowBundle
     public function handleTransition(TransitionMessage $message)
     {
-        $object = $this->entityManager->find($message->getClassName(), $message->getId());
-        $initialMarking = $object->getMarking(); // @todo: use Marking Service to handle more cases, e.g. ->marking
-        $debugMessage = sprintf( "missing entity %s for %s", $message->getClassName(), $message->getId());
-//        assert($object, $message);
-        // removed, throw error (above) during testing only.
-        if (!$object) {
+        if (!$object = $this->entityManager->find($message->getClassName(), $message->getId())) {
+            $debugMessage = sprintf("missing entity %s for %s", $message->getClassName(), $message->getId());
             return ['message' => $debugMessage];
         }
+
+        $initialMarking = $object->getMarking(); // @todo: use Marking Service to handle more cases, e.g. ->marking
+//        assert($object, $message);
+        // removed, throw error (above) during testing only.
         if (!$flowName = $message->getWorkflow()) {
             // ..
         }
@@ -416,7 +396,7 @@ ORDER BY n.nspname, c.relname;");
             'message' => "applied $transition to $shortName::$id ($initialMarking)",
             //     'details' => json_encode((array)$message),
             'initialMarking' => $initialMarking,
-            'marking' => $object->getMarking(),
+            'marking' => $marking,
             'class' => $object,
         ];
 

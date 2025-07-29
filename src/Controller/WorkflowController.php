@@ -60,21 +60,14 @@ class WorkflowController extends AbstractController
 
         /** @var QueryBuilderHelperInterface $class */
         foreach ($this->workflowHelperService->getWorkflowsGroupedByClass() as $class => $workflows) {
-            /** @var QueryBuilderHelperInterface|ORMServiceEntityRepository $repo */
-            $repo = $this->entityManager->getRepository($class);
 //            $primaryKeyName = $this->entityManager->getClassMetadata($class)
 //                ->getSingleIdentifierFieldName();
             // get the pk
 
-//            dd(get_class($repo), $class, get_class_methods($repo));
-
-            assert(method_exists($repo, 'getCounts'), $repo::class . '/' . $class);
-//            dd($class, $workflows, $primaryKeyName);
-//		foreach ([Inst::class, Coll::class, Obj::class, Link::class, Tag::class, Img::class, Euro::class, EuroObj::class] as $class) {
-            $markingCounts = $repo->getCounts('marking');
 
             $workflow = $this->workflowHelperService->getWorkflowsGroupedByClass()[$class][0] ?? null;
             $total = $this->workflowHelperService->getApproxCount($class);
+            $markingCounts = $total ? $this->workflowHelperService->getCounts($class, 'marking') : [];
             $shortClass = new \ReflectionClass($class)->getShortName();
             $counts[$shortClass] =
                 [
@@ -154,7 +147,7 @@ class WorkflowController extends AbstractController
 
         }
 
-        return  [
+        return [
             'chart' => $chart,
             'charts' => $charts,
 
