@@ -1,4 +1,5 @@
 <?php
+
 namespace Survos\WorkflowBundle\Service;
 
 // worth reading: https://sketchviz.com/flowcharts-in-graphviz
@@ -16,10 +17,34 @@ class SurvosGraphVizDumper extends GraphvizDumper
 
     protected static array $defaultOptions = [
         'graph' => ['ratio' => 'compress', 'rankdir' => 'TB'],
+        'node'  => [
+            'fontsize'  => '8',
+            'fontname'  => 'Arial',
+            'color'     => 'lightBlue',
+            'style'     => 'filled',
+            'fixedsize' => 'false',
+            'width'     => '2',    // increased for wider nodes
+            'height'    => '1',    // optional: set min height
+        ],
+        'edge'  => [
+            'fontsize'  => '7',
+            'fontname'  => 'Arial',
+            'color'     => '#333333',
+            'arrowhead' => 'normal',
+            'arrowsize' => '0.5',
+        ],
+        // High-contrast place style
+        'place'      => ['shape' => 'oval', 'fillcolor' => '#FFD966'],
+        'transition' => ['shape' => 'box',  'fillcolor' => 'lightyellow'],
+    ];
+
+    protected static array $OLDdefaultOptions = [
+        'graph' => ['ratio' => 'compress', 'rankdir' => 'TB'],
         'node' => ['fontsize' => '8', 'fontname' => 'Arial', 'color' => '#333333',
             'fillcolor' => 'lightgreen',
             'fixedsize' => 'false', 'width' => '1'],
-        'edge' => ['fontsize' => '7', 'fontname' => 'Arial', 'color' => '#333333', 'arrowhead' => 'normal', 'arrowsize' => '0.5'],
+        'edge' => ['fontsize' => '7', 'fontname' => 'Arial',
+            'color' => '#333333', 'arrowhead' => 'normal', 'arrowsize' => '0.5'],
     ];
 
     public function dump(Definition $definition, ?Marking $marking = null, array $options = []): string
@@ -36,10 +61,10 @@ class SurvosGraphVizDumper extends GraphvizDumper
         $label = $this->formatLabel($definition, $withMetadata, $options);
 
         return $this->startDot($options, $label)
-            .$this->addPlaces($places, $withMetadata)
-            .$this->addTransitions($transitions, $withMetadata)
-            .$this->addEdges($edges)
-            .$this->endDot();
+            . $this->addPlaces($places, $withMetadata)
+            . $this->addTransitions($transitions, $withMetadata)
+            . $this->addEdges($edges)
+            . $this->endDot();
     }
 
 
@@ -169,7 +194,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
 //                $escapedLabel = \sprintf('<<B>%s</B><SUP>1</SUP>%s>', $this->escape($place['name']), $this->addMetadata($place['metadata']));
                 $escapedLabel = \sprintf('<<B>%s</B>%s>', $this->escape($place['name']), $this->addMetadata($place['metadata']));
             } else {
-                $escapedLabel = '"'.$this->escape($place['name']).'"';
+                $escapedLabel = '"' . $this->escape($place['name']) . '"';
             }
 
             $code .= \sprintf("  transition_%s [label=%s,%s];\n",
@@ -282,7 +307,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
             $value = htmlspecialchars($value);
             $value = wordwrap($value, 20, "<BR/>", true);
         }
-        $value =  \is_bool($value) ? ($value ? '1' : '0') : addslashes($value);
+        $value = \is_bool($value) ? ($value ? '1' : '0') : addslashes($value);
         return $value;
     }
 
@@ -297,7 +322,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
             $code[] = \sprintf('%s="%s"', $k, $this->escape($v));
         }
 
-        return $code ? ' '.implode(' ', $code) : '';
+        return $code ? ' ' . implode(' ', $code) : '';
     }
 
     /**
@@ -354,9 +379,14 @@ class SurvosGraphVizDumper extends GraphvizDumper
                 $skipSeparator = false;
             } else {
                 switch ($key) {
+                    case 'transport':
+                        if ($value) {
+                            $code[] = "<BR/>Via: " . $value;
+                        }
+                        break;
                     case 'next':
-                        $code[] = "Next: ";
-                        foreach ($value??[] as $nextValue) {
+                        $code[] = "<BR/><BR/>Then: ";
+                        foreach ($value ?? [] as $nextValue) {
                             $code[] = $nextValue;
 //                            $code[] = \sprintf('-><U>%s</U>', $this->escape($nextValue));
                         }
