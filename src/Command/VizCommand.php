@@ -3,6 +3,7 @@
 namespace Survos\WorkflowBundle\Command;
 
 use Roave\BetterReflection\BetterReflection;
+use Survos\WorkflowBundle\Service\SurvosGraphVizDumper;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -11,6 +12,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Workflow\Marking;
+use Symfony\Component\Workflow\StateMachine;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Workflow\Transition;
 use Twig\Environment;
@@ -59,7 +63,7 @@ final class VizCommand extends Command
 The <info>%command.name%</info> command dumps the graphical representation of a
 workflow in different formats.
 
-<info>DOT</info>:  %command.full_name% <workflow name> | dot -Tpng > workflow.png
+<info>DOT</info>:  %command.full_name% <workflow name> | F -Tpng > workflow.png
 <info>PUML</info>: %command.full_name% <workflow name> --dump-format=puml | java -jar plantuml.jar -p > workflow.png
 <info>MERMAID</info>: %command.full_name% <workflow name> --dump-format=mermaid | mmdc -o workflow.svg
 EOF
@@ -86,6 +90,7 @@ EOF
         $seen      = [];
 
         foreach ($this->workflows as $workflow) {
+            $this->dumpSvg($workflow);
             $wfName = $workflow->getName();
 
             if ($input->getArgument('name') && $input->getArgument('name') !== $wfName) {
@@ -192,4 +197,37 @@ EOF
             $lines
         ));
     }
+
+
+    private function dumpSvg(WorkflowInterface $workflow)
+    {
+        $dumper = new SurvosGraphVizDumper();
+        $marking = new Marking();
+        $type = $workflow instanceof StateMachine ? 'state_machine' : 'workflow';
+        $definition = $workflow->getDefinition();
+
+        $options = [
+            'name' => $workflow->getName(),
+            'with-metadata' => true, // $input->getOption('with-metadata'),
+            'nofooter' => true,
+            'label' => $workflow->getName()
+        ];
+        $dot = $dumper->dump($definition, $marking, $options);
+        //
+
+        file_put_contents($fn = sprintf('doc/%s.dot', $workflow->getName()), $dot);
+        try {
+            $process = new Process(['dot', '-Tsvg']);
+            $process->setInput($dot);
+            $process->mustRun();
+
+            $svg = $process->getOutput();
+            file_put_contents($fn = sprintf('doc/%s.svg', $workflow->getName()), $svg);
+        } catch (\Exception $e) {
+            dd($e->getMessage(), $dot);
+        }
+//        dd($svg, $dot, $fn);
+
+    }
+
 }
