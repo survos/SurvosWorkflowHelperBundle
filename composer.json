@@ -23,7 +23,8 @@
         "symfony/workflow": "^7.3",
         "symfony/yaml": "^7.3",
         "survos/core-bundle": "^1.6",
-        "symfony/string": "^7.3"
+        "symfony/string": "^7.3",
+        "jwage/phpamqplib-messenger": "^0.8.1"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1.17",

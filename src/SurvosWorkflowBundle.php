@@ -18,6 +18,7 @@ use Survos\WorkflowBundle\Service\SurvosGraphVizDumper3;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Survos\WorkflowBundle\Service\WorkflowListener;
 use Survos\WorkflowBundle\Twig\WorkflowExtension;
+use Survos\WorkflowBundle\Messenger\Middleware\DynamicRoutingMiddleware;
 use Survos\WorkflowHelperBundle\Attribute\Workflow;
 use Symfony\Bundle\FrameworkBundle\Command\WorkflowDumpCommand;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
@@ -40,6 +41,11 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_lo
 class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterface
 {
     use HasAssetMapperTrait;
+    
+    public function getAlias(): string
+    {
+        return 'survos_workflow';
+    }
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
@@ -202,6 +208,15 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
             ->addArgument('%kernel.project_dir%')
         ;
 
+        // Register DynamicRoutingMiddleware for single exchange routing
+        // Enabled by default to support TransportNamesStamp -> AmqpStamp conversion
+        if ($config['enable_dynamic_routing']) {
+            $builder->autowire(DynamicRoutingMiddleware::class)
+                ->setAutoconfigured(true)
+                ->setPublic(false)
+                ->addTag('messenger.middleware', ['alias' => 'dynamic_routing']);
+        }
+
     }
 
     public function configure(DefinitionConfigurator $definition): void
@@ -209,6 +224,7 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         $definition->rootNode()
             ->children()
             ->scalarNode('base_layout')->defaultValue('base.html.twig')->end()
+            ->booleanNode('enable_dynamic_routing')->defaultValue(true)->end()
             ->arrayNode('entities')
             ->scalarPrototype()
             ->end()->end()
