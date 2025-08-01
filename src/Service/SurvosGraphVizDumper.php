@@ -99,7 +99,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
             }
             if ($withMetadata) {
                 $attributes['metadata'] = $metadata = $workflowMetadata->getPlaceMetadata($place);
-                $attributes['xlabel'] = $metadata['description']??null;
+                $attributes['xlabel'] = "Place " . $place. ': ' . ($metadata['description']??null);
             }
             $label = $workflowMetadata->getMetadata('label', $place);
             if (null !== $label) {
@@ -159,7 +159,8 @@ class SurvosGraphVizDumper extends GraphvizDumper
             $metadata = [];
             if ($withMetadata) {
                 $metadata = $workflowMetadata->getTransitionMetadata($transition);
-                $attributes['xlabel'] = $metadata['description']??'no description for ' . $transition->getName();
+                $attributes['xlabel'] =
+                    'Transition ' . $transition->getName() . ': ' . ($metadata['description']??'');
                 unset($metadata['label']);
             }
 
@@ -196,7 +197,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
     /**
      * @internal
      */
-    protected function addPlaces(array $places, float $withMetadata): string
+    protected function addPlaces(array $places, bool $withMetadata): string
     {
         $code = '';
 
@@ -377,7 +378,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
      *
      * @internal
      */
-    protected function formatLabel(Definition $definition, string $withMetadata, array $options): string
+    protected function formatLabel(Definition $definition, bool $withMetadata, array $options): string
     {
         $currentLabel = $options['label'] ?? '';
         $withMetadata = true;

@@ -78,6 +78,9 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $allEvents = $this->getWorkflowListeners($output);
+        if (!file_exists('doc/assets')) {
+            mkdir('doc/assets', 0777, true);
+        }
 
 //        $eventFilename = 'doc/workflow-events.json';
 //        if (!file_exists($eventFilename)) {
@@ -228,14 +231,14 @@ EOF
         $dot = $dumper->dump($definition, $marking, $options);
         //
 
-        file_put_contents($fn = sprintf('doc/%s.dot', $workflow->getName()), $dot);
+        file_put_contents($fn = sprintf('doc/assets/%s.dot', $workflow->getName()), $dot);
         try {
             $process = new Process(['dot', '-Tsvg']);
             $process->setInput($dot);
             $process->mustRun();
 
             $svg = $process->getOutput();
-            file_put_contents($fn = sprintf('doc/%s.svg', $workflow->getName()), $svg);
+            file_put_contents($fn = sprintf('doc/assets/%s.svg', $workflow->getName()), $svg);
         } catch (\Exception $e) {
             dd($e->getMessage(), $dot);
         }

@@ -76,7 +76,8 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
     ): int {
         if ($limit) {
             $io->error("--limit has been replaced with --max");
-            return Command::FAILURE;
+            $max = $limit;
+//            return Command::FAILURE;
         }
 
         // inject entities that implement marking interface
@@ -298,7 +299,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             // if it's an event that changes the values, like a cleanup, we need to update the row.
             // if it's just dispatching an event, then we don't.
             // @todo: update
-            if ($limit && ($progressBar->getProgress() >= ($limit - 1))) {
+            if ($max && ($progressBar->getProgress() >= ($limit - 1))) {
                 break;
             }
             $progressBar->advance();
