@@ -11,6 +11,7 @@ class Transition
         public array|string $from,
         public array|string $to,
         public ?string $info=null,
+        public ?string $description=null,
         public ?string $guard=null,
         public ?array $metadata=[],
         public ?string $transport=null,
@@ -21,7 +22,10 @@ class Transition
             $this->metadata['guard'] = $guard;
         }
         if ($this->info) {
-            $this->metadata['description'] = $this->info;
+            $this->metadata['info'] = $this->info;
+        }
+        if ($this->description) {
+            $this->metadata['description'] = $this->description;
         }
         if ($this->transport) {
             $this->metadata['transport'] = $this->transport;

@@ -4,6 +4,7 @@ namespace Survos\WorkflowBundle\Command;
 
 use Roave\BetterReflection\BetterReflection;
 use Survos\WorkflowBundle\Service\SurvosGraphVizDumper;
+use Survos\WorkflowBundle\Service\SurvosGraphVizDumper3;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -12,12 +13,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Marking;
 use Symfony\Component\Workflow\StateMachine;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Workflow\Transition;
 use Twig\Environment;
+use Symfony\Component\EventDispatcher\Debug\WrappedListener;
 
 #[AsCommand(name: 'survos:workflow:viz', description: 'Visualize a workflow')]
 final class VizCommand extends Command
@@ -40,7 +43,9 @@ final class VizCommand extends Command
         #[Autowire('%kernel.project_dir%')]
         private string                $projectDir,
         private Environment           $twig,
-        private WorkflowHelperService $workflowHelper
+        private WorkflowHelperService $workflowHelper,
+        #[Autowire(service: 'debug.event_dispatcher')]
+        private readonly EventDispatcherInterface $dispatcher,
     ) {
         parent::__construct();
     }
@@ -72,25 +77,28 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $eventFilename = 'doc/workflow-events.json';
-        if (!file_exists($eventFilename)) {
-            throw new \RuntimeException(
-                "$eventFilename not found; run:\n" .
-                "  bin/console debug:event --format=json workflow > $eventFilename"
-            );
-        }
-        $allEvents = json_decode(
-            file_get_contents($eventFilename),
-            false,
-            512,
-            JSON_THROW_ON_ERROR
-        );
+        $allEvents = $this->getWorkflowListeners($output);
 
+//        $eventFilename = 'doc/workflow-events.json';
+//        if (!file_exists($eventFilename)) {
+//            throw new \RuntimeException(
+//                "$eventFilename not found; run:\n" .
+//                "  bin/console debug:event --format=json workflow > $eventFilename"
+//            );
+//        }
+//        $allEvents = json_decode(
+//            file_get_contents($eventFilename),
+//            false,
+//            512,
+//            JSON_THROW_ON_ERROR
+//        );
+//
         $collected = [];
         $seen      = [];
 
         foreach ($this->workflows as $workflow) {
-            $this->dumpSvg($workflow);
+            $fn = $this->dumpSvg($workflow);
+            $output->writeln($fn);
             $wfName = $workflow->getName();
 
             if ($input->getArgument('name') && $input->getArgument('name') !== $wfName) {
@@ -108,11 +116,16 @@ EOF
 
                 foreach ($this->orderedEvents as $action) {
                     $eventKey = sprintf('workflow.%s.%s.%s', $wfName, $action, $tn);
-                    if (empty($allEvents->{$eventKey})) {
+//                    $action=='transition' && dd($eventKey, array_keys($allEvents));
+                    $event = $allEvents[$eventKey]??null;
+                    if (empty($event)) {
                         continue;
                     }
 
-                    foreach ($allEvents->{$eventKey} as $e) {
+//                    dd($event, $eventKey);
+
+                    foreach ($event as $e) {
+                        $e = (object)$e;
                         if (!str_starts_with($e->class, 'App\\')) {
                             continue;
                         }
@@ -226,8 +239,57 @@ EOF
         } catch (\Exception $e) {
             dd($e->getMessage(), $dot);
         }
+        return $fn;
 //        dd($svg, $dot, $fn);
 
     }
 
+    private function getWorkflowListeners(): array
+    {
+        $listeners = $this->dispatcher->getListeners();
+
+        $workflowListeners = array_filter(
+            $listeners,
+            fn($key) => str_starts_with($key, 'workflow.'),
+            ARRAY_FILTER_USE_KEY
+        );
+
+        $result = [];
+
+        foreach ($workflowListeners as $eventName => $listenerList) {
+            foreach ($listenerList as $listener) {
+                if (is_array($listener)) {
+                    [$objectOrClass, $method] = $listener;
+                    $class = is_object($objectOrClass) ? get_class($objectOrClass) : $objectOrClass;
+                    $result[$eventName][] = [
+                        'class' => $class,
+                        'name' => $method
+                    ];
+                }
+            }
+        }
+
+        return $result;
+    }
+
+
+    private function describeListener(callable $listener): string
+    {
+        if (is_array($listener)) {
+            [$classOrObject, $method] = $listener;
+            $className = is_object($classOrObject) ? get_class($classOrObject) : (string)$classOrObject;
+            return sprintf('%s::%s', $className, $method);
+        }
+
+        if ($listener instanceof \Closure) {
+            $ref = new \ReflectionFunction($listener);
+            return sprintf('Closure at %s:%d', $ref->getFileName(), $ref->getStartLine());
+        }
+
+        if (is_object($listener)) {
+            return get_class($listener);
+        }
+
+        return (string)$listener;
+    }
 }

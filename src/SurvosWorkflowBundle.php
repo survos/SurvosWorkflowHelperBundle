@@ -14,7 +14,7 @@ use Survos\WorkflowBundle\Command\VizCommand;
 use Survos\WorkflowBundle\Controller\WorkflowController;
 use Survos\WorkflowBundle\Doctrine\TransitionListener;
 use Survos\WorkflowBundle\Service\ConfigureFromAttributesService;
-use Survos\WorkflowBundle\Service\SurvosGraphVizDumper;
+use Survos\WorkflowBundle\Service\SurvosGraphVizDumper3;
 use Survos\WorkflowBundle\Service\WorkflowHelperService;
 use Survos\WorkflowBundle\Service\WorkflowListener;
 use Survos\WorkflowBundle\Twig\WorkflowExtension;
@@ -151,7 +151,9 @@ class SurvosWorkflowBundle extends AbstractBundle implements CompilerPassInterfa
         $builder->autowire(WorkflowListener::class)
             ->setArgument('$workflowHelperService', new Reference(WorkflowHelperService::class))
             ->setArgument('$messageBus', new Reference(MessageBusInterface::class))
-            ->addTag('kernel.event_listener', ['event' => 'workflow.completed', 'method' => 'onCompleted']);
+            ->addTag('kernel.event_listener', ['event' => 'workflow.completed', 'method' => 'onCompleted'])
+            ->addTag('kernel.event_listener', ['event' => 'workflow.entered', 'method' => 'onEntered'])
+        ;
 
         foreach ([IterateCommand::class, MakeWorkflowCommand::class] as $commandClass) {
             $builder->autowire($commandClass)

@@ -42,6 +42,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
         'graph' => ['ratio' => 'compress', 'rankdir' => 'TB'],
         'node' => ['fontsize' => '8', 'fontname' => 'Arial', 'color' => '#333333',
             'fillcolor' => 'lightgreen',
+            'xlabel'=>"metadata",
             'fixedsize' => 'false', 'width' => '1'],
         'edge' => ['fontsize' => '7', 'fontname' => 'Arial',
             'color' => '#333333', 'arrowhead' => 'normal', 'arrowsize' => '0.5'],
@@ -97,7 +98,8 @@ class SurvosGraphVizDumper extends GraphvizDumper
 
             }
             if ($withMetadata) {
-                $attributes['metadata'] = $workflowMetadata->getPlaceMetadata($place);
+                $attributes['metadata'] = $metadata = $workflowMetadata->getPlaceMetadata($place);
+                $attributes['xlabel'] = $metadata['description']??null;
             }
             $label = $workflowMetadata->getMetadata('label', $place);
             if (null !== $label) {
@@ -124,6 +126,26 @@ class SurvosGraphVizDumper extends GraphvizDumper
 
         $transitions = [];
 
+//        $transitionsByName = [];
+//
+//        foreach ($definition->getTransitions() as $transition) {
+//            $name = $workflowMetadata->getMetadata('label', $transition) ?? $transition->getName();
+//
+//            if (!isset($transitionsByName[$name])) {
+//                $transitionsByName[$name] = [
+//                    'attributes' => [],
+//                    'metadata' => [],
+//                    'name' => $name,
+//                ];
+//            }
+//
+//            if ($withMetadata) {
+//                $transitionsByName[$name]['metadata'] += $workflowMetadata->getTransitionMetadata($transition);
+//            }
+//        }
+//
+//        return array_values($transitionsByName);
+
         foreach ($definition->getTransitions() as $transition) {
             $attributes = ['shape' => $this->transitionShape, 'regular' => true];
 
@@ -134,18 +156,38 @@ class SurvosGraphVizDumper extends GraphvizDumper
             }
             $name = $workflowMetadata->getMetadata('label', $transition) ?? $transition->getName();
 
-
             $metadata = [];
             if ($withMetadata) {
                 $metadata = $workflowMetadata->getTransitionMetadata($transition);
+                $attributes['xlabel'] = $metadata['description']??'no description for ' . $transition->getName();
                 unset($metadata['label']);
             }
 
-            $transitions[] = [
-                'attributes' => $attributes,
-                'name' => $name,
-                'metadata' => $metadata,
-            ];
+            $exists = (bool) array_filter($transitions, fn($t) => $t['name'] === $name);
+            if (!$exists) {
+                $transitions[] = [
+                    'attributes' => $attributes,
+                    'name' => $name,
+                    'metadata' => $metadata,
+                ];
+            }
+//            // we used to be able to have just one transition per graph and have the nodes right
+////            if (!$transitionData = array_filter($transitions, fn($t) => $t['name'] === $name))
+//            if (!$transitionData = $transitions[$name]??false)
+//            {
+//                $transitionData = [
+//                    'attributes' => $attributes,
+//                    'name' => $name,
+//                    'metadata' => $metadata,
+//                ];
+//                $transitions[$name] = $transitionData;
+//            } else {
+//                // merge the new attributes, especially from
+//                $transitionData['attributes'] += $attributes;
+//                $transitions[$name] = $transitionData;
+//                dd($transitionData, $transition);
+//            }
+//
         }
 
         return $transitions;
@@ -172,6 +214,8 @@ class SurvosGraphVizDumper extends GraphvizDumper
                 unset($place['attributes']['metadata']);
             } else {
                 $escapedLabel = \sprintf('"%s"', $this->escape($placeName));
+
+
             }
 
             $code .= \sprintf("  place_%s [label=%s, shape=%s%s];\n", $this->dotize($id), $escapedLabel,
@@ -198,7 +242,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
             }
 
             $code .= \sprintf("  transition_%s [label=%s,%s];\n",
-                $this->dotize($i),
+                $this->dotize($place['name']), // it's not really the place!
                 $escapedLabel, $this->addAttributes($place['attributes']));
         }
 
@@ -222,7 +266,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
                     'from' => $from,
                     'to' => $transitionName,
                     'direction' => 'from',
-                    'transition_number' => $i, // $from . $i,
+                    'transition_number' => $transition->getName(),
                 ];
             }
             foreach ($transition->getTos() as $to) {
@@ -230,7 +274,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
                     'from' => $transitionName,
                     'to' => $to,
                     'direction' => 'to',
-                    'transition_number' => $i,
+                    'transition_number' => $transition->getName(),
                 ];
             }
         }
@@ -305,7 +349,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
 
         if (is_string($value)) {
             $value = htmlspecialchars($value);
-            $value = wordwrap($value, 20, "<BR/>", true);
+//            $value = wordwrap($value, 20, "<BR/>", true);
         }
         $value = \is_bool($value) ? ($value ? '1' : '0') : addslashes($value);
         return $value;
@@ -381,7 +425,7 @@ class SurvosGraphVizDumper extends GraphvizDumper
                 switch ($key) {
                     case 'transport':
                         if ($value) {
-                            $code[] = "<BR/>Via: " . $value;
+                            $code[] = "<BR/><BR/>Via: " . $value;
                         }
                         break;
                     case 'next':
@@ -405,12 +449,14 @@ class SurvosGraphVizDumper extends GraphvizDumper
                         $code[] = \sprintf('%s<U>%s</U>', '<BR/>',
                             $this->escape($value));
                         break;
-                    case 'description':
+
+                    case 'info':
                         if ($value) {
                             $code[] = \sprintf('%s<I>%s</I>', '<BR/>',
                                 $this->escape($value));
                         }
                         break;
+                    case 'description': // in xlabel
                     case 'bg_color':
                         // ignore, since the node is going to be that color
                         break;

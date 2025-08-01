@@ -16,15 +16,19 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 use Symfony\Component\Process\Process;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Workflow\Attribute\AsCompletedListener;
+use Symfony\Component\Workflow\Attribute\AsEnteredListener;
+use Symfony\Component\Workflow\Attribute\AsEnterListener;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use Symfony\Component\Workflow\Dumper\StateMachineGraphvizDumper;
 use Symfony\Component\Workflow\Event\CompletedEvent;
+use Symfony\Component\Workflow\Event\EnteredEvent;
 use Symfony\Component\Workflow\Marking;
 use Symfony\Component\Workflow\Registry;
 use Symfony\Component\Workflow\StateMachine;
 use Symfony\Component\Workflow\SupportStrategy\InstanceOfSupportStrategy;
 use Symfony\Component\Workflow\Workflow;
 use Symfony\Component\Workflow\WorkflowInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Messenger\Monitor\Stamp\DescriptionStamp;
 use Zenstruck\Messenger\Monitor\Stamp\TagStamp;
 
@@ -38,9 +42,9 @@ class WorkflowListener
     public function __construct(
         /** @var WorkflowInterface[] */
         #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
-        private WorkflowHelperService $workflowHelperService,
-        private PropertyAccessorInterface $propertyAccessor,
-        private MessageBusInterface $messageBus,
+        private WorkflowHelperService                                       $workflowHelperService,
+        private PropertyAccessorInterface                                   $propertyAccessor,
+        private MessageBusInterface                                         $messageBus, private readonly TranslatorInterface $translator,
         private ?LoggerInterface                                            $logger = null,
     )
     {
@@ -49,6 +53,63 @@ class WorkflowListener
     private function getWorkflowsFromTaggedIterator(): iterable
     {
         return $this->workflows;
+    }
+
+    #[AsEnterListener]
+    public function onEntered(EnteredEvent $event): void
+    {
+        $subject = $event->getSubject();
+        $workflow = $this->workflowHelperService->getWorkflow($event->getSubject(), $event->getWorkflowName());
+        $currentPlace = array_keys($workflow->getMarking($subject)->getPlaces())[0];
+        $next = $event->getMetadata('next', $currentPlace);
+//        dd($event->getMarking(), $subject->getMarking(), $currentPlace, $next);
+        foreach ($next??[] as $nextTransition) {
+            if ($workflow->can($subject, $nextTransition))
+            {
+
+            }
+
+        }
+
+    }
+
+    private function transition(WorkflowInterface $workflow, mixed $subject, string $transition)
+    {
+        // we need the next transport of the _next_ transition
+//                $nextTransport = $event->getMetadata('transport', $nextTransition);
+        $transitionMeta = $this->workflowHelperService->getTransitionMetadata($transition, $workflow);
+        $nextTransport = $transitionMeta['transport']??null;
+        $nextTransport ??= 'async';
+        $stamps = [];
+        if (class_exists(TagStamp::class)) {
+            $stamps[] = new TagStamp($transition);
+        }
+
+        if ($nextTransport) {
+            $stamps[] = new TransportNamesStamp($nextTransport);
+        }
+        // always?
+        // add getId() if id isn't the pk.
+        $id = $this->propertyAccessor->getValue($subject, 'id');
+        $msg = new TransitionMessage(
+            $id,
+            $subject::class,
+            $transition,
+            $workflow->getName()
+        );
+        $currentPlace = array_keys($workflow->getMarking($subject)->getPlaces())[0];
+        if (class_exists(DescriptionStamp::class)) {
+            $stamps[] = new DescriptionStamp(sprintf("Next/%s-%s @%s: %s",
+                new \ReflectionClass($subject)->getShortName(),
+                $id,
+                $currentPlace,
+                $transition
+            ));
+        }
+        // if the transport is async, we need to make sure the em is flushed.
+        dd($msg);
+        $env = $this->messageBus->dispatch($msg, $stamps);
+        dd($env);
     }
 
     #[AsCompletedListener]
@@ -61,37 +122,8 @@ class WorkflowListener
             $object = $event->getSubject();
             if ($workflow->can($object, $nextTransition))
             {
-                // we need the next transport of the _next_ transition
-//                $nextTransport = $event->getMetadata('transport', $nextTransition);
-                $transitionMeta = $this->workflowHelperService->getTransitionMetadata($nextTransition, $workflow);
-                $nextTransport = $transitionMeta['transport']??null;
-                $nextTransport ??= 'async';
-                $stamps = [];
-                if (class_exists(TagStamp::class)) {
-                    $stamps[] = new TagStamp($nextTransition);
-                }
+                $this->transition($workflow, $object, $nextTransition);
 
-                if ($nextTransport) {
-                    $stamps[] = new TransportNamesStamp($nextTransport);
-                }
-                // always?
-                // add getId() if id isn't the pk
-                $id = $this->propertyAccessor->getValue($object, 'id');
-                    $msg = new TransitionMessage(
-                        $id,
-                        $object::class,
-                        $nextTransition,
-                        $workflow->getName()
-                    );
-                    if (class_exists(DescriptionStamp::class)) {
-                        $stamps[] = new DescriptionStamp(sprintf("Next/%s-%s @%s: %s",
-                        new \ReflectionClass($event->getSubject())->getShortName(),
-                        $id,
-                        $event->getSubject()->getMarking(),
-                        $nextTransition
-                        ));
-                    }
-                    $env = $this->messageBus->dispatch($msg, $stamps);
 //                } else {
 //                    // we don't get the log
 //                    $workflow->apply($event->getSubject(), $nextTransition);
