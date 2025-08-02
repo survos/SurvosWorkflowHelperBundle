@@ -44,7 +44,7 @@ final class VizCommand extends Command
         private string                $projectDir,
         private Environment           $twig,
         private WorkflowHelperService $workflowHelper,
-        #[Autowire(service: 'debug.event_dispatcher')]
+        #[Autowire(service: 'event_dispatcher')]
         private readonly EventDispatcherInterface $dispatcher,
     ) {
         parent::__construct();

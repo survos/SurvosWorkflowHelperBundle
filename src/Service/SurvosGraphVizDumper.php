@@ -432,9 +432,10 @@ class SurvosGraphVizDumper extends GraphvizDumper
                     case 'next':
                         $code[] = "<BR/><BR/>Then: ";
                         foreach ($value ?? [] as $nextValue) {
-                            $code[] = $nextValue;
-//                            $code[] = \sprintf('-><U>%s</U>', $this->escape($nextValue));
+//                            $code[] = $nextValue;
+                            $code[] = \sprintf('<U>%s</U> ', $this->escape($nextValue));
                         }
+//                        count($value) > 1 && dd($code);
                         break;
                     case 'guard':
 

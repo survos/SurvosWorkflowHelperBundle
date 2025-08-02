@@ -20,8 +20,10 @@ Markdown for {{ workflowName }}
 ### {{ transition }}.{{ action|capitalize }}
 
 {% for handler in handlers %}
-        {{ handler.method }}()
+{{ handler.method }}()
+        // {{ handler.metadata.info??'' }}
         // {{ handler.metadata.description??'' }}
+
 ```php
 {{ handler.source|raw }}
 ```

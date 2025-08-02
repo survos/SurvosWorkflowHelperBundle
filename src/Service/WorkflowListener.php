@@ -46,6 +46,7 @@ class WorkflowListener
         private PropertyAccessorInterface                                   $propertyAccessor,
         private MessageBusInterface                                         $messageBus, private readonly TranslatorInterface $translator,
         private ?LoggerInterface                                            $logger = null,
+        private EntityManagerInterface $entityManager,
     )
     {
     }
@@ -58,19 +59,18 @@ class WorkflowListener
     #[AsEnterListener]
     public function onEntered(EnteredEvent $event): void
     {
+//        !empty($event->getContext()) && dd($event->getContext());
         $subject = $event->getSubject();
         $workflow = $this->workflowHelperService->getWorkflow($event->getSubject(), $event->getWorkflowName());
         $currentPlace = array_keys($workflow->getMarking($subject)->getPlaces())[0];
         $next = $event->getMetadata('next', $currentPlace);
-//        dd($event->getMarking(), $subject->getMarking(), $currentPlace, $next);
         foreach ($next??[] as $nextTransition) {
             if ($workflow->can($subject, $nextTransition))
             {
-
+                $this->transition($workflow, $subject, $nextTransition);
+                break; // stop after the first one, since it's async
             }
-
         }
-
     }
 
     private function transition(WorkflowInterface $workflow, mixed $subject, string $transition)
@@ -107,9 +107,9 @@ class WorkflowListener
             ));
         }
         // if the transport is async, we need to make sure the em is flushed.
-        dd($msg);
+        $this->entityManager->flush();
         $env = $this->messageBus->dispatch($msg, $stamps);
-        dd($env);
+//        dd($msg, $env, $stamps);
     }
 
     #[AsCompletedListener]
