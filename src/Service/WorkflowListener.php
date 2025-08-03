@@ -44,9 +44,9 @@ class WorkflowListener
         #[AutowireLocator('workflow.state_machine')] private ServiceLocator $workflows,
         private WorkflowHelperService                                       $workflowHelperService,
         private PropertyAccessorInterface                                   $propertyAccessor,
-        private MessageBusInterface                                         $messageBus, private readonly TranslatorInterface $translator,
-        private ?LoggerInterface                                            $logger = null,
+        private MessageBusInterface                                         $messageBus,
         private EntityManagerInterface $entityManager,
+        private ?LoggerInterface                                            $logger = null,
     )
     {
     }
