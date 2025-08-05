@@ -122,10 +122,10 @@ EOF
 //                    $action=='transition' && dd($eventKey, array_keys($allEvents));
                     $event = $allEvents[$eventKey]??null;
                     if (empty($event)) {
+                        dump($eventKey);
                         continue;
                     }
 
-//                    dd($event, $eventKey);
 
                     foreach ($event as $e) {
                         $e = (object)$e;
