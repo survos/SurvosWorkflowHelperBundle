@@ -131,7 +131,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
 //        in_array($marking, $transition->getFroms()) ? $transition->getName() : null,
 //            )));
             if ($stats) {
-                $this->showStats($repo, $io, $className, $availableTransitions, $workflow);
+                $this->showStats($io, $className, $availableTransitions, $workflow);
                 return Command::SUCCESS;
             }
 
@@ -320,13 +320,7 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
             )
         );
 
-        if ($indexAfterFlush) { // || $transport==='sync') { @todo: check for tags, e.g. create-owners
-            $cli = "db:index $className  --reset"; // trans simply _gets_ existing translations
-            $this->io()->warning('bin/console ' . $cli);
-            $this->runCommand($cli);
-        }
-
-        $this->showStats($repo, $io, $className, $availableTransitions, $workflow);
+        $this->showStats($io, $className, $availableTransitions, $workflow);
 
         $io->success($this->getName() . ' success ' . $className);
         return self::SUCCESS;
@@ -355,14 +349,15 @@ final class IterateCommand extends Command // extends is for 7.2/7.3 compatibili
      * @param array $availableTransitions
      * @return int
      */
-    public function showStats(QueryBuilderHelperInterface $repo,
-                              SymfonyStyle $io, mixed $className,
+    public function showStats(
+                              SymfonyStyle $io,
+                              mixed $className,
                               array $availableTransitions,
     WorkflowInterface $workflow
     ): void
     {
 
-        $counts = $repo->getCounts('marking');
+        $counts = $this->workflowHelperService->getCounts($className, 'marking');
         $table = new Table($io);
         $table->setHeaderTitle($className);
         $table->setHeaders(['marking', 'description', 'count', 'Available Transitions']);
