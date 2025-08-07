@@ -122,7 +122,6 @@ EOF
 //                    $action=='transition' && dd($eventKey, array_keys($allEvents));
                     $event = $allEvents[$eventKey]??null;
                     if (empty($event)) {
-                        dump($eventKey);
                         continue;
                     }
 
