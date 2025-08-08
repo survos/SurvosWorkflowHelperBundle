@@ -65,6 +65,7 @@
                                     <span class="fw-semibold">{{ m }}</span>
                                     {% if count.workflow %}
                                         <span class="text-muted small ms-1">
+                                            <em>{{ survos_workflow_metadata(count.workflow, 'info', m) ?: ''}}</em>
                                             {{ survos_workflow_metadata(count.workflow, 'description', m) ?: ''}}
                                         </span>
                                     {% endif %}
