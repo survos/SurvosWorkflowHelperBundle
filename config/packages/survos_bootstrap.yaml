@@ -1,0 +1,34 @@
+survos_bootstrap:
+  #  auth_menu: true
+  routes:
+      login: app_login
+      logout: app_logout
+      register: app_register
+      homepage: app_homepage
+  menu_options:
+      owner: null
+      project: null
+      core: null
+  #    core: null
+      category: null
+      categoryField: null
+      catalog: null
+      spreadsheet: null
+      fieldMap: null
+      sheet: null
+      instance: null
+      frontPage: false
+      showAppMenu: false
+
+
+  app:
+    code: my-app
+    abbr: <b>my</b>App
+  options:
+    # consider https://startbootstrap.com/previews/simple-sidebar as another theme
+    theme: bootswatch
+    allow_login: false
+    offcanvas: end
+
+
+#survos_velzon:
